@@ -1,0 +1,51 @@
+# This is the main configuration file of your Dancer app
+# env-related settings should go to environments/$env.yml
+# all the settings in this file will be loaded at Dancer's startup.
+
+# Your application's name
+appname: "DanceShop"
+
+# The default layout to use for your application (located in
+# views/layouts/main.tt)
+layout: "main"
+
+# when the charset is set to UTF-8 Dancer will handle for you
+# all the magic of encoding and decoding. You should not care
+# about unicode within your app when this setting is set (recommended).
+charset: "UTF-8"
+
+# template engine
+template: "template_flute"
+
+plugins:
+  DBIC:
+    default:
+      dsn: dbi:mysql:danceshop
+      user: dancepower
+      password: nevairbe
+      schema_class: Interchange6::Schema
+      options:
+        RaiseError: 1
+        PrintError: 1
+  Auth::Extensible:
+    disable_roles: 0
+    no_login_handler: 1
+    login_page: /login
+    logout_page: /logout
+    denied_page: /login/denied
+    no_default_pages: 1
+    no_api_change_warning: 1
+    realms:
+      users:
+        provider: 'DBIC'
+        db_connection_name: 'default'
+        users_resultset: User
+        roles_relationship: roles
+        role_column: name
+        username_column: username
+        password_column: password
+        password_check: check_password
+
+# For session support enable the following line and see Dancer::Session
+# session: "YAML"
+
