@@ -1,0 +1,10 @@
+Makefile
+Makefile.old
+MYMETA.*
+*.bak
+*.tar.gz
+blib
+pm_to_blib
+# exclude yml files in environments except for *_example.yml
+environments/*
+!environments/*_example.yml
