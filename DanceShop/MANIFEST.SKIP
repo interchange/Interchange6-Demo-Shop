@@ -11,3 +11,6 @@ Makefile$
 ^cover_db
 ^.*\.log
 ^.*\.swp$
+^\.gitignore$
+^\.travis.yml$
+^environments\/.*\.yml$
