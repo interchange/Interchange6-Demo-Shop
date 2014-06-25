@@ -6,12 +6,16 @@ echo "Working in `pwd`"
 
 # order matters!
 
-./bin/html2flute --files ../html/shop --layout-from index.html \
+./bin/html2flute --files ./html/shop --layout-from index.html \
     --container 'div[@class="container"]' \
     --strip 'div[@class="top-msg"]' \
     --strip 'div[@class="top-nav"]' \
     --strip 'header' \
     --strip 'nav' --strip 'footer' \
-    --paste-content-before 'footer'
+    --paste-content-before 'footer' \
+    --public=DanceShop/public \
+    --views=DanceShop/views \
+    --bindir=DanceShop/bin
+
 
 
