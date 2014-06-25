@@ -218,12 +218,15 @@ unless (-f $layoutspec) {
     close ($fhx);
 }
 
-my $testapp = File::Spec->catfile($bindir, "test-app.pl");
-unless (-f $testapp) {
+my $testapp = File::Spec->rel2abs(File::Spec->catfile($bindir, "test-app.pl"));
+if (-f $testapp) {
+    warn "Not overwriting $testapp, please remove it if you need a fresh one\n";
+}
+else {
     open (my $fht, ">:encoding(utf-8)", $testapp) or die $!;
     print $fht create_test_app();
     close $fht;
-    warn "Test app left in " . File::Spec->rel2abs($testapp) . "\n";
+    warn "Test app left in $testapp\n";
     chmod 0755, $testapp;
 }
 
@@ -234,13 +237,26 @@ use Dancer;
 set layout => 'main';
 set charset => 'UTF-8';
 set template => 'template_flute';
-get qr{/([\w-]+)} => sub {
-    my ($t) = splat;
-    template $t;
-};
-dance;
+set logger => 'console';
+set log => 'debug';
 EOR
-      return $app;
+    my $index = "<ol>\n";
+    foreach my $template (@templates) {
+        my $route = $template;
+        $route =~ s/\.html$//;
+        $app .= qq(
+get '/$route' => sub {
+    debug "Serving $route";
+    template '$route'
+};
+);
+        $index .= qq{<li><a href="/$route">$route</li>\n};
+    }
+    # and create an index
+    $index .= '</ol>';
+    $app .= "get '/' => sub { return q{$index} };\n";
+    $app .= "dance;\n";
+    return $app;
 }
 
 sub fix_path_src {
