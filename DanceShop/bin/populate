@@ -1,0 +1,43 @@
+#! /usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Dancer ':script';
+use Dancer::Plugin::Interchange6;
+
+set logger => 'console';
+set logger_format => '%m';
+
+use Locale::SubCountry;
+use DateTime qw();
+
+my $now = DateTime->now;
+my $schema = shop_schema;
+
+shop_schema->deploy({add_drop_table => 1,
+                     producer_args => {
+                         mysql_version => 5,
+                     },
+                 });
+
+# populate countries array
+use Interchange6::Schema::Populate::CountryLocale;
+my $pop_countries = Interchange6::Schema::Populate::CountryLocale->new->records;
+
+# populate states array
+use Interchange6::Schema::Populate::StateLocale;
+my $pop_states = Interchange6::Schema::Populate::StateLocale->new->records;
+
+# populate zones array
+use Interchange6::Schema::Populate::Zone;
+my $pop_zones = Interchange6::Schema::Populate::Zone->new->records;
+
+# populate countries table
+$schema->populate(Country => $pop_countries);
+
+# populate states table
+$schema->populate(State => $pop_states);
+
+# populate zones table
+$schema->populate(Zone => $pop_zones);
