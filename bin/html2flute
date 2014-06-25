@@ -239,6 +239,7 @@ set charset => 'UTF-8';
 set template => 'template_flute';
 set logger => 'console';
 set log => 'debug';
+set show_errors => 1;
 EOR
     my $index = "<ol>\n";
     foreach my $template (@templates) {
