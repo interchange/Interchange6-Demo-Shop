@@ -1,0 +1,349 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use File::Spec;
+use File::Copy::Recursive qw/rcopy/;
+use File::Find;
+use Data::Dumper;
+use XML::Twig;
+use File::Path qw/mkpath/;
+use Getopt::Long;
+use Archive::Extract; # core module
+use File::Slurp;
+use Cwd;
+
+my $cwd = getcwd();
+
+my $orig = 'orig';
+my $public = 'public';
+my $viewdir = 'views';
+my $layout_from = 'home.html';
+my $layouts = "layouts";
+my $content_el = "div";
+my $content_att = "class";
+my $content_name = "content";
+my $bindir = 'bin';
+my @strip;
+my $container;
+my $placeholder_before;
+my $help;
+
+GetOptions(
+           "files=s" => \$orig,
+           "layout-from=s" => \$layout_from,
+           "public=s" => \$public,
+           "views=s" => \$viewdir,
+           "layouts=s" => \$layouts,
+           "content-el=s" => \$content_el,
+           "content-att=s" => \$content_att,
+           "content-name=s" => \$content_name,
+           "bindir=s" => \$bindir,
+           "help" => \$help,
+           "container=s" => \$container,
+           "paste-content-before=s" => \$placeholder_before,
+           "strip=s" => \@strip,
+          )
+  or die ("Error in command line arguments\n");
+
+if ($help) {
+    get_help();
+}
+
+
+mkpath ($orig);
+mkpath ($public);
+mkpath ($viewdir);
+my $layout_dir = File::Spec->catdir($viewdir, $layouts);
+mkpath ($layout_dir);
+mkpath ($bindir);
+
+if (my $zip = $ARGV[0]) {
+    die "$zip is not a file\n" unless -f $zip;
+    my $ae = Archive::Extract->new(archive => $zip);
+    $ae->extract(to => $orig) || die "Cannot extract $zip $!";
+}
+
+die "Missing directory $orig with HTML files!" unless -d $orig; 
+
+opendir (my $dho, $orig) or die "Can't opendir $orig!";
+my @root = grep { $_ ne '.' && $_ ne '..' } readdir ($dho);
+closedir $dho;
+
+if (@root == 0) {
+    die "$orig is empty!";
+}
+elsif (@root == 1) {
+    my $ziproot = shift(@root);
+    my $neworig = File::Spec->catdir($orig, $ziproot);
+    if (-d $neworig) {
+        warn "Found a single directory $neworig inside $orig, using that";
+        $orig = $neworig;
+    }
+}
+
+warn "Coping all the original files in $public\n";
+rcopy($orig, $public);
+
+opendir (my $dh, $orig) or die "can't opendir $orig";
+my @templates = grep { /\.html$/ } readdir ($dh);
+closedir $dh;
+
+my $content_xpath = q{//} . $content_el .
+  q{[@} . $content_att . q{="} . $content_name . q{"]};
+
+warn "Using $content_xpath to get the content\n";
+
+my $layoutbody = '';
+
+foreach my $template (@templates) {
+    # clean up the public directory
+    my $stray_html_in_public = File::Spec->catfile($public, $template);
+    if (-f $stray_html_in_public) {
+        warn ("Removing $stray_html_in_public");
+        unlink $stray_html_in_public
+          or die "Couldn't remove $stray_html_in_public $!";
+    }
+
+    my $parser = XML::Twig->new(start_tag_handlers => {
+                                                       '[@src]' => \&fix_path_src,
+                                                       '[@href]' => \&fix_path_href,
+                                                      },
+                                twig_handlers => {
+                                                  script => \&preserve_script,
+                                                 },
+                               );
+    $parser->set_pretty_print( 'indented');
+    my $htmlstring = read_file(File::Spec->catfile($orig, $template), { binmode => ':encoding(utf-8)'});
+    my $html = $parser->safe_parse_html($htmlstring);
+    my $view = '';
+    if (@strip) {
+        my (@removed, $is_layout);
+        if ($template eq $layout_from) {
+            warn "$template is being used as layout sample\n";
+            $is_layout = 1;
+        }
+        die "Missing --container xpath" unless $container;
+        my $root = $html->root;
+        # strip out the things
+        foreach my $gi (@strip) {
+            # print "Stripping $gi\n";
+            foreach my $el ($root->get_xpath("//$gi")) {
+                # print "Cutting //$gi\n";
+                my @discarded = $el->cut;
+                push @removed, @discarded if $is_layout;
+                # $el->print;
+            }
+        }
+        # then get the container element and print out the thing remained
+        my ($body)  = $root->get_xpath("//$container");
+        foreach my $el ($body->children) {
+            $view .= $el->sprint;
+        }
+        if ($is_layout) {
+            # remove existing 
+            foreach my $el ($body->children) {
+                $el->cut;
+            }
+            # paste them back
+            foreach my $rem (@removed) {
+                $rem->paste(last_child => $body);
+            }
+            my $content = XML::Twig::Elt->new(
+                                              $content_el => { $content_att => $content_name }
+                                             );
+            # $root->print;
+            my ($reference) = $root->get_xpath("//$placeholder_before");
+            die "couldn't find $placeholder_before" unless $reference;
+            $content->paste(before => $reference);
+            $layoutbody = $root->sprint;
+        }
+    }
+    else {
+        my @children = $html->root->get_xpath($content_xpath);
+        die "Got more elements than expected!" unless @children == 1;
+        my @content = shift(@children)->cut_children;
+        foreach my $el (@content) {
+            $view .= $el->sprint;
+        }
+    }
+    die "No html produced" unless $view;
+    open (my $fh, ">:encoding(utf-8)",
+          File::Spec->catfile($viewdir, $template)) or die $!;
+    print $fh $view;
+    close $fh;
+    my $spec = $template;
+    $spec =~ s/\.html$/.xml/;
+    my $specfile = File::Spec->catfile($viewdir, $spec);
+    unless (-f $specfile) {
+        warn "Creating specification file $spec\n";
+        open (my $fhx, ">:encoding(utf-8)", $specfile) or die $!;
+        print $fhx "<specification>\n</specification>\n";
+        close ($fhx);
+    }
+}
+
+unless ($layoutbody) {
+    my $layoutparser = XML::Twig->new(start_tag_handlers => {
+                                                             '[@src]' => \&fix_path_src,
+                                                             '[@href]' => \&fix_path_href,
+                                                            },
+                                      twig_handlers => {
+                                                        script => \&preserve_script,
+                                                       },
+                                     );
+    my $sample_layout_file = File::Spec->catfile($orig, $layout_from);
+    die "Couldn't find the layout file $sample_layout_file" unless -f $sample_layout_file;
+    my $htmlstring = read_file(File::Spec->catfile($orig, $sample_layout_file), { binmode => ':encoding(utf-8)'});
+    my $html = $layoutparser->safe_parse_html($htmlstring);
+    $layoutparser->set_pretty_print( 'indented');
+    my @children = $html->root->get_xpath($content_xpath);
+    die "Got more elements than expected!" unless @children == 1;
+    foreach (@children) {
+        $_->cut_children;       # delete the children;
+    }
+    $layoutbody = $html->sprint;
+}
+
+open (my $fh, ">:encoding(utf-8)",
+      File::Spec->catfile($layout_dir, "main.html")) or die $!;
+print $fh $layoutbody;
+close $fh;
+
+my $layoutspec = File::Spec->catfile($layout_dir, 'main.xml');
+unless (-f $layoutspec) {
+    warn "Creating main layout spec\n";
+    open (my $fhx, ">:encoding(utf-8)", $layoutspec) or die $!;
+    print $fhx qq{<specification>\n<value name="content" $content_att="$content_name" op="hook"/>\n</specification>\n};
+    close ($fhx);
+}
+
+my $testapp = File::Spec->catfile($bindir, "test-app.pl");
+unless (-f $testapp) {
+    open (my $fht, ">:encoding(utf-8)", $testapp) or die $!;
+    print $fht create_test_app();
+    close $fht;
+    warn "Test app left in $testapp\n";
+}
+
+sub create_test_app {
+    my $app = <<'EOR';
+#!/usr/bin/env perl
+use Dancer;
+set layout => 'main';
+set charset => 'UTF-8';
+set template => 'template_flute';
+get qr{/([\w-]+)} => sub {
+    my ($t) = splat;
+    template $t;
+};
+dance;
+EOR
+      return $app;
+}
+
+sub fix_path_src {
+    my ($twig, $elt) = @_;
+    fix_path(src => $twig, $elt);
+}
+
+sub fix_path_href {
+    my ($twig, $elt) = @_;
+    fix_path(href => $twig, $elt);
+}
+
+sub fix_path {
+    my ($target, $twig, $elt) = @_;
+    return unless $elt->att($target);
+    my $link = $elt->att($target);
+    return unless -f File::Spec->catfile($public, $link);
+    # print "$target => $link\n";
+    $elt->set_att($target, "/" . $link);
+}
+
+sub preserve_script {
+    my ($twig, $elt) = @_;
+    $elt->set_asis;
+    # $elt->print;
+}
+
+sub get_help {
+    my $help_string = <<'HELP';
+
+Usage html2flute [ options ] [ original_files.zip ]
+
+If the first argument (which should be a compressed archive with the
+HTML files), the option --files is mandatory.
+
+The script will copy the files in the public Dancer directory, move
+all the html files at root level in views, splitting layout and
+content and creating the stub specification files if missing.
+
+The content is identified by element, attribute and name, defaulting
+to "div", "class", "content", and mapping it to the "div" element with
+class content. All these options can be overwritten.
+
+Assuming that all the html files has the same layout, you have to
+specify a file to be use as reference, via the --layout-from option,
+pointing to the name of the html file.
+
+OPTIONS
+
+  --files <directory>: the directory where the files resides or where
+    they will be extracted. Default: "orig"
+
+  --layout-from <file>: The HTML file to use as reference for the
+    layout. Default: "home.html"
+
+  --content-el: the element to use to get the content. Default: "div"
+
+  --content-att: the attribute of the element to get the content.
+    Default: "class". (The only other sensible value is "id").
+
+  --content-name: the value of the content attribute. Default: "content"
+
+DOING THE OTHER WAY AROUND
+
+If you want to create the template *stripping* elements, you can do it like this:
+
+ ./bin/html2flute --files ../html/shop --layout-from index.html \
+     --container 'div[@class="container"]' \
+     --strip 'div[@class="top-msg"]' \
+     --strip 'div[@class="top-nav"]' \
+     --strip 'header' \
+     --strip 'nav' --strip 'footer' \
+     --paste-content-before 'footer'
+
+
+The --strip, --container and --paste-content-before options takes as
+argument an xpath. Orders does matter for --strip, because to create
+the layout we have to paste them back in the right order. The above
+options tell: Strip off from the html the classes top-msg, top-nav,
+<header>, <nav>, and <footer>, paste them back in the layou into <div
+class="container">, and add the content placehoder before footer.
+
+All this could be saved if the HTML provided a <div class="content">
+to isolate the content from the layout.
+
+
+NOT RECCOMENDED OPTIONS
+
+The following options are already set to the Dancer defaults and
+should not be changed, but they are provided nevertheless.
+
+  --public: the public directory ("public")
+
+  --views: the views directory ("views")
+
+  --layouts: the layouts subdirectory ("layouts")
+
+  --bindir: the bin directory ("bin")
+
+OTHER OPTIONS
+
+  --help: print this help and exit;
+
+HELP
+    print $help_string;
+    exit 2;
+}
