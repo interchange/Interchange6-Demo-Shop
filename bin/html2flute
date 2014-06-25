@@ -44,7 +44,7 @@ GetOptions(
            "paste-content-before=s" => \$placeholder_before,
            "strip=s" => \@strip,
           )
-  or die ("Error in command line arguments\n");
+  or die ("$0: Error in command line arguments\n");
 
 if ($help) {
     get_help();
