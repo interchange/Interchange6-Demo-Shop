@@ -223,7 +223,8 @@ unless (-f $testapp) {
     open (my $fht, ">:encoding(utf-8)", $testapp) or die $!;
     print $fht create_test_app();
     close $fht;
-    warn "Test app left in $testapp\n";
+    warn "Test app left in " . File::Spec->rel2abs($testapp) . "\n";
+    chmod 0755, $testapp;
 }
 
 sub create_test_app {
