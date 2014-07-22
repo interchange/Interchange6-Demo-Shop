@@ -22,6 +22,7 @@ WriteMakefile(
         'YAML'       => 0,
         'Dancer'     => 1.3124,
         'Dancer::Plugin::Interchange6' => 0.031,
+        'Template::Flute' => '0.0120',
         'Dancer::Template::TemplateFlute' => 0.0113,
         'Moo'        => 1.004006,
     },
