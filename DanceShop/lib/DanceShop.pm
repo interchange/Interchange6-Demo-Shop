@@ -24,6 +24,12 @@ use Dancer::Plugin::Interchange6::Routes;
 set session => 'DBIC';
 set session_options => {schema => schema};
 
+hook 'before_layout_render' => sub {
+    my $tokens = shift;
+
+    $tokens->{cart} = cart;
+};
+
 get '/' => sub {
     template 'index';
 };

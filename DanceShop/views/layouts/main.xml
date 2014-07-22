@@ -1,3 +1,8 @@
 <specification>
 <value name="content" class="content" op="hook"/>
+
+<!-- number of items in the cart -->
+<pattern name="nitems" type="string">321</pattern>
+<value name="cart-link" field="cart.count" pattern="nitems"/>
+
 </specification>
