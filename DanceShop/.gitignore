@@ -5,6 +5,11 @@ MYMETA.*
 *.tar.gz
 blib
 pm_to_blib
+bin/test-app.pl
 # exclude yml files in environments except for *_example.yml
 environments/*
 !environments/*_example.yml
+# directories with automatically generated files
+logs
+sessions
+

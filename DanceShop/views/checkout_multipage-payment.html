@@ -1,0 +1,215 @@
+
+      <h1>Checkout</h1>
+      <div class="row">
+        <div class="col-md-9">
+          <div class="row bs-wizard" style="border-bottom:0;">
+            <div class="col-xs-3 bs-wizard-step complete">
+              <div class="text-center bs-wizard-stepnum">Step 1</div>
+              <div class="progress">
+                <div class="progress-bar"></div>
+              </div>
+              <a class="bs-wizard-dot" href="#"></a>
+              <div class="bs-wizard-info text-center">Address</div>
+            </div>
+            <div class="col-xs-3 bs-wizard-step complete">
+              <div class="text-center bs-wizard-stepnum">Step 2</div>
+              <div class="progress">
+                <div class="progress-bar"></div>
+              </div>
+              <a class="bs-wizard-dot" href="#"></a>
+              <div class="bs-wizard-info text-center">Shipping</div>
+            </div>
+            <div class="col-xs-3 bs-wizard-step complete">
+              <div class="text-center bs-wizard-stepnum">Step 3</div>
+              <div class="progress">
+                <div class="progress-bar"></div>
+              </div>
+              <a class="bs-wizard-dot" href="#"></a>
+              <div class="bs-wizard-info text-center">Addons</div>
+            </div>
+            <div class="col-xs-3 bs-wizard-step active">
+              <div class="text-center bs-wizard-stepnum">Step 4</div>
+              <div class="progress">
+                <div class="progress-bar"></div>
+              </div>
+              <a class="bs-wizard-dot" href="#"></a>
+              <div class="bs-wizard-info text-center">Payment</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <h4>Payment</h4>
+              <div class="payment-options">
+                <label class="radio-inline"><input name="payment-option" type="radio" value="" />
+							Credit card
+						</label>
+                <label class="radio-inline"><input name="payment-option" type="radio" value="" />
+							Wire transfer
+						</label>
+                <label class="radio-inline"><input name="payment-option" type="radio" value="" />
+							Cash on delivery
+						</label>
+                <label class="radio-inline"><input name="payment-option" type="radio" value="" />
+							Paypal
+						</label>
+                <label class="radio-inline"><input name="payment-option" type="radio" value="" />
+							Google Checkout
+						</label>
+              </div>
+              <div class="well">
+                <div class="payment-cards"><img src="/img/i_visa.png" /> <img src="/img/i_mastercard.png" /> <img src="/img/i_amex.png" /></div>
+                <div class="row">
+                  <div class="col-md-7">
+                    <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
+                    <form accept-charset="UTF-8" action="/" class="require-validation" data-cc-on-file="false" data-stripe-publishable-key="pk_bQQaTxnaZlzv4FnnuZ28LFHccVSaj" id="payment-form" method="post">
+                      <div style="margin:0;padding:0;display:inline">
+                        <input name="utf8" type="hidden" value="✓" />
+                        <input name="_method" type="hidden" value="PUT" />
+                        <input name="authenticity_token" type="hidden" value="qLZ9cScer7ZxqulsUWazw4x3cSEzv899SP/7ThPCOV8=" />
+                      </div>
+                      <div class="form-row">
+                        <div class="col-xs-12 form-group required">
+                          <label class="control-label">Name on Card</label>
+                          <input class="form-control" size="4" type="text" />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="col-xs-12 form-group card required">
+                          <label class="control-label">Card Number</label>
+                          <input autocomplete="off" class="form-control card-number" size="20" type="text" />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="col-xs-4 form-group expiration required">
+                          <label class="control-label">Expiration</label>
+                          <input class="form-control card-expiry-month" placeholder="MM" size="2" type="text" />
+                        </div>
+                        <div class="col-xs-4 form-group expiration required">
+                          <label class="control-label"> </label>
+                          <input class="form-control card-expiry-year" placeholder="YYYY" size="4" type="text" />
+                        </div>
+                        <div class="col-xs-4 form-group cvc required">
+                          <label class="control-label">CVC/CVV</label>
+                          <input autocomplete="off" class="form-control card-cvc" placeholder="ex. 311" size="4" type="text" />
+                        </div>
+                      </div>
+                      <div class="form-row coupon-wrap">
+                        <div class="col-md-12 form-group">
+                          <label class=""><input type="checkbox" /> I have a coupon code</label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                          <div class="form-inline">
+                            <div class="form-group">
+                              <input class="form-control input-sm" placeholder="Coupon number" type="text" />
+                            </div>
+                            <input class="btn btn-default btn-sm" type="submit" value="Apply" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="col-md-12">
+                          <div class="alert alert-info">
+										 You have applied a coupon for $44.44. You will pay only $4444.44 <small><a href="">Remove coupon</a></small></div>
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="col-md-12 error form-group hide">
+                          <div class="alert-danger alert">
+								Please correct the errors and try again.
+								</div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="col-md-5">
+                    <img class="img-thumbnail" src="/img/card_security-code.jpg" />
+                  </div>
+                </div>
+               <!--  end .row  -->
+
+					</div>
+            </div>
+          </div>
+          <!--  end .row  -->
+          <hr />
+          <button class="btn btn-success btn-lg btn-block">CONFIRM ORDER</button>
+        </div>
+        <div class="col-md-3">
+          <div class="sidebar-right s-cart">
+            <div class="sidebar-boxed s-features">
+              <ul class="list-unstyled">
+                <li>We don't store your credit card.</li>
+                <li>Free return in 30 days.</li>
+                <li>No risk shopping.</li>
+                <li>Products in stock delivered next day.</li>
+              </ul>
+            </div>
+            <div class="well well-sm">
+              <h4>Cart overview <small><a href="">Edit cart</a></small></h4>
+              <table class="table table-bordered table-condensed">
+                <thead>
+                  <tr>
+                    <td></td>
+                    <td>
+								Name
+							</td>
+                    <td>
+								Qty
+							</td>
+                    <td>
+								Price
+							</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <img src="/img/img_product.jpg" width="30" />
+                    </td>
+                    <td>
+                      <strong>Organic gift basket</strong>
+                    </td>
+                    <td>
+								2
+							</td>
+                    <td>
+								$2000,00
+							</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <img src="/img/img_product.jpg" width="30" />
+                    </td>
+                    <td>
+                      <strong>Organic gift basket</strong>
+                    </td>
+                    <td>
+								2
+							</td>
+                    <td>
+								$2000,00
+							</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <img src="/img/img_product.jpg" width="30" />
+                    </td>
+                    <td>
+                      <strong>Organic gift basket</strong>
+                    </td>
+                    <td>
+								2
+							</td>
+                    <td>
+								$2000,00
+							</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="form-group"><span class="txt-label">Subtotal:</span> $4,000.00<br /><span class="txt-label">Shipping:</span> $50.00<br /><span class="txt-label">Handling:</span> $8.00<br /><span class="txt-label">Tax:</span> <small>calculated at checkout</small><br /><span class="txt-label">TOTAL:</span> <span class="price">$4,058.00</span></div>
+            </div>
+          </div>
+         <!--  end .sidebar-right  -->
+
+		</div>
+      </div>
