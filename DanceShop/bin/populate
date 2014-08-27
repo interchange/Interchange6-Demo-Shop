@@ -33,6 +33,10 @@ my $pop_states = Interchange6::Schema::Populate::StateLocale->new->records;
 use Interchange6::Schema::Populate::Zone;
 my $pop_zones = Interchange6::Schema::Populate::Zone->new->records;
 
+# populate message_types 
+use Interchange6::Schema::Populate::MessageType;
+my $pop_message_types = Interchange6::Schema::Populate::MessageType->new->records;
+
 # populate countries table
 $schema->populate(Country => $pop_countries);
 
@@ -41,3 +45,7 @@ $schema->populate(State => $pop_states);
 
 # populate zones table
 $schema->populate(Zone => $pop_zones);
+
+# populate message_types table
+$schema->populate(MessageType => $pop_message_types);
+
