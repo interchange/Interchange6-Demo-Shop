@@ -15,11 +15,7 @@ use DateTime qw();
 my $now = DateTime->now;
 my $schema = shop_schema;
 
-shop_schema->deploy({add_drop_table => 1,
-                     producer_args => {
-                         mysql_version => 5,
-                     },
-                 });
+shop_schema->deploy({add_drop_table => 1});
 
 # populate countries array
 use Interchange6::Schema::Populate::CountryLocale;
