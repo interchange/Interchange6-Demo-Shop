@@ -40,8 +40,21 @@ $schema->populate(Country => $pop_countries);
 $schema->populate(State => $pop_states);
 
 # populate zones table
-$schema->populate(Zone => $pop_zones);
+scalar $schema->populate(Zone => $pop_zones);
 
 # populate message_types table
 $schema->populate(MessageType => $pop_message_types);
+
+my $imagetype =
+  $schema->resultset('MediaType')->create( { type => 'image' } );
+
+foreach my $display (qw/image_cart image_detail image_thumb/) {
+    $imagetype->add_to_media_displays(
+        {
+            type => $display,
+            name => $display,
+            path => "/images/$display",
+        }
+    );
+}
 
