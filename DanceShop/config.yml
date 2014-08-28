@@ -45,6 +45,10 @@ plugins:
         username_column: username
         password_column: password
         password_check: check_password
+  Interchange6::Routes:
+    product:
+      template: product-page
+    
 
 # For session support enable the following line and see Dancer::Session
 # session: "YAML"

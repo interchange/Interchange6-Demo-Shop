@@ -16,7 +16,7 @@
             <li>
               <a href="#">Category 1</a>
             </li>
-            <li class="active">Subcategory</li>
+            <li class="active crumb">Subcategory</li>
           </ol>
         </div>
       </div>
@@ -141,28 +141,38 @@
             </div>
            <!--  end .row  -->
 					</div>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco...</p>
+          <p class="short-description">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco...</p>
           <div class="well product-order-box">
             <div class="row">
               <div class="col-md-6">
-                <form>
-                  <div class="form-group">
-                    <label>Color</label>
-                    <select class="form-control">
-                      <option>White</option>
-                    </select>
+                <form action="/cart" method="post">
+                  <div class="variant-error form-error">
+                    Sorry, the current selection isn't available.
+                    Please choose a different combination.
                   </div>
-                  <div class="form-group">
-                    <label>Size</label>
-                    <select class="form-control">
-                      <option>S</option>
-                    </select>
+
+                  <div c;ass="product-attributes-list">
+                    <div class="form-group product-attributes-item">
+                      <label class="product-attributes-title">Color</label>
+                      <select class="form-control product-attributes-name">
+                        <option class="product-attributes-values-item product-attributes-value">White</option>
+                      </select>
+                    </div>
+                    <div class="form-group product-attributes-item">
+                      <label class="product-attributes-title">Size</label>
+                      <select class="form-control product-attributes-name">
+                        <option class="product-attributes-values-item product-attributes-value">S</option>
+                      </select>
+                    </div>
                   </div>
+
                   <div class="form-group">
                     <label>Quantity</label>
-                    <input class="form-control" type="text" />
+                    <input class="form-control" type="text" name="quantity" value="1">
+
                   </div>
                   <div class="product-action">
+                    <input type="hidden" name="sku" class="sku" value="">
                     <button class="btn btn-success btn-large">Add to cart</button>
                   </div>
                 </form>
@@ -182,8 +192,7 @@
            <!--  end .row  -->
 					</div>
           <!--  end .product-order-box  -->
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p class="description">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
           <div class="content-section reviews">
             <h4>Reviews</h4>
             <div class="review-actions">
