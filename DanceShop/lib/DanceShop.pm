@@ -34,4 +34,6 @@ get '/' => sub {
     template 'index';
 };
 
+shop_setup_routes;
+
 true;
