@@ -578,16 +578,30 @@ my @navigation = (
 );
 
 foreach my $nav (@navigation) {
-    shop_navigation->create(
+    my $nav_result = shop_navigation->create(
         {
             uri                 => $nav->[0],
             type                => $nav->[1],
             scope               => $nav->[2],
             name                => $nav->[3],
             parent_id           => $nav->[4],
+            product_count       => scalar @{ $nav->[5] },
             navigation_products => [ map { { "sku" => $_ } } @{ $nav->[5] } ],
         }
     );
+
+    # add navigation_product links to parent nav as well
+    my $parent = $nav_result->parent;
+    foreach my $sku ( @{ $nav->[5] } ) {
+        $parent->add_to_navigation_products(
+            { sku => $sku, navigation_id => $parent->id } );
+    }
+    $parent->update({ product_count => $parent->navigation_products->count });
+}
+
+my $nav_rset = shop_navigation->search( { parent_id => undef } );
+while ( my $nav = $nav_rset->next ) {
+
 }
 
 # attributes
