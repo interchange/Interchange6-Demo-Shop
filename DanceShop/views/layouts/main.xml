@@ -5,4 +5,9 @@
 <pattern name="nitems" type="string">321</pattern>
 <value name="cart-link" field="cart.count" pattern="nitems" skip="empty"/>
 
+<list name="main" class="nav-menu-main" iterator="nav-menu-main">
+    <param name="name" class="link-main" field = "name"/>
+    <param name="link-main" field="uri" target="href" op="append"/>
+</list>
+
 </specification>

@@ -46,6 +46,8 @@ plugins:
         password_column: password
         password_check: check_password
   Interchange6::Routes:
+    navigation:
+      template: product-listing
     product:
       template: product-page
     

@@ -28,10 +28,30 @@ hook 'before_layout_render' => sub {
     my $tokens = shift;
 
     $tokens->{cart} = cart;
+
+    my $nav = shop_navigation->search(
+        {
+            type => 'nav',
+            parent_id => undef,
+        },
+        {
+            order_by => { -asc => 'priority'},
+        }
+    );
+    while (my $record = $nav->next) {
+        push @{$tokens->{'nav-' . $record->scope}}, $record;
+    };
 };
 
 get '/' => sub {
     template 'index';
+};
+
+get '/category' => sub {
+    template 'category';
+};
+get '/product-listing' => sub {
+    template 'product-listing';
 };
 
 shop_setup_routes;

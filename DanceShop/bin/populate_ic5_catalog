@@ -436,21 +436,22 @@ scalar $schema->populate( 'Product', [@products] );
 
 scalar shop_navigation->populate(
     [
-        [ 'uri',               'type', 'scope',     'name' ],
-        [ 'hand-tools',        'nav',  'menu-main', 'Hand Tools' ],
-        [ 'hardware',          'nav',  'menu-main', 'Hardware' ],
-        [ 'ladders',           'nav',  'menu-main', 'Ladders' ],
-        [ 'measuring-tools',   'nav',  'menu-main', 'Measuring Tools' ],
-        [ 'painting-supplies', 'nav',  'menu-main', 'Painting Supplies' ],
-        [ 'safety-equipment',  'nav',  'menu-main', 'Safety Equipment' ],
-        [ 'tool-storage',      'nav',  'menu-main', 'Tool Storage' ],
+        [ 'uri',               'type', 'scope',     'name', 'priority' ],
+        [ 'hand-tools',        'nav',  'menu-main', 'Hand Tools', 1 ],
+        [ 'hardware',          'nav',  'menu-main', 'Hardware', 2 ],
+        [ 'ladders',           'nav',  'menu-main', 'Ladders', 3 ],
+        [ 'measuring-tools',   'nav',  'menu-main', 'Measuring Tools', 4 ],
+        [ 'painting-supplies', 'nav',  'menu-main', 'Painting Supplies', 5 ],
+        [ 'safety-equipment',  'nav',  'menu-main', 'Safety Equipment', 6 ],
+        [ 'tool-storage',      'nav',  'menu-main', 'Tool Storage', 7 ],
     ]
 );
 
-# we need parent_ids
+# set template attribute for top-levels + we need parent_ids
 my $nav_rs = shop_navigation;
 my %navs;
 while ( my $nav = $nav_rs->next ) {
+    $nav->add_attribute( template => 'category' );
     $navs{ $nav->uri } = $nav->id;
 }
 

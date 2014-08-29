@@ -1,2 +1,3 @@
 <specification>
+    <value name="category" field="navigation.name"/>
 </specification>
