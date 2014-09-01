@@ -1,6 +1,5 @@
 
       <h1>Your shopping cart</h1>
-      <form action="checkout.html" method="POST">
         <div class="row">
           <div class="col-md-9">
             <table class="table table-bordered table-hover my-cart">
@@ -11,7 +10,7 @@
 						Name
 					</th>
                   <th>
-						Unite price
+						Unit price
 					</th>
                   <th>
 						Qty
@@ -22,14 +21,14 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <tr class="cartitem">
                   <td width="60">
                     <img src="/img/img_product.jpg" width="60" />
                   </td>
                   <td class="td-middle">
                     <div class="cart-description">
                       <h4 class="cart-name">
-                        <a href="/product-page.html">Organic gift basket for babies</a>
+                        <a class="product" href="/product-page.html">Organic gift basket for babies</a>
                       </h4>
                       <div class="cart-specs"><span class="txt-label">Color:</span> blue, <span class="txt-label">Size:</span> small</div>
                     </div>
@@ -37,7 +36,7 @@
                   <td>
                     <div class="price-before">$2400.40</div>
                     <div class="discount">-20%</div>
-                    <div class="price">$2000.44</div>
+                    <div class="price product-price">$2000.44</div>
                   </td>
                   <td class="td-middle" width="100">
                     <div class="cart-qty-wrap">
@@ -45,17 +44,17 @@
                     </div>
                   </td>
                   <td class="td-middle text-right" width="100">
-                    <div class="price">$2000.44</div>
+                    <div class="price product-subtotal">$2000.44</div>
                   </td>
                 </tr>
-                <tr>
+                <tr class="cartitem">
                   <td width="60">
                     <img src="/img/img_product.jpg" width="60" />
                   </td>
                   <td class="td-middle">
                     <div class="cart-description">
                       <h4 class="cart-name">
-                        <a href="/product-page.html">Organic gift basket for babies</a>
+                        <a class="product" href="/product-page.html">Organic gift basket for babies</a>
                       </h4>
                       <div class="cart-specs"><span class="txt-label">Color:</span> blue, <span class="txt-label">Size:</span> small</div>
                     </div>
@@ -63,7 +62,7 @@
                   <td>
                     <div class="price-before">$2400.40</div>
                     <div class="discount">-20%</div>
-                    <div class="price">$2000.44</div>
+                    <div class="price product-price">$2000.44</div>
                   </td>
                   <td class="td-middle" width="100">
                     <div class="cart-qty-wrap">
@@ -71,17 +70,17 @@
                     </div>
                   </td>
                   <td class="td-middle text-right" width="100">
-                    <div class="price">$2000.44</div>
+                    <div class="price product-subtotal">$2000.44</div>
                   </td>
                 </tr>
-                <tr>
+                <tr class="cartitem">
                   <td width="60">
                     <img src="/img/img_product.jpg" width="60" />
                   </td>
                   <td class="td-middle">
                     <div class="cart-description">
                       <h4 class="cart-name">
-                        <a href="/product-page.html">Organic gift basket for babies</a>
+                        <a class="product" href="/product-page.html">Organic gift basket for babies</a>
                       </h4>
                       <div class="cart-specs"><span class="txt-label">Color:</span> blue, <span class="txt-label">Size:</span> small</div>
                     </div>
@@ -89,7 +88,7 @@
                   <td>
                     <div class="price-before">$2400.40</div>
                     <div class="discount">-20%</div>
-                    <div class="price">$2000.44</div>
+                    <div class="price product-price">$2000.44</div>
                   </td>
                   <td class="td-middle" width="100">
                     <div class="cart-qty-wrap">
@@ -97,15 +96,16 @@
                     </div>
                   </td>
                   <td class="td-middle text-right" width="100">
-                    <div class="price">$2000.44</div>
+                    <div class="price product-subtotal">$2000.44</div>
                   </td>
                 </tr>
                 <tr>
                   <td colspan="2"></td>
-                  <td class="text-right" colspan="3"><span class="txt-label">Subtotal:</span> $4,000.00<br /><span class="txt-label">Shipping:</span> $50.00<br /><span class="txt-label">Handling:</span> $8.00<br /><span class="txt-label">TOTAL:</span> <span class="price">$4,058.00</span></td>
+                  <td class="text-right" colspan="3"><span class="txt-label">Subtotal:</span> <span class="cart-subtotal">$4,000.00</span><br /><span class="txt-label">Shipping:</span> $50.00<br /><span class="txt-label">Handling:</span> $8.00<br /><span class="txt-label">TOTAL:</span> <span class="price cart-total">$4,058.00</span></td>
                 </tr>
               </tbody>
             </table>
+      <form action="/checkout" role="form" method="POST">
             <div class="text-right"><button class="btn btn-default btn-sm">Continue shopping</button> <button class="btn btn-success btn-lg btn-checkout" type="submit">Checkout</button></div>
             <div class="clear-20"></div>
             <div class="clear-20"></div>
@@ -332,7 +332,7 @@
                 <div class="form-group">
 						Enter your zip code to get shipping<br /><div class="input-group"><input class="form-control input-sm" placeholder="Enter your zip code..." type="text" /><span class="input-group-btn"><button class="btn btn-default btn-sm" type="button">Calculate</button></span></div><!--  /input-group  -->
 					</div>
-                <div class="form-group"><span class="txt-label">Subtotal:</span> $4,000.00<br /><span class="txt-label">Shipping:</span> $50.00<br /><span class="txt-label">Handling:</span> $8.00<br /><span class="txt-label">Tax:</span> <small>calculated at checkout</small><br /><span class="txt-label">TOTAL:</span> <span class="price">$4,058.00</span></div>
+          <div class="form-group"><span class="txt-label">Subtotal:</span> <span class="cart-subtotal">$4,000.00</span><br /><span class="txt-label">Shipping:</span> $50.00<br /><span class="txt-label">Handling:</span> $8.00<br /><span class="txt-label">Tax:</span> <small>calculated at checkout</small><br /><span class="txt-label">TOTAL:</span> <span class="price cart-total">$4,058.00</span></div>
                 <button class="btn btn-success btn-block btn-lg btn-checkout">Checkout</button>
               </div>
               <div class="sidebar-boxed save-cart">

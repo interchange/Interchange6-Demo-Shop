@@ -1,2 +1,12 @@
 <specification>
+    <list name="cart" class="cartitem" iterator="cart">
+        <param name="cart-name" field="name"/>
+        <param name="product-price" filter="currency" field="price"/>
+        <param name="product-subtotal" filter="currency" field="subtotal"/>
+        <param name="input-cart-qty" field="quantity"/>
+        <param name="link" class="product" field="uri" target="href"/>
+    </list>
+    <value name="cart-subtotal" field="cart_subtotal" filter="currency"/>
+    <value name="cart-total" field="cart_total" filter="currency"/>
+    <value name="country" iterator="countries"/>
 </specification>
