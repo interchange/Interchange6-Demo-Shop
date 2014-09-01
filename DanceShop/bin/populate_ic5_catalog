@@ -586,7 +586,6 @@ foreach my $nav (@navigation) {
             scope               => $nav->[2],
             name                => $nav->[3],
             parent_id           => $nav->[4],
-            product_count       => scalar @{ $nav->[5] },
             navigation_products => [ map { { "sku" => $_ } } @{ $nav->[5] } ],
         }
     );
@@ -597,7 +596,6 @@ foreach my $nav (@navigation) {
         $parent->add_to_navigation_products(
             { sku => $sku, navigation_id => $parent->id } );
     }
-    $parent->update({ product_count => $parent->navigation_products->count });
 }
 
 my $nav_rset = shop_navigation->search( { parent_id => undef } );
@@ -665,7 +663,6 @@ $schema->resultset('Product')->find( { sku => "os28004" } )->add_variants(
         roller => 'camel',
         color  => 'black',
         sku    => 'os28004-CAM-BLK',
-        name   => 'Ergo Roller, Camel hair, Black',
         uri    => 'ergo-roller-camel-hair-black',
         price  => 16,
     },
@@ -673,7 +670,6 @@ $schema->resultset('Product')->find( { sku => "os28004" } )->add_variants(
         roller => 'camel',
         color  => 'white',
         sku    => 'os28004-CAM-WHT',
-        name   => 'Ergo Roller, Camel hair, White',
         uri    => 'ergo-roller-camel-hair-white',
         price  => 16,
     },
@@ -681,7 +677,6 @@ $schema->resultset('Product')->find( { sku => "os28004" } )->add_variants(
         roller => 'human',
         color  => 'black',
         sku    => 'os28004-HUM-BLK',
-        name   => 'Ergo Roller, Human hair, Black',
         uri    => 'ergo-roller-human-hair-black',
         price  => 16.5,
     },
@@ -689,7 +684,6 @@ $schema->resultset('Product')->find( { sku => "os28004" } )->add_variants(
         roller => 'human',
         color  => 'white',
         sku    => 'os28004-HUM-WHT',
-        name   => 'Ergo Roller, Human hair, White',
         uri    => 'ergo-roller-human-hair-white',
         price  => 16.5,
     },
@@ -697,7 +691,6 @@ $schema->resultset('Product')->find( { sku => "os28004" } )->add_variants(
         roller => 'synthetic',
         color  => 'black',
         sku    => 'os28004-SYN-BLK',
-        name   => 'Ergo Roller, Synthetic, Black',
         uri    => 'ergo-roller-synthetic-black',
         price  => 12.25,
     },
@@ -705,7 +698,6 @@ $schema->resultset('Product')->find( { sku => "os28004" } )->add_variants(
         roller => 'synthetic',
         color  => 'white',
         sku    => 'os28004-SYN-WHT',
-        name   => 'Ergo Roller, Synthetic, White',
         uri    => 'ergo-roller-synthetic-white',
         price  => 12.25,
     },
@@ -716,7 +708,6 @@ $schema->resultset('Product')->find( { sku => "os28066" } )->add_variants(
         handle => 'ebony',
         blade  => 'plastic',
         sku    => 'os28066-E-P',
-        name   => 'Big L Carpenters Square, Ebony handle, Plastic blade',
         uri    => 'big-l-carpenters-square-ebony-handle-plastic-blade',
         price  => 32.55,
     },
@@ -724,7 +715,6 @@ $schema->resultset('Product')->find( { sku => "os28066" } )->add_variants(
         handle => 'ebony',
         blade  => 'steel',
         sku    => 'os28066-E-S',
-        name   => 'Big L Carpenters Square, Ebony handle, Steel blade',
         uri    => 'big-l-carpenters-square-ebony-handle-steel-blade',
         price  => 33.99,
     },
@@ -732,7 +722,6 @@ $schema->resultset('Product')->find( { sku => "os28066" } )->add_variants(
         handle => 'ebony',
         blade  => 'titanium',
         sku    => 'os28066-E-T',
-        name   => 'Big L Carpenters Square, Ebony handle, Titanium blade',
         uri    => 'big-l-carpenters-square-ebony-handle-titanium-blade',
         price  => 133.99,
     },
@@ -740,7 +729,6 @@ $schema->resultset('Product')->find( { sku => "os28066" } )->add_variants(
         handle => 'wood',
         blade  => 'plastic',
         sku    => 'os28066-W-P',
-        name   => 'Big L Carpenters Square, Wood handle, Plastic blade',
         uri    => 'big-l-carpenters-square-wood-handle-plastic-blade',
         price  => 12.55,
     },
@@ -748,7 +736,6 @@ $schema->resultset('Product')->find( { sku => "os28066" } )->add_variants(
         handle => 'wood',
         blade  => 'steel',
         sku    => 'os28066-W-S',
-        name   => 'Big L Carpenters Square, Wood handle, Steel blade',
         uri    => 'big-l-carpenters-square-wood-handle-steel-blade',
         price  => 11.99,
     },
@@ -756,7 +743,6 @@ $schema->resultset('Product')->find( { sku => "os28066" } )->add_variants(
         handle => 'wood',
         blade  => 'titanium',
         sku    => 'os28066-W-T',
-        name   => 'Big L Carpenters Square, Wood handle, Titanium blade',
         uri    => 'big-l-carpenters-square-wood-handle-titanium-blade',
         price  => 113.99,
     },
