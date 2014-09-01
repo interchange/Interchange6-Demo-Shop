@@ -6,7 +6,6 @@
     <value name="short-description" field="product.short_description"/>
     <value name="description" field="product.description"/>
     <container name="variant-error" value="session.shop_cart_error"/>
-
     <list name="attributes" class="product-attributes-item"
         iterator="product.attribute_iterator">
         <param name="name" class="product-attributes-name" target="name"/>
@@ -20,5 +19,4 @@
                 target="selected" op="toggle"/>
         </list>
     </list>
-
 </specification>

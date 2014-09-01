@@ -47,13 +47,6 @@ get '/' => sub {
     template 'index';
 };
 
-get '/category' => sub {
-    template 'category';
-};
-get '/product-listing' => sub {
-    template 'product-listing';
-};
-
 shop_setup_routes;
 
 true;
