@@ -1,2 +1,31 @@
 <specification>
+    <list name="orderlines" class="orderlines" iterator="order.orderlines">
+        <param name="cart-description" field="name"/>
+        <param name="product-price" field="price" filter="currency"/>
+        <param name="salestax" field="salestax"/>
+        <param name="quantity" field="quantity"/>
+        <param name="subtotal" field="subtotal" filter="currency"/>
+    </list>
+    <value name="order-subtotal" field="order.subtotal" filter="currency"/>
+    <value name="order-total" field="order.total_cost" filter="currency"/>
+    <value name="order-shipping" field="order.shipping" filter="currency"/>
+    <value name="order-handling" field="order.handling" filter="currency"/>
+    <value name="billing-first_name" field="order.billing_address.first_name"/>
+    <value name="billing-last_name" field="order.billing_address.last_name"/>
+    <value name="billing-address" field="order.billing_address.address"/>
+    <value name="billing-address_2" field="order.billing_address.address_2"/>
+    <value name="billing-postal_code" field="order.billing_address.postal_code"/>
+    <value name="billing-city" field="order.billing_address.city"/>
+    <value name="billing-state" field="order.billing_address.state.name"/>
+    <value name="billing-country" field="order.billing_address.country.name"/>
+    <value name="billing-phone" field="order.billing_address.phone"/>
+    <value name="shipping-first_name" field="order.shipping_address.first_name"/>
+    <value name="shipping-last_name" field="order.shipping_address.last_name"/>
+    <value name="shipping-address" field="order.shipping_address.address"/>
+    <value name="shipping-address_2" field="order.shipping_address.address_2"/>
+    <value name="shipping-postal_code" field="order.shipping_address.postal_code"/>
+    <value name="shipping-city" field="order.shipping_address.city"/>
+    <value name="shipping-state" field="order.shipping_address.state.name"/>
+    <value name="shipping-country" field="order.shipping_address.country.name"/>
+    <value name="shipping-phone" field="order.shipping_address.phone"/>
 </specification>
