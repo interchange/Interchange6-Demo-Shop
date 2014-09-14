@@ -47,6 +47,13 @@ get '/' => sub {
     template 'index';
 };
 
+get '/receipt' => sub {
+    my $order = shop_order->search({},{rows=>1})->single;
+    template 'checkout_receipt', {
+        order => $order,
+    }
+};
+
 shop_setup_routes;
 
 true;
