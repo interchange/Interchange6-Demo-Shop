@@ -14,6 +14,7 @@ use DateTime qw();
 
 my $now    = DateTime->now;
 my $schema = shop_schema;
+my $data;
 
 shop_schema->deploy( { add_drop_table => 1 } );
 
@@ -75,6 +76,36 @@ my $user1 = shop_user->create(
         password => 'nevairbe',
     }
 );
+
+# addresses
+
+my $state = shop_state->search(
+    {
+        country_iso_code => 'US',
+        state_iso_code => 'NY'
+    },
+    {
+        rows => 1
+    }
+)->single;
+
+$data = {
+    users_id => $user1->id,
+    type     => 'billing',
+    first_name => 'Stefan',
+    last_name => 'Hornburg',
+    company => 'Linuxia',
+    address => '12',
+    address_2 => 'Some Street',
+    postal_code => '1234CA',
+    city => 'Megacity',
+    states_id => $state->id,
+    country_iso_code => 'US',
+};
+my $billing_address = shop_address->create($data);
+
+$data->{type} = 'shipping';
+my $shipping_address = shop_address->create($data);
 
 #products
 
@@ -821,4 +852,47 @@ while ( my $product = $rset_products->next ) {
         },
     );
 }
+
+# orders
+
+my @orderlines = (
+    {
+        sku => 'os28112',
+        name => 'Garden Shovel',
+        description => '',
+        quantity => 1,
+        price => 13.99,
+        subtotal => 13.99,
+    },
+    {
+        sku => 'os28113',
+        name => 'The Claw Hand Rake',
+        description => '',
+        quantity => 2,
+        price => 14.99,
+        subtotal => 29.98,
+    },
+);
+
+my $payment_order = {
+    users_id => $user1->id,
+    amount   => 56.47,
+};
+
+shop_order->create(
+    {
+        order_number => '122334',
+        order_date => DateTime->now,
+        users_id => $user1->id,
+        email => $user1->email,
+        shipping_addresses_id => $shipping_address->id,
+        billing_addresses_id => $billing_address->id,
+        orderlines => \@orderlines,
+        subtotal => 43.97,
+        shipping => 12.50,
+        total_cost => 56.47,
+        payment_orders => [$payment_order],
+    }
+);
+
 
