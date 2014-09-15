@@ -3,11 +3,21 @@
         op="append" skip="empty"/>
     <value name="parent_nav_name" field="navigation.parent.name" skip="empty"/>
 
+    <list name="product-details" class="product-box" iterator="products">
+        <param name="name" class="product-name"/>
+        <param name="price" class="product-price" filter="currency"/>
+        <param name="uri" class="product-name" target="href" op="append"/>
+        <!--param name="sku" class="product-image" target="src" filter="image"/-->
+        <!--FIXME: need to work out how to make the 'in stock' badge disappear
+        <container name="instock-button" value="quantity">
+            <value name="quantity" field="inventory" class="instock"/>
+        </container>
+        -->
+    </list>
+
     <value name="count" field="count"/>
     <value name="pager_first_entry" field="pager.first"/>
     <value name="pager_last_entry" field="pager.last"/>
-    <list name="products" iterator="products">
-    </list>
 
     <!-- FIXME sibling menu sucks since siblings does not include self -->
     <value name="current_nav" field="navigation.name"/>
