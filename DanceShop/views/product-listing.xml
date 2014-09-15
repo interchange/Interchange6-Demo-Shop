@@ -1,2 +1,19 @@
 <specification>
+    <value name="go_up" field="navigation.parent.uri" target="href"
+        op="append" skip="empty"/>
+    <value name="parent_nav_name" field="navigation.parent.name" skip="empty"/>
+
+    <value name="count" field="count"/>
+    <value name="pager_first_entry" field="pager.first"/>
+    <value name="pager_last_entry" field="pager.last"/>
+    <list name="products" iterator="products">
+    </list>
+
+    <!-- FIXME sibling menu sucks since siblings does not include self -->
+    <value name="current_nav" field="navigation.name"/>
+    <value name="current_nav_uri" class="current_nav" field="navigation.uri" target="href" op="append"/>
+    <list name="nav-sibling" iterator="navigation.siblings">
+        <param name="link_name" class="link" field="name"/>
+        <param name="link" field="uri" target="href" op="append"/>
+    </list>
 </specification>
