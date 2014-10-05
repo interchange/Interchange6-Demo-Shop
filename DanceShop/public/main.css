@@ -904,8 +904,10 @@ table .alert-small {
 }
 
 
-
-
+/* ----- category view ----- */
+a.cat-name {
+    color: #333333;
+}
 
 
 
