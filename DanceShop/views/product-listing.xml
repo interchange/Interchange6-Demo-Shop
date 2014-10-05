@@ -3,6 +3,23 @@
         op="append" skip="empty"/>
     <value name="parent_nav_name" field="navigation.parent.name" skip="empty"/>
 
+    <!-- compact view -->
+
+    <list name="compact-view" class="item-box-compact" iterator="products">
+        <param name="name" class="item-list-link"/>
+        <param name="uri" class="item-list-link" target="href" op="append"/>
+        <param name="price" class="product-price" filter="currency"/>
+        <param name="uri" class="product-name" target="href" op="append"/>
+        <!--param name="sku" class="product-image" target="src" filter="image"/-->
+        <!--FIXME: need to work out how to make the 'in stock' badge disappear
+        <container name="instock-button" value="quantity">
+            <value name="quantity" field="inventory" class="instock"/>
+        </container>
+        -->
+    </list>
+
+    <!-- grid view -->
+
     <list name="product-details" class="product-box" iterator="products">
         <param name="name" class="product-description"/>
         <param name="price" class="product-price" filter="currency"/>
