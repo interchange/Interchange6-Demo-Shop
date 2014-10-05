@@ -1,0 +1,3 @@
+[submodule "TableEditor"]
+	path = TableEditor
+	url = git@github.com:interchange/TableEditor.git

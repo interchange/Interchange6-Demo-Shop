@@ -1,0 +1,12 @@
+.perl-version
+bin/
+var/
+nginx/
+camp_apps.pgsi
+httpd/
+local/
+my.cnf
+mysql.yml
+mysql/
+nginx/
+var/
