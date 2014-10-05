@@ -17,6 +17,13 @@ charset: "UTF-8"
 # template engine
 template: "template_flute"
 
+engines:
+  template_flute:
+    filters:
+      currency:
+        options:
+          int_curr_symbol: "$"
+
 plugins:
   DBIC:
     default:
