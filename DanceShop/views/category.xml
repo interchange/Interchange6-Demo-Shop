@@ -2,7 +2,7 @@
     <value name="category" field="navigation.name"/>
 
     <!-- list of subcategories -->
-    <list name="cat-link" iterator="navigation.siblings">
+    <list name="cat-link" iterator="navigation.children">
       <param name="name" class="cat-name" field="name"/>
       <param name="uri" class="cat-name" target="href" op="append"/>
     </list>
