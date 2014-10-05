@@ -4,7 +4,7 @@
     <value name="parent_nav_name" field="navigation.parent.name" skip="empty"/>
 
     <list name="product-details" class="product-box" iterator="products">
-        <param name="name" class="product-name"/>
+        <param name="name" class="product-description"/>
         <param name="price" class="product-price" filter="currency"/>
         <param name="uri" class="product-name" target="href" op="append"/>
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
