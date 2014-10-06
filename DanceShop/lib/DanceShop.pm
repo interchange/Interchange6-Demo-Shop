@@ -21,6 +21,8 @@ use Dancer::Plugin::DBIC;
 use Dancer::Plugin::Interchange6;
 use Dancer::Plugin::Interchange6::Routes;
 
+use DanceShop::Routes::Checkout;
+
 set session => 'DBIC';
 set session_options => {schema => schema};
 
