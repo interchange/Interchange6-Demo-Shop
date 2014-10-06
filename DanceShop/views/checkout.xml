@@ -1,2 +1,7 @@
 <specification>
+<list name="cart-product" iterator="cart.products">
+<param name="product-name" field="name"/>
+<param name="product-quantity" field="quantity"/>
+<param name="product-subtotal" field="subtotal" filter="currency"/>
+</list>
 </specification>
