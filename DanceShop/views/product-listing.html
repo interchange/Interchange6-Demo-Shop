@@ -477,10 +477,11 @@
               </div>
               <div class="col-md-3">
                 <div class="item-list-actions-compact">
-                  <form class="form-inline">
+                  <form class="form-inline" method="POST" action="/cart">
                     <div class="form-group">
+                      <input name="sku" type="hidden" class="input-sku"/>
                       <label class="control-label" for="">Qty.:</label>
-                      <input class="form-control input-sm" style="width: 50px;" type="text" value="1" />
+                      <input name="quantity" class="form-control input-sm" style="width: 50px;" type="text" value="1" />
                     </div>
                     <button class="btn btn-success btn-sm">Add to cart</button>
                   </form>
