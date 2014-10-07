@@ -6,6 +6,7 @@
         <param name="input-cart-qty" field="quantity"/>
         <param name="link" class="product" field="uri" target="href"/>
         <container name="variant-error" value="session.shop_cart_error"/>
+<!--
         <list name="attributes" class="product-attributes-item"
             iterator="attribute_iterator">
             <param name="name" class="product-attributes-name" target="name"/>
@@ -19,6 +20,7 @@
                     target="selected" op="toggle"/>
             </list>
         </list>
+-->
     </list>
     <value name="cart-subtotal" field="cart_subtotal" filter="currency"/>
     <value name="cart-total" field="cart_total" filter="currency"/>
