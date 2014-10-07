@@ -1,6 +1,10 @@
 <specification>
     <value name="category" field="navigation.name"/>
 
+    <pattern name="our-cat" type="string">Cat1</pattern>
+    <value name="cat-products" id="cat-products" pattern="our-cat"
+           field="navigation.name"/>
+
     <!-- list of subcategories -->
     <list name="cat-link" iterator="navigation.children">
       <param name="name" class="cat-name" field="name"/>
