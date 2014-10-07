@@ -4,4 +4,5 @@
 <param name="product-quantity" field="quantity"/>
 <param name="product-subtotal" field="subtotal" filter="currency"/>
 </list>
+<container name="signin-form" id="signin-form" value="!session.logged_in_user"/>
 </specification>
