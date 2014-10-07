@@ -1,3 +1,6 @@
+requires 'Template';
+requires 'MooX::Singleton';
+requires 'Pod::Manual';
 requires 'Dancer::Plugin::Database';
 requires 'Faker';
 requires 'Term::ReadLine';
