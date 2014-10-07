@@ -1,6 +1,10 @@
 <specification>
 <value name="content" class="content" op="hook"/>
 
+<!-- login / sign-in -->
+<container name="dropdown-signin" id="dropdown-signin" value="!session.logged_in_user"/>
+<container name="dropdown-logout" id="dropdown-logout" value="session.logged_in_user"/>
+
 <!-- number of items in the cart -->
 <pattern name="nitems" type="string">321</pattern>
 <value name="cart-link" field="cart.count" pattern="nitems" skip="empty"/>
