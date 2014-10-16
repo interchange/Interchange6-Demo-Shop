@@ -27,7 +27,7 @@ engines:
 plugins:
   DBIC:
     default:
-      dsn: dbi:mysql:danceshop
+      dsn: dbi:mysql:database=danceshop
       user: dancepower
       password: nevairbe
       schema_class: Interchange6::Schema
