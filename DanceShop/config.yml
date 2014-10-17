@@ -14,6 +14,11 @@ layout: "main"
 # about unicode within your app when this setting is set (recommended).
 charset: "UTF-8"
 
+# Interchange6 shops should always use DBIC sessions,
+# so there is no need to configure sessions
+#
+# session: "DBIC"
+
 # template engine
 template: "template_flute"
 
@@ -57,8 +62,3 @@ plugins:
       template: product-listing
     product:
       template: product-page
-    
-
-# For session support enable the following line and see Dancer::Session
-# session: "YAML"
-

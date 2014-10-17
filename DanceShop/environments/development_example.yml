@@ -25,3 +25,8 @@ show_errors: 1
 # DO NOT EVER USE THIS FEATURE IN PRODUCTION 
 # OR TINY KITTENS SHALL DIE WITH LOTS OF SUFFERING
 auto_reload: 0
+
+# Interchange6 shops should always use DBIC sessions,
+# so there is no need to configure sessions here
+#
+# session: "DBIC"

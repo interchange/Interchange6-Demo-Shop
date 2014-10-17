@@ -15,3 +15,7 @@ show_errors: 0
 # cache route resolution for maximum performance
 route_cache: 1
 
+# Interchange6 shops should always use DBIC sessions,
+# so there is no need to configure sessions here
+#
+# session: "DBIC"
