@@ -1,7 +1,11 @@
 <specification>
+    <pattern name="discount" type="string">20</pattern>
     <list name="cart" class="cartitem" iterator="cart">
         <param name="cart-name" field="name"/>
+        <param name="price-and-discount" op="toggle" args="tree"
+            field="discount_percent"/>
         <param name="price-before" filter="currency" field="price"/>
+        <param name="discount" pattern="discount" field="discount_percent"/>
         <param name="product-price" filter="currency" field="selling_price"/>
         <param name="product-subtotal" filter="currency" field="subtotal"/>
         <param name="input-cart-qty" field="quantity"/>
