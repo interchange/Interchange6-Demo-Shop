@@ -61,6 +61,18 @@ hook 'before_product_display' => sub {
       int( ( $tokens->{selling_price} - $product->price ) /
           $product->price *
           100 );
+
+    my $in_stock = $product->quantity_in_stock;
+    if ( defined $in_stock ) {
+        if ( $in_stock == 0 ) {
+            # TODO: we need something in the schema (product attributes?)
+            # to set this token
+            $tokens->{"product-availability"} = "Currently out of stock";
+        }
+        elsif ( $in_stock <= 10 ) {
+            $tokens->{"low-stock-alert"} = $in_stock;
+        }
+    }
 };
 
 get '/' => sub {
