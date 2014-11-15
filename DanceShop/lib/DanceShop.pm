@@ -45,6 +45,24 @@ hook 'before_layout_render' => sub {
     };
 };
 
+hook 'before_product_display' => sub {
+    my $tokens = shift;
+    my $product = $tokens->{product};
+
+    # TODO: setting of selling_price and discount should not be in demo shop
+    my $roles;
+    if (logged_in_user) {
+        $roles = user_roles;
+        push @$roles, 'authenticated';
+    }
+    $tokens->{selling_price} = $product->selling_price( { roles => $roles } );
+
+    $tokens->{discount} =
+      int( ( $tokens->{selling_price} - $product->price ) /
+          $product->price *
+          100 );
+};
+
 get '/' => sub {
     template 'index';
 };

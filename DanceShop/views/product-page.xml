@@ -1,10 +1,18 @@
 <specification>
+    <pattern name="discount" type="string">20</pattern>
+    <pattern name="rating" type="string">4.7</pattern>
     <value name="crumb" field="product.name"/>
     <value name="sku" field="product.sku"/>
     <value name="product-title" field="product.name"/>
-    <value name="price" field="product.price" filter="currency"/>
+    <value name="price-and-discount" op="toggle" args="tree" field="discount"/>
+    <value name="price-before" field="product.price" filter="currency"/>
+    <value name="discount" pattern="discount"/>
+    <value name="price" field="selling_price" filter="currency"/>
     <value name="short-description" field="product.short_description"/>
     <value name="description" field="product.description"/>
+    <value name="rating" field="product.average_rating" pattern="rating"/>
+    <container name="product-rating-wrap" value="product.reviews.count"/>
+    <container name="first-review" value="!product.reviews.count"/>
     <container name="variant-error" value="session.shop_cart_error"/>
     <list name="attributes" class="product-attributes-item"
         iterator="product.attribute_iterator">
