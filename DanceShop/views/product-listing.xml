@@ -11,12 +11,9 @@
         <param name="price" class="product-price" filter="currency"/>
         <param name="uri" class="product-name" target="href" op="append"/>
         <param name="sku" class="input-sku"/>
+        <param name="instock" field="quantity_in_stock" op="toggle"
+            args="tree"/>
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
-        <!--FIXME: need to work out how to make the 'in stock' badge disappear
-        <container name="instock-button" value="quantity">
-            <value name="quantity" field="inventory" class="instock"/>
-        </container>
-        -->
     </list>
 
     <!-- grid view -->
