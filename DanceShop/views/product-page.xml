@@ -14,8 +14,8 @@
     <value name="short-description" field="product.short_description"/>
     <value name="description" field="product.description"/>
     <value name="rating" field="product.average_rating" pattern="rating"/>
-    <container name="product-rating-wrap" value="product.reviews.count"/>
-    <container name="first-review" value="!product.reviews.count"/>
+    <container name="product-rating-wrap" value="reviews"/>
+    <container name="first-review" value="!reviews"/>
     <container name="variant-error" value="session.shop_cart_error"/>
     <container name="low-stock-alert" value="low-stock-alert"/>
     <container name="product-availability" value="product-availability"/>
