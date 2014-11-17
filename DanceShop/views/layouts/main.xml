@@ -10,6 +10,7 @@
 <value name="cart-link" field="cart.count" pattern="nitems" skip="empty"/>
 
 <!-- cart in dropdown -->
+<value name="cart-subtotal" field="cart.subtotal" filter="currency"/>
 <value name="cart-total" field="cart.total" filter="currency"/>
 
 <list name="cart-dropdown" iterator="cart.products">
