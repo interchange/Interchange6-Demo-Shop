@@ -2,10 +2,32 @@
     <value name="go_up" field="navigation.parent.uri" target="href"
         op="append" skip="empty"/>
     <value name="parent_nav_name" field="navigation.parent.name" skip="empty"/>
+    <container name="view-list" value="navigation-view-list"/>
+    <container name="view-simple" value="navigation-view-simple"/>
+    <container name="view-compact" value="navigation-view-compact"/>
+    <container name="view-grid" value="navigation-view-grid"/>
 
-    <!-- compact view -->
-
-    <list name="compact-view" class="item-box-compact" iterator="products">
+    <list name="view-list" class="item-box-list" iterator="products">
+        <param name="name" class="item-list-title"/>
+        <param name="uri" class="item-list-link" target="href" op="append"/>
+        <param name="price" class="product-price" filter="currency"/>
+        <param name="uri" class="product-name" target="href" op="append"/>
+        <param name="sku" class="input-sku"/>
+        <param name="instock" field="quantity_in_stock" op="toggle"
+            args="tree"/>
+        <!--param name="sku" class="product-image" target="src" filter="image"/-->
+    </list>
+    <list name="view-simple" class="item-box-simple" iterator="products">
+        <param name="name" class="item-list-title"/>
+        <param name="uri" class="item-list-link" target="href" op="append"/>
+        <param name="price" class="product-price" filter="currency"/>
+        <param name="uri" class="product-name" target="href" op="append"/>
+        <param name="sku" class="input-sku"/>
+        <param name="instock" field="quantity_in_stock" op="toggle"
+            args="tree"/>
+        <!--param name="sku" class="product-image" target="src" filter="image"/-->
+    </list>
+    <list name="view-compact" class="item-box-compact" iterator="products">
         <param name="name" class="item-list-link"/>
         <param name="uri" class="item-list-link" target="href" op="append"/>
         <param name="price" class="product-price" filter="currency"/>
@@ -16,11 +38,10 @@
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
     </list>
 
-    <!-- grid view -->
-
-    <list name="product-details" class="product-box" iterator="products">
+    <list name="view-grid" class="product-box" iterator="products">
         <param name="name" class="product-description"/>
         <param name="price" class="product-price" filter="currency"/>
+        <param name="selling-price" field="selling_price" filter="currency"/>
         <param name="uri" class="product-name" target="href" op="append"/>
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
         <!--FIXME: need to work out how to make the 'in stock' badge disappear

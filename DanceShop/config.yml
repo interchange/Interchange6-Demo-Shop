@@ -60,6 +60,7 @@ plugins:
   Interchange6::Routes:
     navigation:
       template: product-listing
+      default_view: list
     product:
       template: product-page
     account:
