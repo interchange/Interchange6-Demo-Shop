@@ -9,6 +9,8 @@
         <param name="product-price" filter="currency" field="selling_price"/>
         <param name="product-subtotal" filter="currency" field="subtotal"/>
         <param name="input-cart-qty" field="quantity"/>
+        <param name="update" field="sku"/>
+        <param name="remove" field="sku" target="href" op="append"/>
         <param name="link" class="product" field="uri" target="href"/>
         <container name="variant-error" value="session.shop_cart_error"/>
 <!--
