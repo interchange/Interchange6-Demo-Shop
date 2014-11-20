@@ -16,6 +16,7 @@
 <list name="cart-dropdown" iterator="cart.products">
   <param name="name" class="product-name"/>
   <param name="quantity" class="product-quantity"/>
+  <param name="selling_price" class="product-price" filter="currency"/>
 </list>
 
 <list name="main" class="nav-menu-main" iterator="nav-menu-main">

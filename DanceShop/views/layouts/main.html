@@ -143,14 +143,18 @@
                               <td>
                                 <strong class="product-name">Organic gift basket</strong>
                                 <br />
-                                <span class="txt-info">Price: $200,00</span>
+                                <span class="txt-info">Price: <span class="product-price">$200,00</span></span>
                               </td>
                               <td class="td-middle product-quantity">
 										2
 									</td>
-                              <td class="td-middle" width="20">
+                              <!-- allowing removal of cart items from this
+                                   mini cart view means we have to track
+                                   return which we don't do atm so removing
+                                   this from display for now -->
+                              <!--td class="td-middle" width="20">
                                 <button class="btn btn-danger btn-xs">x</button>
-                              </td>
+                              </td-->
                             </tr>
                             <tr class="cart-dropdown">
                               <td>
@@ -196,9 +200,7 @@
                               <td class="td-middle">
 										2
 									</td>
-                              <td class="td-middle" width="20">
                                 <button class="btn btn-danger btn-xs">x</button>
-                              </td>
                             </tr>
                           </tbody>
                         </table>
