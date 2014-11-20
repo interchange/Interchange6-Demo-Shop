@@ -154,24 +154,26 @@
           <div class="well product-order-box">
             <div class="row">
               <div class="col-md-6">
-                <form action="/cart" method="post">
+                <form id="product_form" action="/cart" method="post">
                   <div class="variant-error form-error">
                     Sorry, the current selection isn't available.
                     Please choose a different combination.
                   </div>
 
-                  <div class="product-attributes-list">
-                    <div class="form-group product-attributes-item">
-                      <label class="product-attributes-title">Color</label>
-                      <select class="form-control product-attributes-name">
-                        <option class="product-attributes-values-item product-attributes-value">White</option>
-                      </select>
-                    </div>
-                    <div class="form-group product-attributes-item">
-                      <label class="product-attributes-title">Size</label>
-                      <select class="form-control product-attributes-name">
-                        <option class="product-attributes-values-item product-attributes-value">S</option>
-                      </select>
+                  <div class="variant-info">
+                    <div class="product-attributes-list">
+                      <div class="form-group product-attributes-item">
+                        <label class="product-attributes-title">Color</label>
+                        <select name="color" class="form-control product-attributes-name">
+                          <option value="white" class="product-attributes-values-item product-attributes-value">White</option>
+                        </select>
+                      </div>
+                      <div class="form-group product-attributes-item">
+                        <label class="product-attributes-title">Size</label>
+                        <select name="size" class="form-control product-attributes-name">
+                          <option value="small" class="product-attributes-values-item product-attributes-value">S</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
 

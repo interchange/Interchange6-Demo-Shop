@@ -16,6 +16,7 @@ DanceShop - base Demo Shop for Interchange 6
 our $VERSION = '0.001';
 
 use Dancer ':syntax';
+use Dancer::Plugin::Ajax;
 use Dancer::Plugin::Auth::Extensible;
 use Dancer::Plugin::DBIC;
 use Dancer::Plugin::Interchange6;
@@ -155,6 +156,7 @@ hook 'before_product_display' => sub {
             $tokens->{"product-availability"} = "Currently out of stock";
         }
         elsif ( $in_stock <= 10 ) {
+            # TODO: maybe this ^^ number can be configured somewhere?
             $tokens->{"low-stock-alert"} = $in_stock;
         }
     }
@@ -175,6 +177,7 @@ hook 'before_product_display' => sub {
           };
     }
     $tokens->{reviews} = \@reviews;
+    $tokens->{"extra-js-file"} = 'product-page.js';
 };
 
 get '/' => sub {

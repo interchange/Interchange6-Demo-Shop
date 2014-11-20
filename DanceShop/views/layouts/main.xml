@@ -24,4 +24,7 @@
     <param name="link-main" field="uri" target="href" op="append"/>
 </list>
 
+<container name="extra-js-file" value="extra-js-file"/>
+<value name="extra-js-file" target="src" op="append"/>
+
 </specification>
