@@ -1,4 +1,5 @@
 <specification>
+    <pattern name="discount" type="string">20</pattern>
     <value name="go_up" field="navigation.parent.uri" target="href"
         op="append" skip="empty"/>
     <value name="parent_nav_name" field="navigation.parent.name" skip="empty"/>
@@ -10,41 +11,57 @@
     <list name="view-list" class="product-box-list" iterator="products">
         <param name="name" class="product-name"/>
         <param name="uri" class="product-name" target="href" op="append"/>
-        <param name="price" class="product-price" filter="currency"/>
         <param name="sku" class="input-sku"/>
         <param name="instock" field="quantity_in_stock" op="toggle"
             args="tree"/>
+        <param name="has-discount" op="toggle" args="tree"
+            field="discount_percent"/>
+        <param name="price" class="original-price" filter="currency"/>
+        <param name="product-price" field="selling_price" filter="currency"/>
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
         <!-- params specific to this view -->
         <param name="description" class="product-description"/>
+        <param name="discount-list" field="discount_percent"
+            pattern="discount"/>
     </list>
     <list name="view-simple" class="product-box-simple" iterator="products">
         <param name="name" class="product-name"/>
         <param name="uri" class="product-name" target="href" op="append"/>
-        <param name="price" class="product-price" filter="currency"/>
         <param name="sku" class="input-sku"/>
         <param name="instock" field="quantity_in_stock" op="toggle"
             args="tree"/>
+        <param name="has-discount" op="toggle" args="tree"
+            field="discount_percent"/>
+        <param name="price" class="original-price" filter="currency"/>
+        <param name="product-price" field="selling_price" filter="currency"/>
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
+        <!-- params specific to this view -->
+        <param name="discount-list" field="discount_percent"
+            pattern="discount"/>
     </list>
     <list name="view-compact" class="product-box-compact" iterator="products">
         <param name="name" class="product-name"/>
         <param name="uri" class="product-name" target="href" op="append"/>
-        <param name="price" class="product-price" filter="currency"/>
         <param name="sku" class="input-sku"/>
         <param name="instock" field="quantity_in_stock" op="toggle"
             args="tree"/>
+        <param name="has-discount" op="toggle" args="tree"
+            field="discount_percent"/>
+        <param name="price" class="original-price" filter="currency"/>
+        <param name="product-price" field="selling_price" filter="currency"/>
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
     </list>
 
     <list name="view-grid" class="product-box-grid" iterator="products">
         <param name="name" class="product-name"/>
         <param name="uri" class="product-name" target="href" op="append"/>
-        <param name="price" class="product-price" filter="currency"/>
         <param name="sku" class="input-sku"/>
         <param name="instock" field="quantity_in_stock" op="toggle"
             args="tree"/>
-        <param name="selling-price" field="selling_price" filter="currency"/>
+        <param name="has-discount" op="toggle" args="tree"
+            field="discount_percent"/>
+        <param name="price" class="original-price" filter="currency"/>
+        <param name="product-price" field="selling_price" filter="currency"/>
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
         <!--FIXME: need to work out how to make the 'in stock' badge disappear
         <container name="instock-button" value="quantity">
