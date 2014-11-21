@@ -153,8 +153,8 @@
           <p class="short-description">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco...</p>
           <div class="well product-order-box">
             <div class="row">
+             <form id="product_form" action="/cart" method="post">
               <div class="col-md-6">
-                <form id="product_form" action="/cart" method="post">
                   <div class="variant-error form-error">
                     Sorry, the current selection isn't available.
                     Please choose a different combination.
@@ -183,12 +183,11 @@
 
                   </div>
                   <div class="product-action">
-                    <input type="hidden" name="sku" class="sku" value="">
                     <button class="btn btn-success btn-large">Add to cart</button>
                   </div>
-                </form>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6 product-price-and-stock">
+                <input type="hidden" name="sku" class="sku" value="">
                 <div class="product-price-details">
                   <label>Price</label>
                   <div class="price-and-discount">
@@ -202,6 +201,7 @@
                 <div class="low-stock-alert alert alert-success alert-small">Only <strong>2 left</strong> in stock, buy before they run out</div>
                 <div class="product-availability alert alert-success alert-small">Usually available in 3 to 4 days</div>
               </div>
+             </form>
             </div>
            <!--  end .row  -->
 					</div>
