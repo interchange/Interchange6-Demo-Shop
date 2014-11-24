@@ -1,6 +1,6 @@
-$( "select.product-attributes-name" ).change(function() {
+$.fn.checkVariant = function(){
     var data = {};
-    var form = $('form#product_form');
+    var form = this;
     $.each(form.find("select.product-attributes-name")
       .serializeArray(),function(i,obj) {
         data[obj.name] = obj.value;
@@ -14,4 +14,11 @@ $( "select.product-attributes-name" ).change(function() {
     }).done(function(msg) {
         form.find("div.product-price-and-stock").replaceWith(msg.html);
     });
+};
+$( "select.product-attributes-name" ).change(function() {
+    $('form#product_form').checkVariant();
+});
+
+$( document ).ready(function() {
+    $('form#product_form').checkVariant();
 });
