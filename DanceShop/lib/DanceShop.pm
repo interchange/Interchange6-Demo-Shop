@@ -15,6 +15,7 @@ DanceShop - base Demo Shop for Interchange 6
 
 our $VERSION = '0.001';
 
+use DanceShop::Schema;
 use Dancer ':syntax';
 use Dancer::Plugin::Ajax;
 use Dancer::Plugin::Auth::Extensible;

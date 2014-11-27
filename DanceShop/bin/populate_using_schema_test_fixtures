@@ -13,6 +13,7 @@ has 'ic6s_schema' => (
 
 package main;
 use Dancer ':script';
+use DanceShop::Schema;
 use Dancer::Plugin::Interchange6;
 use Fixtures;
 
