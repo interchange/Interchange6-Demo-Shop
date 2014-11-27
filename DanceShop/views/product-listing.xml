@@ -14,8 +14,8 @@
         <param name="sku" class="input-sku"/>
         <param name="instock" field="quantity_in_stock" op="toggle"
             args="tree"/>
-        <param name="has-discount" op="toggle" args="tree"
-            field="discount_percent"/>
+        <container name="instock" value="quantity_in_stock"/>
+        <container name="has-discount" value="discount_percent"/>
         <param name="price" class="original-price" filter="currency"/>
         <param name="product-price" field="selling_price" filter="currency"/>
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
