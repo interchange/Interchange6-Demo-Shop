@@ -25,7 +25,7 @@
     </list>
     <list name="reviews" class="review-single" iterator="reviews">
         <param name="review-rating" field="rating"/>
-        <param name="review-author" field="reviewer"/>
+        <param name="review-author" field="author.name"/>
         <param name="review-date" field="created" filter="date"/>
         <param name="review-content" field="content"/>
     </list>

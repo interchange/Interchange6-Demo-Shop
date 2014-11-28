@@ -162,17 +162,13 @@ hook 'before_product_display' => sub {
         }
     }
 
-    # TODO: hopefully this will not be necessary once TF supports dotted
-    # notation for accessors in list param
     my @reviews;
     my $reviews = $product->top_reviews;
     while ( my $review = $reviews->next ) {
-        my $name = $review->author->name;
-        $name = 'anonymous' if ( !$name || $name =~ /^\s*$/ );
         push @reviews,
           {
             rating   => $review->rating,
-            reviewer => $name,
+            author => $review->author,
             created  => $review->created->ymd,
             content  => $review->content,
           };
