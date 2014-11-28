@@ -19,6 +19,9 @@ charset: "UTF-8"
 #
 # session: "DBIC"
 
+# include timestamp in log format
+logger_format: "%t [%P] %L @%D> %m in %f l. %l"
+
 # template engine
 template: "template_flute"
 
