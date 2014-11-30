@@ -11,6 +11,12 @@ DanceShop - base Demo Shop for Interchange 6
 
 0.001
 
+=head1 CHECKOUT
+
+The DanceShop has two checkout types: single and multi.
+Currently the default configuration enables the multistep
+checkout.
+
 =cut
 
 our $VERSION = '0.001';

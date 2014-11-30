@@ -7,7 +7,14 @@ use Dancer ':syntax';
 use Dancer::Plugin::Interchange6;
 
 any '/checkout' => sub {
-    template 'checkout', {cart => shop_cart};
+    if (config->{checkout_type} eq 'multi') {
+        $out = template 'checkout_multipage', {cart => shop_cart};
+    }
+    else {
+        $out = template 'checkout', {cart => shop_cart};
+    }
+
+    return $out;
 };
 
 1;

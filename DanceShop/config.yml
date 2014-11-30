@@ -69,3 +69,6 @@ plugins:
     account:
       login:
         template: sign-in
+
+# DanceShop settings
+checkout_type: multi
