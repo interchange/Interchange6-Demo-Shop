@@ -106,6 +106,8 @@ hook 'before_product_display' => sub {
         if ( $in_stock == 0 ) {
             # TODO: we need something in the schema (product attributes?)
             # to set this token
+            # TODO: should say something along the lines of "try another
+            # variant" if product has variants
             $tokens->{"product-availability"} = "Currently out of stock";
         }
         elsif ( $in_stock <= 10 ) {
