@@ -3,72 +3,86 @@
     <value name="go_up" field="navigation.parent.uri" target="href"
         op="append" skip="empty"/>
     <value name="parent_nav_name" field="navigation.parent.name" skip="empty"/>
-    <container name="view-list" value="navigation-view-list"/>
-    <container name="view-simple" value="navigation-view-simple"/>
-    <container name="view-compact" value="navigation-view-compact"/>
-    <container name="view-grid" value="navigation-view-grid"/>
 
-    <list name="view-list" class="product-box-list" iterator="products">
-        <param name="name" class="product-name"/>
-        <param name="uri" class="product-name" target="href" op="append"/>
-        <param name="sku" class="input-sku"/>
-        <param name="instock" field="quantity_in_stock" op="toggle"
-            args="tree"/>
-        <container name="instock" value="quantity_in_stock"/>
-        <container name="has-discount" value="discount_percent"/>
-        <param name="price" class="original-price" filter="currency"/>
-        <param name="product-price" field="selling_price" filter="currency"/>
-        <!--param name="sku" class="product-image" target="src" filter="image"/-->
-        <!-- params specific to this view -->
-        <param name="description" class="product-description"/>
-        <param name="discount-list" field="discount_percent"
-            pattern="discount"/>
-    </list>
-    <list name="view-simple" class="product-box-simple" iterator="products">
-        <param name="name" class="product-name"/>
-        <param name="uri" class="product-name" target="href" op="append"/>
-        <param name="sku" class="input-sku"/>
-        <param name="instock" field="quantity_in_stock" op="toggle"
-            args="tree"/>
-        <param name="has-discount" op="toggle" args="tree"
-            field="discount_percent"/>
-        <param name="price" class="original-price" filter="currency"/>
-        <param name="product-price" field="selling_price" filter="currency"/>
-        <!--param name="sku" class="product-image" target="src" filter="image"/-->
-        <!-- params specific to this view -->
-        <param name="discount-list" field="discount_percent"
-            pattern="discount"/>
-    </list>
-    <list name="view-compact" class="product-box-compact" iterator="products">
-        <param name="name" class="product-name"/>
-        <param name="uri" class="product-name" target="href" op="append"/>
-        <param name="sku" class="input-sku"/>
-        <param name="instock" field="quantity_in_stock" op="toggle"
-            args="tree"/>
-        <param name="has-discount" op="toggle" args="tree"
-            field="discount_percent"/>
-        <param name="price" class="original-price" filter="currency"/>
-        <param name="product-price" field="selling_price" filter="currency"/>
-        <!--param name="sku" class="product-image" target="src" filter="image"/-->
-    </list>
+    <container name="view-list" value="navigation-view-list">
+        <list name="view-list" class="product-box-list" iterator="products">
+            <container name="no-discount" value="!discount"/>
+            <param name="name" class="product-name"/>
+            <param name="uri" class="product-name" target="href" op="append"/>
+            <param name="sku" class="input-sku"/>
+            <param name="instock" field="inventory.quantity" op="toggle"
+                args="tree"/>
+            <param name="has-discount" field="discount" op="toggle"
+                args="tree"/>
+            <param name="price" filter="currency"/>
+            <param name="selling-price" field="selling_price" filter="currency"/>
+            <!--param name="sku" class="product-image" target="src"
+                filter="image"/-->
 
-    <list name="view-grid" class="product-box-grid" iterator="products">
-        <param name="name" class="product-name"/>
-        <param name="uri" class="product-name" target="href" op="append"/>
-        <param name="sku" class="input-sku"/>
-        <param name="instock" field="quantity_in_stock" op="toggle"
-            args="tree"/>
-        <param name="has-discount" op="toggle" args="tree"
-            field="discount_percent"/>
-        <param name="price" class="original-price" filter="currency"/>
-        <param name="product-price" field="selling_price" filter="currency"/>
-        <!--param name="sku" class="product-image" target="src" filter="image"/-->
-        <!--FIXME: need to work out how to make the 'in stock' badge disappear
-        <container name="instock-button" value="quantity">
-            <value name="quantity" field="inventory" class="instock"/>
-        </container>
-        -->
-    </list>
+            <!-- params specific to this view -->
+            <param name="description" class="product-description"/>
+            <param name="discount-list" field="discount"
+                pattern="discount"/>
+        </list>
+    </container>
+
+    <!-- FIXME: this view is always removed since the iterator is empty -->
+    <container name="view-simple" value="navigation-view-simple">
+        <list name="view-simple" class="product-box-simple" iterator="products">
+            <param name="name" class="product-name"/>
+            <param name="uri" class="product-name" target="href" op="append"/>
+            <param name="sku" class="input-sku"/>
+            <param name="instock" field="inventory.quantity" op="toggle"
+                args="tree"/>
+            <param name="has-discount" op="toggle" args="tree"
+                field="discount"/>
+            <param name="price" filter="currency"/>
+            <param name="selling-price" field="selling_price" filter="currency"/>
+            <!--param name="sku" class="product-image" target="src"
+                filter="image"/-->
+
+            <!-- params specific to this view -->
+            <param name="discount-list" field="discount"
+                pattern="discount"/>
+        </list>
+    </container>
+
+    <!-- FIXME: this view is always removed since the iterator is empty -->
+    <container name="view-compact" value="navigation-view-compact">
+        <list name="view-compact" class="product-box-compact"
+            iterator="products">
+            <param name="name" class="product-name"/>
+            <param name="uri" class="product-name" target="href" op="append"/>
+            <param name="sku" class="input-sku"/>
+            <param name="instock" field="inventory.quantity" op="toggle"
+                args="tree"/>
+            <param name="has-discount" op="toggle" args="tree"
+                field="discount"/>
+            <param name="price" filter="currency"/>
+            <param name="selling-price" field="selling_price" filter="currency"/>
+            <!--param name="sku" class="product-image" target="src"
+                filter="image"/-->
+        </list>
+    </container>
+
+    <!-- FIXME: this view is always removed since the iterator is empty -->
+    <container name="view-grid" value="navigation-view-grid">
+        <list name="view-grid" class="product-box-grid" iterator="products">
+            <param name="name" class="product-name"/>
+            <param name="uri" class="product-name" target="href" op="append"/>
+            <param name="sku" class="input-sku"/>
+            <param name="instock" field="inventory.quantity" op="toggle"
+                args="tree"/>
+            <param name="has-discount" op="toggle" args="tree"
+                field="discount"/>
+            <param name="price" filter="currency"/>
+            <param name="selling-price" field="selling_price"
+                filter="currency"/>
+
+            <!--param name="sku" class="product-image" target="src"
+                filter="image"/-->
+        </list>
+    </container>
 
     <value name="count" field="count"/>
     <value name="pager_first_entry" field="pager.first"/>

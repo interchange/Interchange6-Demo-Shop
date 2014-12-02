@@ -82,60 +82,6 @@ hook 'before_navigation_display' => sub {
     unless ( defined $rows ) {
         $rows = $routes_config->{navigation}->{records} || 10;
     }
-
-    # collect roles for current user
-    my @roles;
-    if ( logged_in_user ) {
-        @roles = user_roles;
-        push @roles, 'authenticated';
-    }
-    push @roles, 'anonymous';
-
-    # look for price_modifiers for our products
-    my $dtf = schema->storage->datetime_parser;
-    my $today = $dtf->format_datetime(DateTime->today);
-    my $price_modifiers = rset('PriceModifier')->search(
-        {
-            end_date   => [ undef, { '>=', $today } ],
-            start_date => [ undef, { '<=', $today } ],
-            quantity   => { '<=',  => 1 },
-            sku => { -in => [ $tokens->{products}->get_column('sku')->all ] },
-            'role.name' => { -in => \@roles },
-        },
-        {
-            join   => 'role',
-            select => [ 'sku', { min => 'price' } ],
-            as       => [ 'sku', 'price' ],
-            group_by => [ 'sku', ],
-        }
-    );
-
-    # stash sku => min(price)
-    my %selling_prices;
-    while ( my $rec = $price_modifiers->next ) {
-        $selling_prices{$rec->sku} = $rec->get_column('price');
-    }
-
-    # inflate products so we can add selling_price and discount_percent
-    # to each record
-    $tokens->{products}
-      ->result_class('DBIx::Class::ResultClass::HashRefInflator');
-
-    my @products;
-    while ( my $rec = $tokens->{products}->next ) {
-        if ( defined $selling_prices{$rec->{sku}} ) {
-            $rec->{selling_price} = $selling_prices{$rec->{sku}};
-            $rec->{discount_percent} =
-              int( ( $rec->{price} - $selling_prices{ $rec->{sku} } ) /
-                  $rec->{price} *
-                  100 );
-        }
-        else {
-            $rec->{selling_price} = $rec->{price};
-        }
-        push @products, $rec;
-    }
-    $tokens->{products} = \@products;
 };
 
 hook 'before_product_display' => sub {
