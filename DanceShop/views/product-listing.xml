@@ -6,13 +6,13 @@
 
     <container name="view-list" value="navigation-view-list">
         <list name="view-list" class="product-box-list" iterator="products">
-            <container name="no-discount" value="!discount"/>
+            <container name="no-discount" value="!discount_percent"/>
             <param name="name" class="product-name"/>
             <param name="uri" class="product-name" target="href" op="append"/>
             <param name="sku" class="input-sku"/>
             <param name="instock" field="inventory.quantity" op="toggle"
                 args="tree"/>
-            <param name="has-discount" field="discount" op="toggle"
+            <param name="has-discount" field="discount_percent" op="toggle"
                 args="tree"/>
             <param name="price" filter="currency"/>
             <param name="selling-price" field="selling_price" filter="currency"/>
@@ -21,7 +21,7 @@
 
             <!-- params specific to this view -->
             <param name="description" class="product-description"/>
-            <param name="discount-list" field="discount"
+            <param name="discount-list" field="discount_percent"
                 pattern="discount"/>
         </list>
     </container>
@@ -35,14 +35,14 @@
             <param name="instock" field="inventory.quantity" op="toggle"
                 args="tree"/>
             <param name="has-discount" op="toggle" args="tree"
-                field="discount"/>
+                field="discount_percent"/>
             <param name="price" filter="currency"/>
             <param name="selling-price" field="selling_price" filter="currency"/>
             <!--param name="sku" class="product-image" target="src"
                 filter="image"/-->
 
             <!-- params specific to this view -->
-            <param name="discount-list" field="discount"
+            <param name="discount-list" field="discount_percent"
                 pattern="discount"/>
         </list>
     </container>
@@ -57,7 +57,7 @@
             <param name="instock" field="inventory.quantity" op="toggle"
                 args="tree"/>
             <param name="has-discount" op="toggle" args="tree"
-                field="discount"/>
+                field="discount_percent"/>
             <param name="price" filter="currency"/>
             <param name="selling-price" field="selling_price" filter="currency"/>
             <!--param name="sku" class="product-image" target="src"
@@ -74,7 +74,7 @@
             <param name="instock" field="inventory.quantity" op="toggle"
                 args="tree"/>
             <param name="has-discount" op="toggle" args="tree"
-                field="discount"/>
+                field="discount_percent"/>
             <param name="price" filter="currency"/>
             <param name="selling-price" field="selling_price"
                 filter="currency"/>
