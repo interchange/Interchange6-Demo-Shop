@@ -2,7 +2,6 @@
     <pattern name="rating" type="string">4.7</pattern>
     <value name="fragment-product-price-and-stock"
         include="fragments/product-price-and-stock.html"/>
-    <value name="crumb" field="product.name"/>
     <value name="product-title" field="product.name"/>
     <value name="short-description" field="product.short_description"/>
     <value name="description" field="product.description"/>

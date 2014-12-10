@@ -82,6 +82,8 @@ hook 'before_navigation_display' => sub {
     unless ( defined $rows ) {
         $rows = $routes_config->{navigation}->{records} || 10;
     }
+    $tokens->{breadcrumb} = [$tokens->{navigation}->ancestors];
+    $tokens->{"page-name"} = $tokens->{navigation}->name;
 };
 
 hook 'before_product_display' => sub {
@@ -129,6 +131,8 @@ hook 'before_product_display' => sub {
     }
     $tokens->{reviews} = \@reviews;
     $tokens->{"extra-js-file"} = 'product-page.js';
+    $tokens->{breadcrumb} = $product->path;
+    $tokens->{"page-name"} = $product->name;
 };
 
 get '/' => sub {
