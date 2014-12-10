@@ -84,6 +84,15 @@ hook 'before_navigation_display' => sub {
     }
     $tokens->{breadcrumb} = [$tokens->{navigation}->ancestors];
     $tokens->{"page-name"} = $tokens->{navigation}->name;
+
+    # navigation siblings
+    my $siblings =
+      [ $tokens->{navigation}->siblings_with_self->search( undef,
+        { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } )->all ];
+    foreach my $sibling ( @$siblings ) {
+        $sibling->{selected} = 1 if $sibling->{navigation_id} == $tokens->{navigation}->navigation_id;
+    }
+    $tokens->{"nav-siblings"} = $siblings;
 };
 
 hook 'before_product_display' => sub {

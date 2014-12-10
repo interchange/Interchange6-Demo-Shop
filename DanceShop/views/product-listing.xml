@@ -1,8 +1,5 @@
 <specification>
     <pattern name="discount" type="string">20</pattern>
-    <value name="go_up" field="navigation.parent.uri" target="href"
-        op="append" skip="empty"/>
-    <value name="parent_nav_name" field="navigation.parent.name" skip="empty"/>
 
     <container name="view-list" value="navigation-view-list">
         <list name="view-list" class="product-box-list" iterator="products">
@@ -88,11 +85,9 @@
     <value name="pager_first_entry" field="pager.first"/>
     <value name="pager_last_entry" field="pager.last"/>
 
-    <!-- FIXME sibling menu sucks since siblings does not include self -->
-    <value name="current_nav" field="navigation.name"/>
-    <value name="current_nav_uri" class="current_nav" field="navigation.uri" target="href" op="append"/>
-    <list name="nav-sibling" iterator="navigation.siblings">
+    <list name="nav-sibling" iterator="nav-siblings">
         <param name="link_name" class="link" field="name"/>
         <param name="link" field="uri" target="href" op="append"/>
+        <param name="active" class="nav-sibling" target="class" value="active" field="selected"/>
     </list>
 </specification>
