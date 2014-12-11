@@ -26,14 +26,19 @@ use Class::Load qw/try_load_class/;
 use Dancer ':script';
 use Dancer::Plugin::Interchange6;
 use lib 'lib';
-use DanceShop::Data::DataGen;
-use DanceShop::Data::DataPop;
 
-foreach my $class (qw/ Acme::MetaSyntactic::Themes Data::Faker Data::Faker::MetaSyntactic Data::Generate Getopt::Long Term::ProgressBar Term::UI Tie::IxHash /) {
-    try_load_class($class)
-      or die "you must install $class to use this script\n";
+sub BEGIN {
+    foreach my $class (
+        qw/ Acme::MetaSyntactic::Themes Data::Faker Data::Faker::MetaSyntactic Data::Generate Getopt::Long Term::ProgressBar Term::UI Tie::IxHash /
+      )
+    {
+        try_load_class($class)
+          or die "you must install $class to use this script\n";
+    }
 }
 
+use DanceShop::Data::DataGen;
+use DanceShop::Data::DataPop;
 use Getopt::Long;
 use Term::ProgressBar;
 use Term::UI;
