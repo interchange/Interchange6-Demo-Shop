@@ -18,6 +18,7 @@ WriteMakefile(
     MIN_PERL_VERSION    => '5.014000',
     PL_FILES            => {},
     PREREQ_PM => {
+        'Class::Load' => 0,
         'Test::More' => 0,
         'YAML'       => 0,
         'Dancer'     => 1.3124,
