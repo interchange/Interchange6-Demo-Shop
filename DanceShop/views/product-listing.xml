@@ -17,7 +17,7 @@
                 filter="image"/-->
 
             <!-- params specific to this view -->
-            <param name="description" class="product-description"/>
+            <param name="short_description" class="product-description"/>
             <param name="discount-list" field="discount_percent"
                 pattern="discount"/>
         </list>

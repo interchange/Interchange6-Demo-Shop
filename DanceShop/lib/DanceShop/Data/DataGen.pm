@@ -222,9 +222,11 @@ sub navigation {
 sub colors {
     my $color_names = [$meta->name('colours', 0)];
     my @colors;
+    my $rset = $shop_schema->resultset('AttributeValue');
     foreach ( @{$color_names} ) {
-        my $color->{'title'} = $_;
-        $color->{'value'} = lc($_);
+        next if $rset->search({value=>$_})->count;
+        my $color->{value} = $_;
+        ($color->{title} = $_) =~ s/_/ /g;
         push( @colors, $color );
     }
     @colors = sort { $a->{'value'} cmp $b->{'value'} } @colors;
@@ -330,14 +332,14 @@ sub height {
 sub data {
     my $sku = shift;
     my ( $name, $uri, $short_description, $description );
-    $name = join( " ",
-        $fake->jargon_buzz_word, $fake->jargon_buzz_word,
-        $fake->jargon_buzz_word );
+    $name = join( " ", map $fake->meta, 1..3 );
+    $name =~ s/_/ /g;
     $uri = join( "-", $sku, $name );
     $uri =~ s/ /-/g;
     $name = ucfirst($name);
-    $short_description = join( " ", $name, $fake->catch_phase );
-    $description = join( " ", $name, $fake->catch_phase, $fake->catch_phase );
+    $short_description = join( " ", $name, map $fake->meta, 1..20 );
+    $short_description =~ s/_/ /g;
+    $description = join(" ", $meta->name('loremipsum', 0));
     return ( $name, $uri, $short_description, $description );
 }
 
@@ -365,8 +367,9 @@ sub unique_colors {
         {
             'name' => 'color',
         },
-    )->search_related('AttributeValue');
+    )->search_related('attribute_values');
 
+    print STDERR "\n" . scalar @colors . "\n";
     my $rand =
       parse( "INT [0-" . ( $#colors - 1 ) . "]" )->get_unique_data($array_size);
     my @unique_colors;
