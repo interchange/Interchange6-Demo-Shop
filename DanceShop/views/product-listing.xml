@@ -3,16 +3,15 @@
 
     <container name="view-list" value="navigation-view-list">
         <list name="view-list" class="product-box-list" iterator="products">
-            <container name="no-discount" value="!discount_percent"/>
+            <container name="has-selling-price" value="selling_price"/>
+            <container name="no-selling-price" value="!selling_price"/>
+            <container name="instock" value="inventory"/>
             <param name="name" class="product-name"/>
             <param name="uri" class="product-name" target="href" op="append"/>
             <param name="sku" class="input-sku"/>
-            <param name="instock" field="inventory.quantity" op="toggle"
-                args="tree"/>
-            <param name="has-discount" field="discount_percent" op="toggle"
-                args="tree"/>
             <param name="price" filter="currency"/>
-            <param name="selling-price" field="selling_price" filter="currency"/>
+            <param name="selling-price" field="selling_price"
+                filter="currency"/>
             <!--param name="sku" class="product-image" target="src"
                 filter="image"/-->
 
@@ -26,15 +25,15 @@
     <!-- FIXME: this view is always removed since the iterator is empty -->
     <container name="view-simple" value="navigation-view-simple">
         <list name="view-simple" class="product-box-simple" iterator="products">
+            <container name="has-selling-price" value="selling_price"/>
+            <container name="no-selling-price" value="!selling_price"/>
+            <container name="instock" value="inventory"/>
             <param name="name" class="product-name"/>
             <param name="uri" class="product-name" target="href" op="append"/>
             <param name="sku" class="input-sku"/>
-            <param name="instock" field="inventory.quantity" op="toggle"
-                args="tree"/>
-            <param name="has-discount" op="toggle" args="tree"
-                field="discount_percent"/>
             <param name="price" filter="currency"/>
-            <param name="selling-price" field="selling_price" filter="currency"/>
+            <param name="selling-price" field="selling_price"
+                filter="currency"/>
             <!--param name="sku" class="product-image" target="src"
                 filter="image"/-->
 
@@ -48,15 +47,15 @@
     <container name="view-compact" value="navigation-view-compact">
         <list name="view-compact" class="product-box-compact"
             iterator="products">
+            <container name="has-selling-price" value="selling_price"/>
+            <container name="no-selling-price" value="!selling_price"/>
+            <container name="instock" value="inventory"/>
             <param name="name" class="product-name"/>
             <param name="uri" class="product-name" target="href" op="append"/>
             <param name="sku" class="input-sku"/>
-            <param name="instock" field="inventory.quantity" op="toggle"
-                args="tree"/>
-            <param name="has-discount" op="toggle" args="tree"
-                field="discount_percent"/>
             <param name="price" filter="currency"/>
-            <param name="selling-price" field="selling_price" filter="currency"/>
+            <param name="selling-price" field="selling_price"
+                filter="currency"/>
             <!--param name="sku" class="product-image" target="src"
                 filter="image"/-->
         </list>
@@ -65,23 +64,21 @@
     <!-- FIXME: this view is always removed since the iterator is empty -->
     <container name="view-grid" value="navigation-view-grid">
         <list name="view-grid" class="product-box-grid" iterator="products">
+            <container name="has-selling-price" value="selling_price"/>
+            <container name="no-selling-price" value="!selling_price"/>
+            <container name="instock" value="inventory"/>
             <param name="name" class="product-name"/>
             <param name="uri" class="product-name" target="href" op="append"/>
             <param name="sku" class="input-sku"/>
-            <param name="instock" field="inventory.quantity" op="toggle"
-                args="tree"/>
-            <param name="has-discount" op="toggle" args="tree"
-                field="discount_percent"/>
             <param name="price" filter="currency"/>
             <param name="selling-price" field="selling_price"
                 filter="currency"/>
-
             <!--param name="sku" class="product-image" target="src"
                 filter="image"/-->
         </list>
     </container>
 
-    <value name="count" field="count"/>
+    <value name="pager_total_entries" field="pager.total_entries"/>
     <value name="pager_first_entry" field="pager.first"/>
     <value name="pager_last_entry" field="pager.last"/>
 

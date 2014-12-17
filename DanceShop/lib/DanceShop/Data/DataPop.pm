@@ -76,7 +76,8 @@ sub pop_products{
         try {
             $shop_schema->resultset('Product')->create($product)
               ->add_variants( @{$variants} );
-            $progress->update(++$so_far);
+            $so_far++;
+            $progress->update($so_far);
         };
     }
 }
