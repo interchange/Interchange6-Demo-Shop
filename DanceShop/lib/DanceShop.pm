@@ -45,7 +45,7 @@ hook 'before_layout_render' => sub {
             parent_id => undef,
         },
         {
-            order_by => { -asc => 'priority'},
+            order_by => { -desc => 'priority'},
         }
     );
     while (my $record = $nav->next) {
@@ -86,13 +86,23 @@ hook 'before_navigation_display' => sub {
     $tokens->{"page-name"} = $tokens->{navigation}->name;
 
     # navigation siblings
-    my $siblings =
-      [ $tokens->{navigation}->siblings_with_self->search( undef,
-        { result_class => 'DBIx::Class::ResultClass::HashRefInflator' } )->all ];
+    my $siblings = [
+        $tokens->{navigation}->siblings_with_self->search(
+            undef,
+            {
+                order_by => [ { -desc => 'priority' }, { -asc => 'name' } ],
+                result_class => 'DBIx::Class::ResultClass::HashRefInflator'
+            }
+        )->all
+    ];
+
     foreach my $sibling ( @$siblings ) {
         $sibling->{selected} = 1 if $sibling->{navigation_id} == $tokens->{navigation}->navigation_id;
     }
     $tokens->{"nav-siblings"} = $siblings;
+
+    # TF calls count on listing which is BAD so switch to array
+    $tokens->{products} = [$tokens->{products}->all];
 };
 
 hook 'before_product_display' => sub {
