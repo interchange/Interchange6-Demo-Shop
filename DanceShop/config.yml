@@ -31,6 +31,10 @@ engines:
       currency:
         options:
           int_curr_symbol: "$"
+      selling_price:
+        class: "DanceShop::Filters::SellingPrice"
+        options:
+          int_curr_symbol: "$"
 
 plugins:
   DBIC:
