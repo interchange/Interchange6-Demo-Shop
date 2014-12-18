@@ -65,9 +65,14 @@
           </div>
         </div>
         <div class="col-md-9">
+
           <div class="listing-top">
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-3">
+                <div class="listing-results-number">
+                  Showing results <strong><span class="pager_first_entry">1</span>-<span class="pager_last_entry">20</span></strong> of <strong class="pager_total_entries">400</strong></div>
+              </div>
+              <div class="col-md-5 col-md-offset-1">
                 <ul class="pagination">
                   <li>
                     <a href="#">«</a>
@@ -92,21 +97,49 @@
                   </li>
                 </ul>
               </div>
-              <div class="col-md-5">
-                <div class="listing-results-number">
-                  Showing results <strong><span class="pager_first_entry">1</span>-<span class="pager_last_entry">20</span></strong> of <strong class="pager_total_entries">400</strong></div>
+              <div class="col-md-3">
+                <form class="form-inline" role="form">
+                  <div class="form-group">
+                    Show
+                    <select class="form-control input-sm">
+                      <option>10</option>
+                      <option>20</option>
+                      <option>30</option>
+                      <option>40</option>
+                    </select>
+                    per page
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-9 btn-group" role="group">
+                <button type="button" class="btn btn-default" aria-label="Grid">
+                  <span class="glyphicon glyphicon-th" aria-hidden="true"></span>
+                  Grid
+                </button>
+                <button type="button" class="btn btn-default" aria-label="List">
+                  <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                  List
+                </button>
               </div>
               <div class="col-md-3">
-                <select class="form-control input-sm">
-                  <option>Sort by</option>
-                  <option>2</option>
-                  <option>3</option>
-                  <option>4</option>
-                  <option>5</option>
-                </select>
+                <form class="form-inline" role="form">
+                  <div class="form-group">
+                    Sort by
+                    <select class="form-control input-sm">
+                      <option>Position</option>
+                      <option>Price</option>
+                      <option>Name</option>
+                      <option>SKU</option>
+                    </select>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
+          <hr>
+
           <!--  ***** GRID VIEW ************************************  -->
           <div class="view-grid">
             <div class="row">
