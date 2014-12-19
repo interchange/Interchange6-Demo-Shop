@@ -133,6 +133,16 @@ hook 'before_navigation_search' => sub {
 
     $tokens->{order_by_iterator} = \@order_by_iterator;
     $tokens->{order_by} = $order;
+    if ( $direction eq 'asc' ) {
+        $tokens->{reverse_order} = 'desc';
+        $tokens->{order_by_glyph} =
+          q(<span class="glyphicon glyphicon-arrow-down"></span>);
+    }
+    else {
+        $tokens->{reverse_order} = 'asc';
+        $tokens->{order_by_glyph} =
+          q(<span class="glyphicon glyphicon-arrow-up"></span>);
+    }
 
     # products and pager
 
@@ -166,21 +176,16 @@ hook 'before_navigation_search' => sub {
     # navigation siblings
 
     my $siblings_with_self = $tokens->{navigation}->siblings_with_self;
+
     my $siblings = [
-        $siblings_with_self->search(
-            undef,
+        $siblings_with_self->columns( [qw/navigation_id uri name/] )
+          ->add_columns(
             {
-                columns => [qw/navigation_id uri name/],
-                '+columns' => {
-                    count =>
-                      $siblings_with_self->correlate('navigation_products')
-                      ->search_related( 'product', { active => 1, }, )
-                      ->count_rs->as_query
-                },
-                order_by => [ { -desc => 'priority' }, { -asc => 'name' } ],
-                result_class => 'DBIx::Class::ResultClass::HashRefInflator'
+                count => $siblings_with_self->correlate('navigation_products')
+                  ->search_related( 'product', { active => 1, }, )
+                  ->count_rs->as_query
             }
-        )->all
+          )->order_by('!priority,name')->hri->all
     ];
 
     foreach my $sibling (@$siblings) {

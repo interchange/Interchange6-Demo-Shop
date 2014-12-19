@@ -236,4 +236,7 @@ $( document ).ready(function() {
     $(".view").click(function() {
         window.location.search = $.query.set('view', $(this).val());
     });
+    $(".order_direction").click(function() {
+        window.location.search = $.query.set('dir', $(this).val());
+    });
 });
