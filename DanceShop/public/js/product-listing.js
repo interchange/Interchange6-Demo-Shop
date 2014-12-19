@@ -233,4 +233,7 @@ $( document ).ready(function() {
     $("#order_by").change(function() {
         window.location.search = $.query.set('order', $(this).val());
     });
+    $(".view").click(function() {
+        window.location.search = $.query.set('view', $(this).val());
+    });
 });

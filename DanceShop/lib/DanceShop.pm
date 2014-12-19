@@ -124,11 +124,21 @@ hook 'before_navigation_search' => sub {
 
     $tokens->{pager} = $products->pager;
 
-    $tokens->{products} =
-      [ $products->listing( { users_id => session('logged_in_user_id') } )
-          ->group_by( [ 'product.sku', 'inventory.quantity', @order_by ] )
-          ->order_by({ "-$direction" => \@order_by })->all
-      ];
+    my @products =
+      $products->listing( { users_id => session('logged_in_user_id') } )
+      ->group_by( [ 'product.sku', 'inventory.quantity', @order_by ] )
+      ->order_by( { "-$direction" => \@order_by } )->all;
+
+    if ( $view eq 'grid' ) {
+        my @grid;
+        while ( scalar @products > 0 ) {
+            push @grid, +{ row => [ splice @products, 0, 3 ] };
+        }
+        $tokens->{products} = \@grid;
+    }
+    else {
+        $tokens->{products} = \@products;
+    }
 
     # breadcrumb and page name
 
