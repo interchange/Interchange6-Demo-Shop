@@ -91,4 +91,6 @@
         <param name="link" field="uri" target="href" op="append"/>
         <param name="active" class="nav-sibling" target="class" value="active" field="selected"/>
     </list>
+
+    <value name="order_by" iterator="order_by_iterator"/>
 </specification>

@@ -230,7 +230,7 @@ $( document ).ready(function() {
     $("#per_page").change(function() {
         window.location.search = $.query.set('rows', $(this).val());
     });
-    $("#order_by").change(function() {
+    $(".order_by").change(function() {
         window.location.search = $.query.set('order', $(this).val());
     });
     $(".view").click(function() {

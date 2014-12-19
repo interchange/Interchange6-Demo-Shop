@@ -101,10 +101,16 @@ hook 'before_navigation_search' => sub {
 
     # order
 
+    my @order_by_iterator = (
+        { value => 'priority', label => 'Position' },
+        { value => 'price',    label => 'Price' },
+        { value => 'name',     label => 'Name' },
+        { value => 'sku',      label => 'SKU' },
+    );
     my $order     = $query{order};
     my $direction = $query{dir};
     if (   !defined $order
-        || !grep { $_ eq $order } (qw/priority price name sku/) )
+        || !grep { $_ eq $order } map { $_->{value} } @order_by_iterator )
     {
         $order     = 'priority';
         $direction = 'desc';
@@ -115,6 +121,9 @@ hook 'before_navigation_search' => sub {
     if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
         $direction = 'asc';
     }
+
+    $tokens->{order_by_iterator} = \@order_by_iterator;
+    $tokens->{order_by} = $order;
 
     # products and pager
 
