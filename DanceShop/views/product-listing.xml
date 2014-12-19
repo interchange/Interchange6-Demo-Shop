@@ -83,6 +83,7 @@
     <value name="pager_last_entry" field="pager.last"/>
 
     <list name="nav-sibling" iterator="nav-siblings">
+        <param name="badge" field="count"/>
         <param name="link_name" class="link" field="name"/>
         <param name="link" field="uri" target="href" op="append"/>
         <param name="active" class="nav-sibling" target="class" value="active" field="selected"/>

@@ -22,6 +22,7 @@ checkout.
 our $VERSION = '0.001';
 
 use Dancer ':syntax';
+use Dancer::Plugin;
 use Dancer::Plugin::Ajax;
 use Dancer::Plugin::Auth::Extensible;
 use Dancer::Plugin::DBIC;
@@ -29,10 +30,22 @@ use Dancer::Plugin::Interchange6;
 use Dancer::Plugin::Interchange6::Routes;
 use DanceShop::Routes::Checkout;
 use DateTime;
+use POSIX qw/ceil/;
 use Try::Tiny;
 
 set session => 'DBIC';
 set session_options => {schema => schema};
+
+=head1 HOOKS
+
+The DanceShop makes use of the following hooks.
+
+=head2 before_layout_render
+
+Create tokens for all L<Interchange6::Schema::Result::Navigation> menus where
+C<type> is C<nav> with the token name being the C<scope> prepended with C<nav->.
+
+=cut
 
 hook 'before_layout_render' => sub {
     my $tokens = shift;
@@ -53,56 +66,110 @@ hook 'before_layout_render' => sub {
     };
 };
 
-hook 'before_navigation_display' => sub {
+=head2 before_navigation_search
+
+This hooks replaces the standard L<Dancer::Plugin::Interchange6::Routes>
+navigation route to enable us to alter product listing items per page on 
+the fly and sort order.
+
+=cut
+
+hook 'before_navigation_search' => sub {
     my $tokens = shift;
-    
-    my %querystring_params = params('query');
+
+    my %query = params('query');
 
     my $routes_config = config->{plugin}->{'Interchange6::Routes'};
 
-    # TODO: view should be stored in session so that it is preserved across
-    # requests as user navigates around shop. For now this is at least useful
-    # for testing
-    my $view = $querystring_params{view};
-    if ( defined $view ) {
-        undef $view unless grep { $_ eq $view } (qw/grid list simple compact/);
-    }
-    unless ( defined $view ) {
+    # determine which view to display
+
+    my $view = $query{view};
+    if (   !defined $view
+        || !grep { $_ eq $view } (qw/grid list simple compact/) )
+    {
         $view = $routes_config->{navigation}->{default_view} || 'list';
     }
     $tokens->{"navigation-view-$view"} = 1;
 
-    # TODO: another things that should perhaps be stored in session is rows
-    # this should probably also be handled in plugin
-    # NOTE: this is not currently used
-    my $rows = $querystring_params{rows};
-    if ( defined $rows ) {
-        undef $rows unless $rows =~ /^\d+$/;
-    }
-    unless ( defined $rows ) {
+    # rows (products per page) 
+
+    my $rows = $query{rows};
+    if ( !defined $rows || $rows !~ /^\d+$/ ) {
         $rows = $routes_config->{navigation}->{records} || 10;
     }
+    $rows = ceil($rows/3)*3 if ( $view eq 'grid' );
+
+    # order
+
+    my $order     = $query{order};
+    my $direction = $query{dir};
+    if (   !defined $order
+        || !grep { $_ eq $order } (qw/priority price name sku/) )
+    {
+        $order     = 'priority';
+        $direction = 'desc';
+    }
+    my @order_by = ( "product.$order" );
+    unshift( @order_by, "me.priority" ) if ( $order eq 'priority' ); 
+
+    if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
+        $direction = 'asc';
+    }
+
+    # products and pager
+
+    my $products =
+      $tokens->{navigation}->navigation_products->search_related('product')
+      ->active->limited_page( $tokens->{page}, $rows );
+
+    $tokens->{pager} = $products->pager;
+
+    $tokens->{products} =
+      [ $products->listing( { users_id => session('logged_in_user_id') } )
+          ->group_by( [ 'product.sku', 'inventory.quantity', @order_by ] )
+          ->order_by({ "-$direction" => \@order_by })->all
+      ];
+
+    # breadcrumb and page name
+
     $tokens->{breadcrumb} = [$tokens->{navigation}->ancestors];
     $tokens->{"page-name"} = $tokens->{navigation}->name;
 
     # navigation siblings
+
+    my $siblings_with_self = $tokens->{navigation}->siblings_with_self;
     my $siblings = [
-        $tokens->{navigation}->siblings_with_self->search(
+        $siblings_with_self->search(
             undef,
             {
+                columns => [qw/navigation_id uri name/],
+                '+columns' => {
+                    count =>
+                      $siblings_with_self->correlate('navigation_products')
+                      ->search_related( 'product', { active => 1, }, )
+                      ->count_rs->as_query
+                },
                 order_by => [ { -desc => 'priority' }, { -asc => 'name' } ],
                 result_class => 'DBIx::Class::ResultClass::HashRefInflator'
             }
         )->all
     ];
 
-    foreach my $sibling ( @$siblings ) {
-        $sibling->{selected} = 1 if $sibling->{navigation_id} == $tokens->{navigation}->navigation_id;
+    foreach my $sibling (@$siblings) {
+        $sibling->{selected} = 1
+          if $sibling->{navigation_id} == $tokens->{navigation}->navigation_id;
     }
     $tokens->{"nav-siblings"} = $siblings;
 
-    # TF calls count on listing which is BAD so switch to array
-    $tokens->{products} = [$tokens->{products}->all];
+    # add extra js
+
+    $tokens->{"extra-js-file"} = 'product-listing.js';
+
+    # call the template and throw it so that the hook does not return
+    # and request processing finishes
+
+    Dancer::Continuation::Route::Templated->new(
+        return_value => template( $tokens->{template}, $tokens ) )->throw;
 };
 
 hook 'before_product_display' => sub {

@@ -5,22 +5,22 @@
             <div class="sidebar-widget">
               <ul class="nav nav-pills nav-stacked">
                 <li class="nav-sibling">
-                  <a class="link" href="/">T-shirts</a>
+                <a class="link" href="/">T-shirts <span class="badge">23</span></a>
                 </li>
                 <li class="nav-sibling">
-                  <a class="link" href="/">Jackets</a>
+                <a class="link" href="/">Jackets <span class="badge">23</span></a>
                 </li>
                 <li class="nav-sibling">
-                  <a class="link" href="/">Shoes</a>
+                <a class="link" href="/">Shoes <span class="badge">23</span></a>
                 </li>
                 <li class="nav-sibling">
-                  <a class="link" href="/">Sport wear</a>
+                <a class="link" href="/">Sport wear <span class="badge">23</span></a>
                 </li>
                 <li class="nav-sibling">
-                  <a class="link" href="/">Outwear</a>
+                <a class="link" href="/">Outwear <span class="badge">23</span></a>
                 </li>
                 <li class="nav-sibling">
-                  <a class="link" href="/">Shorts</a>
+                <a class="link" href="/">Shorts <span class="badge">23</span></a>
                 </li>
               </ul>
             </div>
@@ -101,7 +101,7 @@
                 <form class="form-inline" role="form">
                   <div class="form-group">
                     Show
-                    <select class="form-control input-sm">
+                    <select id="per_page" class="form-control input-sm">
                       <option>10</option>
                       <option>20</option>
                       <option>30</option>
@@ -131,11 +131,11 @@
                 <form class="form-inline" role="form">
                   <div class="form-group">
                     Sort by
-                    <select class="form-control input-sm">
-                      <option>Position</option>
-                      <option>Price</option>
-                      <option>Name</option>
-                      <option>SKU</option>
+                    <select id="order_by" class="form-control input-sm">
+                      <option value="priority">Position</option>
+                      <option value="price">Price</option>
+                      <option value="name">Name</option>
+                      <option value="sku">SKU</option>
                     </select>
                     <a href="#"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></a>
                   </div>
