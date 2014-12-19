@@ -97,7 +97,16 @@ hook 'before_navigation_search' => sub {
     if ( !defined $rows || $rows !~ /^\d+$/ ) {
         $rows = $routes_config->{navigation}->{records} || 10;
     }
-    $rows = ceil($rows/3)*3 if ( $view eq 'grid' );
+
+    my @rows_iterator;
+    if ( $view eq 'grid' ) {
+        $rows = ceil($rows/3)*3;
+        $tokens->{per_page_iterator} = [ map { +{ value => 12 * $_ } } 1 .. 4 ];
+    }
+    else {
+        $tokens->{per_page_iterator} = [ map { +{ value => 10 * $_ } } 1 .. 4 ];
+    }
+    $tokens->{per_page} = $rows;
 
     # order
 

@@ -227,7 +227,7 @@ new function(settings) {
 }(jQuery.query || {}); // Pass in jQuery.query as settings object
 
 $( document ).ready(function() {
-    $("#per_page").change(function() {
+    $(".per_page").change(function() {
         window.location.search = $.query.set('rows', $(this).val());
     });
     $(".order_by").change(function() {
