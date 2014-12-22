@@ -111,10 +111,10 @@ hook 'before_navigation_search' => sub {
     # order
 
     my @order_by_iterator = (
-        { value => 'priority', label => 'Position' },
-        { value => 'price',    label => 'Price' },
-        { value => 'name',     label => 'Name' },
-        { value => 'sku',      label => 'SKU' },
+        { value => 'priority',      label => 'Position' },
+        { value => 'selling_price', label => 'Price' },
+        { value => 'name',          label => 'Name' },
+        { value => 'sku',           label => 'SKU' },
     );
     my $order     = $query{order};
     my $direction = $query{dir};
@@ -126,6 +126,14 @@ hook 'before_navigation_search' => sub {
     }
     my @order_by = ( "product.$order" );
     unshift( @order_by, "me.priority" ) if ( $order eq 'priority' ); 
+
+    my @group_by = ( 'product.sku', 'inventory.quantity' );
+    if ( $order eq "selling_price") {
+        @order_by = ( "selling_price" );
+    }
+    else {
+        push @group_by, @order_by;
+    }
 
     if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
         $direction = 'asc';
@@ -150,11 +158,24 @@ hook 'before_navigation_search' => sub {
       $tokens->{navigation}->navigation_products->search_related('product')
       ->active->limited_page( $tokens->{page}, $rows );
 
-    $tokens->{pager} = $products->pager;
+    my $pager = $products->pager;
+
+    if ( !$products->has_rows && $pager->last_page > 1 ) {
+
+        # beyond the last page
+
+        $products =
+          $tokens->{navigation}->navigation_products->search_related('product')
+          ->active->limited_page( $pager->last_page, $rows );
+
+        $pager = $products->pager;
+
+    }
+    $tokens->{pager} = $pager;
 
     my @products =
       $products->listing( { users_id => session('logged_in_user_id') } )
-      ->group_by( [ 'product.sku', 'inventory.quantity', @order_by ] )
+      ->group_by( \@group_by )
       ->order_by( { "-$direction" => \@order_by } )->all;
 
     if ( $view eq 'grid' ) {
@@ -166,6 +187,73 @@ hook 'before_navigation_search' => sub {
     }
     else {
         $tokens->{products} = \@products;
+    }
+
+    # pagination
+
+    if ( $pager->last_page > 1 ) {
+
+        # we want pagination as there is more than one page of products
+
+        my $first_page = 1;
+        my $last_page  = $pager->last_page;
+
+        if ( $pager->last_page > 5 ) {
+
+            # more than 5 pages so we might need to start later than page 1
+
+            if ( $pager->current_page <= 3 ) {
+                $last_page = 5;
+            }
+            elsif (
+                $pager->last_page - $pager->current_page <
+                3 )
+            {
+                $first_page = $pager->last_page - 4;
+            }
+            else {
+                $first_page = $pager->current_page - 2;
+                $last_page = $pager->current_page + 2;
+            }
+
+            my @pages = map {
+                +{
+                    page => $_,
+                    uri  => $_ == $pager->current_page
+                    ? undef
+                    : uri_for( $tokens->{navigation}->uri . '/' . $_, \%query ),
+                    active => $_ == $pager->current_page ? " active" : undef,
+                  }
+            } $first_page .. $last_page;
+
+            $tokens->{pagination} = \@pages;
+
+
+            if ( $pager->current_page > 1 ) {
+
+                # previous page
+
+                my $previous = $pager->current_page > 3 ? $first_page - 1 : 1;
+
+                $tokens->{pagination_previous} =
+                  uri_for( $tokens->{navigation}->uri . '/' . $previous,
+                    \%query );
+            }
+
+            if ( $pager->current_page < $pager->last_page ) {
+
+                # next page
+
+                my $next =
+                    $pager->last_page - $pager->current_page > 3
+                  ? $last_page + 1
+                  : $pager->last_page;
+
+                $tokens->{pagination_next} =
+                  uri_for( $tokens->{navigation}->uri . '/' . $next,
+                    \%query );
+            }
+        }
     }
 
     # breadcrumb and page name
