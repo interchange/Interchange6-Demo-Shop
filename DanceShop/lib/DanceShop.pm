@@ -156,25 +156,86 @@ hook 'before_navigation_search' => sub {
 
     my $products =
       $tokens->{navigation}->navigation_products->search_related('product')
-      ->active->limited_page( $tokens->{page}, $rows );
-
-    my $pager = $products->pager;
+      ->active;
+      
+    # leave $products alone as we need it later for other things and
+    # create a new resultset that is paged
+    my $paged_products = $products->limited_page( $tokens->{page}, $rows );
+    my $pager = $paged_products->pager;
 
     if ( !$products->has_rows && $pager->last_page > 1 ) {
 
         # beyond the last page
 
-        $products =
-          $tokens->{navigation}->navigation_products->search_related('product')
-          ->active->limited_page( $pager->last_page, $rows );
-
-        $pager = $products->pager;
-
+        $paged_products = $products->limited_page( $pager->last_page, $rows );
+        $pager = $paged_products->pager;
     }
     $tokens->{pager} = $pager;
 
+    # facets from attributes using non-paged products result set
+    # NOTE: I'm sure there is room for improvement here.
+    #       Also more thought is needed since this assumes that the 
+    #       product rset only includes canonical products.
+
+    # first we grab attributes for variants of the canonical products
+    my @facet_query = (
+        {
+            'attribute.name'        => { '!=' => undef },
+        },
+        {
+            join => {
+                variants => {
+                    product_attributes => [
+                        'attribute',
+                        { product_attribute_values => 'attribute_value' }
+                    ]
+                }
+            },
+            columns    => [],
+            '+columns' => [
+                { name        => 'attribute.name' },
+                { title       => 'attribute.title' },
+                { value_name  => 'attribute_value.value' },
+                { value_title => 'attribute_value.title' },
+                { count       => { count => 'attribute_value.value' } },
+            ],
+            group_by => [
+                'attribute.name',        'attribute.title',
+                'attribute_value.value', 'attribute_value.title',
+            ],
+        }
+    );
+    my @facet_list = $products->search( @facet_query )->hri->all;
+
+    # now add attributes for canonical products
+    $facet_query[1]->{join} =
+      { product_attributes =>
+          [ 'attribute', { product_attribute_values => 'attribute_value' } ] };
+
+    push @facet_list, $products->search( @facet_query )->hri->all;
+
+    my %facets;
+
+    # TODO: maybe collapse this into a map
+    foreach my $facet (@facet_list) {
+        $facets{ $facet->{name} }->{name}     = $facet->{name};
+        $facets{ $facet->{name} }->{title} = $facet->{title} || $facet->{name};
+        push @{ $facets{ $facet->{name} }->{values} },
+          {
+            name     => $facet->{value_name},
+            title    => $facet->{value_title} || $facet->{value_name},
+            count    => $facet->{count},
+          };
+    }
+
+    $tokens->{facets} = [ map { $facets{$_} } sort keys %facets ];
+    use Data::Dumper::Concise;
+    print STDERR Dumper($tokens->{facets});
+
+    # product listing using paged_products result set
+
     my @products =
-      $products->listing( { users_id => session('logged_in_user_id') } )
+      $paged_products->listing( { users_id => session('logged_in_user_id') } )
       ->group_by( \@group_by )
       ->order_by( { "-$direction" => \@order_by } )->all;
 
@@ -270,8 +331,7 @@ hook 'before_navigation_search' => sub {
           ->add_columns(
             {
                 count => $siblings_with_self->correlate('navigation_products')
-                  ->search_related( 'product', { active => 1, }, )
-                  ->count_rs->as_query
+                  ->search_related( 'product' )->active->count_rs->as_query
             }
           )->order_by('!priority,name')->hri->all
     ];

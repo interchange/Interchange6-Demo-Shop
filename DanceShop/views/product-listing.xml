@@ -110,4 +110,13 @@
         <param name="page" class="page_number"/>
         <param name="uri" target="href" class="page_number"/>
     </list>
+
+    <list name="facet-group" iterator="facets">
+        <param name="facet-group-title" field="title"/>
+        <list name="facet" class="checkbox" iterator="values">
+            <param name="facet-title" field="title"/>
+            <param name="facet-name" field="name" target="value"/>
+            <param name="facet-count" field="count"/>
+        </list>
+    </list>
 </specification>
