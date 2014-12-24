@@ -157,6 +157,14 @@ hook 'before_navigation_search' => sub {
     my $products =
       $tokens->{navigation}->navigation_products->search_related('product')
       ->active;
+
+    if (
+        my %attrs =
+        map { $_ =~ s/^f\.// && $_ => [ split( /\|/, $query{"f.$_"} ) ] }
+        keys %query
+      )
+    {
+    }
       
     # leave $products alone as we need it later for other things and
     # create a new resultset that is paged
