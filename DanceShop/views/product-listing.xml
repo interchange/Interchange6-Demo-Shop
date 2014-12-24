@@ -115,8 +115,12 @@
         <param name="facet-group-title" field="title"/>
         <list name="facet" class="checkbox" iterator="values">
             <param name="facet-title" field="title"/>
-            <param name="facet-name" field="name" target="value"/>
+            <param name="facet-name" field="name" target="name"/>
+            <param name="facet-value" class="facet-name" field="value"
+                target="value"/>
             <param name="facet-count" field="count"/>
+            <container name="checked" value="checked"/>
+            <container name="not-checked" value="!checked"/>
         </list>
     </list>
 </specification>

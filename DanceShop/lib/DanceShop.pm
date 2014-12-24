@@ -218,19 +218,22 @@ hook 'before_navigation_search' => sub {
 
     # TODO: maybe collapse this into a map
     foreach my $facet (@facet_list) {
-        $facets{ $facet->{name} }->{name}     = $facet->{name};
+        $facets{ $facet->{name} }->{name} = $facet->{name};
         $facets{ $facet->{name} }->{title} = $facet->{title} || $facet->{name};
-        push @{ $facets{ $facet->{name} }->{values} },
-          {
-            name     => $facet->{value_name},
-            title    => $facet->{value_title} || $facet->{value_name},
-            count    => $facet->{count},
-          };
+        my $values = {
+            name  => $facet->{name},
+            value => $facet->{value_name},
+            title => $facet->{value_title} || $facet->{value_name},
+            count => $facet->{count},
+        };
+        my @a = split /\|/, $query{"f." . $facet->{name}};
+        if ( grep { $_ eq $facet->{value_name} } @a ) {
+            $values->{checked} = "yes",
+        }
+        push @{ $facets{ $facet->{name} }->{values} }, $values;
     }
 
     $tokens->{facets} = [ map { $facets{$_} } sort keys %facets ];
-    use Data::Dumper::Concise;
-    print STDERR Dumper($tokens->{facets});
 
     # product listing using paged_products result set
 
