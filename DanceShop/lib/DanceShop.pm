@@ -140,12 +140,13 @@ hook 'before_navigation_search' => sub {
     my @order_by = ( "product.$order" );
     unshift( @order_by, "product.priority" ) if ( $order eq 'priority' ); 
 
-    my @group_by = ( 'product.sku', 'product.name', 'product.uri', 'product.price', 'product.short_description', 'inventory.quantity' );
+    my @group_by = (
+        'product.sku',               'product.name',
+        'product.uri',               'product.price',
+        'product.short_description', 'inventory.quantity'
+    );
     if ( $order eq "selling_price") {
         @order_by = ( "selling_price" );
-    }
-    else {
-        push @group_by, @order_by;
     }
 
     if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
