@@ -171,7 +171,7 @@ hook 'before_navigation_search' => sub {
 
     # Filter products based on facets in query params if there are any.
     # This loopy query stuff is terrible - should be a much better way
-    # to do this.
+    # to do this but I haven't found one yet.
     if ( keys %query_facets ) {
 
         my @skus = $products->get_column('product.sku')->all;
@@ -252,8 +252,9 @@ hook 'before_navigation_search' => sub {
 
     # facets
 
-    # NOTE: not yet complete but almost working
+    # TODO: counting facets needs review since this can be slow
 
+    # start by grabbing the non-variant then variant facets into @facet_list
     my $cond = {
         'attribute.name' => { '!=' => undef }
     };
@@ -281,26 +282,22 @@ hook 'before_navigation_search' => sub {
         columns    => [],
         '+columns' => [
             { name        => 'attribute.name' },
-            { title       => 'attribute.title' },
-            { value_value => 'attribute_value.value' },
-            { value_title => 'attribute_value.title' },
+            { value => 'attribute_value.value' },
+            { title => 'attribute_value.title' },
             { count => { count => { distinct => 'product.sku' }} },
         ],
         group_by => [
-            'attribute.name',        'attribute.title',
-            'attribute.priority',    'attribute_value.value',
+            'attribute.name', 'attribute_value.value',
             'attribute_value.title', 'attribute_value.priority'
         ],
         order_by => [
-            { -desc => 'attribute.priority' },
-            { -asc  => 'attribute.title' },
             { -desc => 'attribute_value.priority' },
             { -asc  => 'attribute_value.title' },
         ]
     };
+    my @facet_list = $products->search( $cond, $attrs )->hri->all;
 
-    my @facets1 = $products->search( $cond, $attrs )->hri->all;
-
+    # this is the expensive one...
     $attrs->{join} = {
         variants => {
             product_attributes => [
@@ -308,45 +305,72 @@ hook 'before_navigation_search' => sub {
             ]
         }
     };
+    push @facet_list, $products->search( $cond, $attrs )->hri->all;
 
-    my @facets2 = $products->search( $cond, $attrs )->hri->all;
-
-    my @facet_list = ( @facets1, @facets2 );
-
-    # from @facet_list we need to extract the ordered list of facet
-    # (attribute) names
-    my %seen;
-    my @facet_names;
-    foreach my $facet ( @facet_list ) {
-        unless ( $seen{$facet->{name}} ) {
-            $seen{$facet->{name}} = 1;
-            push @facet_names, $facet->{name};
+    # now we need the facet groups (name, title & priority)
+    my $facet_group_rset1 = $products->search(
+        { 'attribute.name' => { '!=' => undef } },
+        {
+            join       => { product_attributes => 'attribute' },
+            columns    => [],
+            '+columns' => {
+                name     => 'attribute.name',
+                title    => 'attribute.title',
+                priority => 'attribute.priority',
+            },
+            group_by =>
+              [ 'attribute.name', 'attribute.title', 'attribute.priority', ],
         }
-    }
+    );
+    my $facet_group_rset2 = $products->search(
+        { 'attribute.name' => { '!=' => undef } },
+        {
+            join       => { variants => { product_attributes => 'attribute' }},
+            columns    => [],
+            '+columns' => {
+                name     => 'attribute.name',
+                title    => 'attribute.title',
+                priority => 'attribute.priority',
+            },
+            group_by =>
+              [ 'attribute.name', 'attribute.title', 'attribute.priority', ],
+        }
+    );
+
+    my $facet_group_rset =
+      $facet_group_rset1->union($facet_group_rset2)->distinct('product.name')
+      ->order_by('!product.priority,product.title');
 
     # now construct facets token
     my @facets;
-    foreach my $name ( @facet_names ) {
-        my $data;
-        my @results = grep { $_->{name} eq $name } @facet_list;
-        $data->{title} = $results[0]->{title};
+    my %seen;
+    while ( my $facet_group = $facet_group_rset->next ) {
+        # it could in theory be possible to have two attributes with the same
+        # name in the facet groups list so we skip if we've seen it before
+        unless ( $seen{$facet_group->name} ) {
 
-        $data->{values} = [ map {
-            {
-                name  => $name,
-                value => $_->{value_value},
-                title => $_->{value_title},
-                count => $_->{count}
-            }
-        } @results ];
+            my $data;
+            my @results = grep { $_->{name} eq $facet_group->name } @facet_list;
+            $data->{title} = $facet_group->get_column('title');
 
-        if ( defined $query_facets{$name} ) {
-            foreach my $value ( @{ $data->{values} } ) {
-                $value->{checked} = "yes"
-                  if grep { $_ eq $value->{value} } @{ $query_facets{$name} };
+            $data->{values} = [ map {
+                {
+                    name  => $facet_group->name,
+                    value => $_->{value},
+                    title => $_->{title},
+                    count => $_->{count}
+                }
+            } @results ];
+
+            if ( defined $query_facets{$facet_group->name} ) {
+                foreach my $value ( @{ $data->{values} } ) {
+                    $value->{checked} = "yes"
+                      if grep { $_ eq $value->{value} }
+                      @{ $query_facets{ $facet_group->name } };
+                }
             }
+            push @facets, $data;
         }
-        push @facets, $data;
     }
     $tokens->{facets} = \@facets;
 
