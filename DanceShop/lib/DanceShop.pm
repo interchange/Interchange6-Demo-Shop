@@ -177,10 +177,6 @@ hook 'before_navigation_search' => sub {
     # to do this but I haven't found one yet.
     if ( keys %query_facets ) {
 
-        use Data::Dumper::Concise;
-
-        print STDERR Dumper(%query_facets);
-
         my @skus = $products->get_column('product.sku')->all;
 
         foreach my $key ( keys %query_facets ) {
