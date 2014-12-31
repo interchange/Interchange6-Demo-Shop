@@ -241,9 +241,9 @@ $( document ).ready(function() {
     });
     $(".facet-name").change(function() {
         var name  = "f." + $(this).attr("name");
-        //var query = encodeURIComponent($.query.get(name));
-        //var val   = encodeURIComponent($(this).val());
-        var query = $.query.get(name);
+        // handle spaces - this is NOT the correct way to do this
+        // but will do until I find out how to do it properly
+        var query = $.query.get(name).toString().replace("+", " ");
         var val   = $(this).val();
         if ($(this).is(':checked')) {
             if ( query.length ) {
