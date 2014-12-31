@@ -234,16 +234,6 @@ hook 'before_navigation_search' => sub {
         );
     }
 
-    # restrict to more limited column list
-    # TODO: check whether this really helps performance
-    $products = $products->columns(
-        [
-            'product.sku',               'product.name',
-            'product.uri',               'product.price',
-            'product.short_description', 'product.priority'
-        ]
-    );
-
     # pager needs a paged version of the products result set
 
     my $paged_products = $products->limited_page( $tokens->{page}, $rows );
