@@ -78,6 +78,8 @@ the fly and sort order.
 hook 'before_navigation_search' => sub {
     my $tokens = shift;
 
+    return if $tokens->{template} ne 'product-listing';
+
     my %query = params('query');
 
     my $routes_config = config->{plugin}->{'Interchange6::Routes'};
@@ -90,7 +92,7 @@ hook 'before_navigation_search' => sub {
         $_ =~ s/^f\.//
           && url_decode_utf8($_) =>
               [ split( /\!/, url_decode_utf8( $query{"f.$_"} ) ) ]
-    } keys %query;
+    } grep { /^f\./ } keys %query;
 
     # determine which view to display
 
@@ -138,7 +140,7 @@ hook 'before_navigation_search' => sub {
     my @order_by = ( "product.$order" );
     unshift( @order_by, "product.priority" ) if ( $order eq 'priority' ); 
 
-    my @group_by = ( 'product.sku', 'inventory.quantity' );
+    my @group_by = ( 'product.sku', 'product.name', 'product.uri', 'product.price', 'product.short_description', 'inventory.quantity' );
     if ( $order eq "selling_price") {
         @order_by = ( "selling_price" );
     }
@@ -173,6 +175,10 @@ hook 'before_navigation_search' => sub {
     # This loopy query stuff is terrible - should be a much better way
     # to do this but I haven't found one yet.
     if ( keys %query_facets ) {
+
+        use Data::Dumper::Concise;
+
+        print STDERR Dumper(%query_facets);
 
         my @skus = $products->get_column('product.sku')->all;
 
