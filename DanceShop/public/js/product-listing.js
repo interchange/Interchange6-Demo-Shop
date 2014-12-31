@@ -241,13 +241,15 @@ $( document ).ready(function() {
     });
     $(".facet-name").change(function() {
         var name  = "f." + $(this).attr("name");
+        //var query = encodeURIComponent($.query.get(name));
+        //var val   = encodeURIComponent($(this).val());
         var query = $.query.get(name);
         var val   = $(this).val();
         if ($(this).is(':checked')) {
             if ( query.length ) {
-                var arr = query.split("|");
+                var arr = query.split("!");
                 arr.push(val);
-                window.location.search = $.query.set(name, arr.join("|"));
+                window.location.search = $.query.set(name, arr.join("!"));
             }
             else {
                 window.location.search = $.query.set(name, val);
@@ -255,12 +257,12 @@ $( document ).ready(function() {
         }
         else {
             if ( query.length ) {
-                var arr = query.split("|");
+                var arr = query.split("!");
                 var index = $.inArray(val, arr);
                 if ( index >= 0 ) {
                     arr.splice(index, 1);
                     if ( arr.length ) {
-                        window.location.search = $.query.set(name, arr.join("|"));
+                        window.location.search = $.query.set(name, arr.join("!"));
                     }
                     else {
                         window.location.search = $.query.remove(name);

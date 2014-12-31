@@ -32,6 +32,7 @@ use DanceShop::Routes::Checkout;
 use DateTime;
 use POSIX qw/ceil/;
 use Try::Tiny;
+use URL::Encode qw/url_decode_utf8/;
 
 set session => 'DBIC';
 set session_options => {schema => schema};
@@ -81,6 +82,16 @@ hook 'before_navigation_search' => sub {
 
     my $routes_config = config->{plugin}->{'Interchange6::Routes'};
 
+    my $schema = shop_schema;
+
+    # find facets in query params
+
+    my %query_facets = map {
+        $_ =~ s/^f\.//
+          && url_decode_utf8($_) =>
+              [ split( /\!/, url_decode_utf8( $query{"f.$_"} ) ) ]
+    } keys %query;
+
     # determine which view to display
 
     my $view = $query{view};
@@ -125,7 +136,7 @@ hook 'before_navigation_search' => sub {
         $direction = 'desc';
     }
     my @order_by = ( "product.$order" );
-    unshift( @order_by, "me.priority" ) if ( $order eq 'priority' ); 
+    unshift( @order_by, "product.priority" ) if ( $order eq 'priority' ); 
 
     my @group_by = ( 'product.sku', 'inventory.quantity' );
     if ( $order eq "selling_price") {
@@ -144,104 +155,200 @@ hook 'before_navigation_search' => sub {
     if ( $direction eq 'asc' ) {
         $tokens->{reverse_order} = 'desc';
         $tokens->{order_by_glyph} =
-          q(<span class="glyphicon glyphicon-arrow-down"></span>);
+          q(<span class="glyphicon glyphicon-arrow-up"></span>);
     }
     else {
         $tokens->{reverse_order} = 'asc';
         $tokens->{order_by_glyph} =
-          q(<span class="glyphicon glyphicon-arrow-up"></span>);
+          q(<span class="glyphicon glyphicon-arrow-down"></span>);
     }
 
-    # products and pager
+    # products
 
     my $products =
       $tokens->{navigation}->navigation_products->search_related('product')
       ->active;
 
-    if (
-        my %attrs =
-        map { $_ =~ s/^f\.// && $_ => [ split( /\|/, $query{"f.$_"} ) ] }
-        keys %query
-      )
-    {
+    # Filter products based on facets in query params if there are any.
+    # This loopy query stuff is terrible - should be a much better way
+    # to do this.
+    if ( keys %query_facets ) {
+
+        my @skus = $products->get_column('product.sku')->all;
+
+        foreach my $key ( keys %query_facets ) {
+
+            @skus = $schema->resultset('Product')->search(
+                {
+                    -and => [
+                        'me.sku' => { -in => \@skus },
+                        -or      => [
+                            -and => [
+                                'attribute.name' => $key,
+                                'attribute_value.value' =>
+                                  { -in => $query_facets{$key} }
+                            ],
+                            -and => [
+                                'attribute_2.name' => $key,
+                                'attribute_value_2.value' =>
+                                  { -in => $query_facets{$key} }
+                            ]
+                        ]
+                    ]
+                },
+                {
+                    columns => [ 'me.sku' ],
+                    join  => [
+                        {
+                            product_attributes => [
+                                'attribute',
+                                {
+                                    product_attribute_values =>
+                                      'attribute_value'
+                                }
+                            ]
+                        },
+                        {
+                            variants => {
+                                product_attributes => [
+                                    'attribute',
+                                    {
+                                        product_attribute_values =>
+                                          'attribute_value'
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                },
+            )->get_column('me.sku')->all;
+        }
+
+        $products = $schema->resultset('Product')->search(
+            {
+                'product.sku' => { -in => \@skus }
+            },
+            {
+                alias => 'product'
+            }
+        );
     }
-      
-    # leave $products alone as we need it later for other things and
-    # create a new resultset that is paged
+
+    # restrict to more limited column list
+    # TODO: check whether this really helps performance
+    $products = $products->columns(
+        [
+            'product.sku',               'product.name',
+            'product.uri',               'product.price',
+            'product.short_description', 'product.priority'
+        ]
+    );
+
+    # pager needs a paged version of the products result set
+
     my $paged_products = $products->limited_page( $tokens->{page}, $rows );
     my $pager = $paged_products->pager;
-
-    if ( !$products->has_rows && $pager->last_page > 1 ) {
-
-        # beyond the last page
-
-        $paged_products = $products->limited_page( $pager->last_page, $rows );
-        $pager = $paged_products->pager;
-    }
     $tokens->{pager} = $pager;
 
-    # facets from attributes using non-paged products result set
-    # NOTE: I'm sure there is room for improvement here.
-    #       Also more thought is needed since this assumes that the 
-    #       product rset only includes canonical products.
+    # facets
 
-    # first we grab attributes for variants of the canonical products
-    my @facet_query = (
-        {
-            'attribute.name'        => { '!=' => undef },
+    # NOTE: not yet complete but almost working
+
+    my $cond = {
+        'attribute.name' => { '!=' => undef }
+    };
+
+    $cond = {
+        -or => [
+            'attribute.name' => { -not_in => [ keys %query_facets ] },
+            map {
+                -and => [
+                    { 'attribute.name' => $_ },
+                    {
+                        'attribute_value.value' => { -in => $query_facets{$_} }
+                    }
+                  ]
+            } keys %query_facets
+        ]
+    } if keys %query_facets;
+
+    my $attrs = {
+        join => {
+            product_attributes => [
+                'attribute', { product_attribute_values => 'attribute_value' }
+            ]
         },
-        {
-            join => {
-                variants => {
-                    product_attributes => [
-                        'attribute',
-                        { product_attribute_values => 'attribute_value' }
-                    ]
-                }
-            },
-            columns    => [],
-            '+columns' => [
-                { name        => 'attribute.name' },
-                { title       => 'attribute.title' },
-                { value_name  => 'attribute_value.value' },
-                { value_title => 'attribute_value.title' },
-                { count       => { count => 'attribute_value.value' } },
-            ],
-            group_by => [
-                'attribute.name',        'attribute.title',
-                'attribute_value.value', 'attribute_value.title',
-            ],
+        columns    => [],
+        '+columns' => [
+            { name        => 'attribute.name' },
+            { title       => 'attribute.title' },
+            { value_value => 'attribute_value.value' },
+            { value_title => 'attribute_value.title' },
+            { count => { count => { distinct => 'product.sku' }} },
+        ],
+        group_by => [
+            'attribute.name',        'attribute.title',
+            'attribute.priority',    'attribute_value.value',
+            'attribute_value.title', 'attribute_value.priority'
+        ],
+        order_by => [
+            { -desc => 'attribute.priority' },
+            { -asc  => 'attribute.title' },
+            { -desc => 'attribute_value.priority' },
+            { -asc  => 'attribute_value.title' },
+        ]
+    };
+
+    my @facets1 = $products->search( $cond, $attrs )->hri->all;
+
+    $attrs->{join} = {
+        variants => {
+            product_attributes => [
+                'attribute', { product_attribute_values => 'attribute_value' }
+            ]
         }
-    );
-    my @facet_list = $products->search( @facet_query )->hri->all;
+    };
 
-    # now add attributes for canonical products
-    $facet_query[1]->{join} =
-      { product_attributes =>
-          [ 'attribute', { product_attribute_values => 'attribute_value' } ] };
+    my @facets2 = $products->search( $cond, $attrs )->hri->all;
 
-    push @facet_list, $products->search( @facet_query )->hri->all;
+    my @facet_list = ( @facets1, @facets2 );
 
-    my %facets;
-
-    # TODO: maybe collapse this into a map
-    foreach my $facet (@facet_list) {
-        $facets{ $facet->{name} }->{name} = $facet->{name};
-        $facets{ $facet->{name} }->{title} = $facet->{title} || $facet->{name};
-        my $values = {
-            name  => $facet->{name},
-            value => $facet->{value_name},
-            title => $facet->{value_title} || $facet->{value_name},
-            count => $facet->{count},
-        };
-        my @a = split /\|/, $query{"f." . $facet->{name}};
-        if ( grep { $_ eq $facet->{value_name} } @a ) {
-            $values->{checked} = "yes",
+    # from @facet_list we need to extract the ordered list of facet
+    # (attribute) names
+    my %seen;
+    my @facet_names;
+    foreach my $facet ( @facet_list ) {
+        unless ( $seen{$facet->{name}} ) {
+            $seen{$facet->{name}} = 1;
+            push @facet_names, $facet->{name};
         }
-        push @{ $facets{ $facet->{name} }->{values} }, $values;
     }
 
-    $tokens->{facets} = [ map { $facets{$_} } sort keys %facets ];
+    # now construct facets token
+    my @facets;
+    foreach my $name ( @facet_names ) {
+        my $data;
+        my @results = grep { $_->{name} eq $name } @facet_list;
+        $data->{title} = $results[0]->{title};
+
+        $data->{values} = [ map {
+            {
+                name  => $name,
+                value => $_->{value_value},
+                title => $_->{value_title},
+                count => $_->{count}
+            }
+        } @results ];
+
+        if ( defined $query_facets{$name} ) {
+            foreach my $value ( @{ $data->{values} } ) {
+                $value->{checked} = "yes"
+                  if grep { $_ eq $value->{value} } @{ $query_facets{$name} };
+            }
+        }
+        push @facets, $data;
+    }
+    $tokens->{facets} = \@facets;
 
     # product listing using paged_products result set
 
