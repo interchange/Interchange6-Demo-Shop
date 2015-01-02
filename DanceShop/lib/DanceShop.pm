@@ -174,7 +174,7 @@ hook 'before_navigation_search' => sub {
 
     # Filter products based on facets in query params if there are any.
     # This loopy query stuff is terrible - should be a much better way
-    # to do this but I haven't found one yet.
+    # to do this but I haven't found one yet that is as fast.
     if ( keys %query_facets ) {
 
         my @skus = $products->get_column('product.sku')->all;
@@ -355,7 +355,7 @@ hook 'before_navigation_search' => sub {
                 }
             } @results ];
 
-            if ( defined $query_facets{$facet_group->name} ) {
+            if ( defined $query_facets{ $facet_group->name } ) {
                 foreach my $value ( @{ $data->{values} } ) {
                     $value->{checked} = "yes"
                       if grep { $_ eq $value->{value} }

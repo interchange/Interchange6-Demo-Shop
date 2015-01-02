@@ -97,6 +97,7 @@
     <value name="order_by_glyph" class="order_direction" op="hook"/>
     <value name="reverse_order" class="order_direction" target="value"/>
 
+    <container name="pagination" value="pagination"/>
     <container name="enable_pagination_previous" value="pagination_previous"/>
     <container name="disable_pagination_previous" value="!pagination_previous"/>
     <container name="enable_pagination_next" value="pagination_next"/>
