@@ -124,29 +124,36 @@ hook 'before_navigation_search' => sub {
     # order
 
     my @order_by_iterator = (
-        { value => 'priority',      label => 'Position' },
-        { value => 'selling_price', label => 'Price' },
-        { value => 'name',          label => 'Name' },
-        { value => 'sku',           label => 'SKU' },
+        { value => 'priority',       label => 'Position' },
+        { value => 'average_rating', label => 'Rating' },
+        { value => 'selling_price',  label => 'Price' },
+        { value => 'name',           label => 'Name' },
+        { value => 'sku',            label => 'SKU' },
     );
+
     my $order     = $query{order};
     my $direction = $query{dir};
+
+    # maybe set default order(_by)
     if (   !defined $order
         || !grep { $_ eq $order } map { $_->{value} } @order_by_iterator )
     {
-        # set defaults
-        $order     = 'priority';
-        $direction = 'desc';
-    }
-    my @order_by = ( "product.$order" );
-    unshift( @order_by, "product.priority" ) if ( $order eq 'priority' ); 
-
-    if ( $order eq "selling_price") {
-        @order_by = ( "selling_price" );
+        $order = 'priority';
     }
 
+    # we need to prepend alias to most columns but not all
+    unless ( $order =~ /^(average_rating|selling_price)$/ ) {
+        $order = "product." . $order;
+    }
+
+    # maybe set default direction
     if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
-        $direction = 'asc';
+        if ( $order =~ /^(average_rating|selling_price)$/ ) {
+            $direction = 'desc';
+        }
+        else {
+            $direction = 'asc';
+        }
     }
 
     $tokens->{order_by_iterator} = \@order_by_iterator;
@@ -368,7 +375,7 @@ hook 'before_navigation_search' => sub {
         undef,
         {
 
-            order_by => { "-$direction" => \@order_by },
+            order_by => { "-$direction" => [ $order ] },
             distinct => 1,
         }
       )->all;

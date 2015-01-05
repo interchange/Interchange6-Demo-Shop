@@ -31,6 +31,8 @@ engines:
       currency:
         options:
           int_curr_symbol: "$"
+      rating_class:
+        class: "DanceShop::Filters::RatingClass"
       selling_price:
         class: "DanceShop::Filters::SellingPrice"
         options:

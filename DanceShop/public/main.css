@@ -967,8 +967,54 @@ a.cat-name {
 	font-size: 12px;
 }
 
+/* ----- rating stars -----
+ css and images taken from metacpan see
+ https://github.com/CPAN-API/metacpan-web/blob/master/LICENSE
+ for copyright and licence details
+*/
 
-
-
-
-
+.rating-00, .rating-05, .rating-10, .rating-15, .rating-20, .rating-25, .rating-30, .rating-35, .rating-40, .rating-45, .rating-50 {
+    background-image: url("/img/stars-sprite.png");
+    display: inline-block;
+    height: 12px;
+    width: 69px;
+}
+@media not all, only screen and (min--moz-device-pixel-ratio: 2), not all, not all, only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
+.rating-00, .rating-05, .rating-10, .rating-15, .rating-20, .rating-25, .rating-30, .rating-35, .rating-40, .rating-45, .rating-50 {
+    background-image: url("/img/stars-sprite@2x.png");
+    background-size: 139px 25px;
+}
+}
+.rating-00 {
+    background-position: -70px 0;
+}
+.rating-05 {
+    background-position: -56px -13px;
+}
+.rating-10 {
+    background-position: -56px 0;
+}
+.rating-15 {
+    background-position: -42px -13px;
+}
+.rating-20 {
+    background-position: -42px 0;
+}
+.rating-25 {
+    background-position: -28px -13px;
+}
+.rating-30 {
+    background-position: -28px 0;
+}
+.rating-35 {
+    background-position: -14px -13px;
+}
+.rating-40 {
+    background-position: -14px 0;
+}
+.rating-45 {
+    background-position: 0 -13px;
+}
+.rating-50 {
+    background-position: 0 0;
+}

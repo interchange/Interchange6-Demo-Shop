@@ -16,13 +16,15 @@
                 filter="image"/-->
 
             <!-- params specific to this view -->
+            <container name="show-rating" value="average_rating" />
             <param name="short_description" class="product-description"/>
             <param name="discount-list" field="discount_percent"
                 pattern="discount"/>
+            <param name="average_rating" class="rating-stars" target="class"
+                filter="rating_class"/>
         </list>
     </container>
 
-    <!-- FIXME: this view is always removed since the iterator is empty -->
     <container name="view-simple" value="navigation-view-simple">
         <list name="view-simple" class="product-box-simple" iterator="products">
             <container name="has-discount" value="discount_percent"/>
@@ -38,12 +40,14 @@
                 filter="image"/-->
 
             <!-- params specific to this view -->
+            <container name="show-rating" value="average_rating" />
             <param name="discount-list" field="discount_percent"
                 pattern="discount"/>
+            <param name="average_rating" class="rating-stars" target="class"
+                filter="rating_class"/>
         </list>
     </container>
 
-    <!-- FIXME: this view is always removed since the iterator is empty -->
     <container name="view-compact" value="navigation-view-compact">
         <list name="view-compact" class="product-box-compact"
             iterator="products">
@@ -61,7 +65,6 @@
         </list>
     </container>
 
-    <!-- FIXME: this view is always removed since the iterator is empty -->
     <container name="view-grid" value="navigation-view-grid">
         <list name="view-grid" class="product-box-grid-row" iterator="products">
             <list name="view-row" class="product-box-grid" iterator="row">
