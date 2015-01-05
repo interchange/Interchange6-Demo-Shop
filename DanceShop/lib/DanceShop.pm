@@ -134,17 +134,13 @@ hook 'before_navigation_search' => sub {
     if (   !defined $order
         || !grep { $_ eq $order } map { $_->{value} } @order_by_iterator )
     {
+        # set defaults
         $order     = 'priority';
         $direction = 'desc';
     }
     my @order_by = ( "product.$order" );
     unshift( @order_by, "product.priority" ) if ( $order eq 'priority' ); 
 
-    my @group_by = (
-        'product.sku',               'product.name',
-        'product.uri',               'product.price',
-        'product.short_description', 'inventory.quantity'
-    );
     if ( $order eq "selling_price") {
         @order_by = ( "selling_price" );
     }
@@ -155,6 +151,8 @@ hook 'before_navigation_search' => sub {
 
     $tokens->{order_by_iterator} = \@order_by_iterator;
     $tokens->{order_by} = $order;
+
+    # asc/desc arrow
     if ( $direction eq 'asc' ) {
         $tokens->{reverse_order} = 'desc';
         $tokens->{order_by_glyph} =
@@ -279,14 +277,11 @@ hook 'before_navigation_search' => sub {
             { title => 'attribute_value.title' },
             { count => { count => { distinct => 'product.sku' }} },
         ],
-        group_by => [
-            'attribute.name', 'attribute_value.value',
-            'attribute_value.title', 'attribute_value.priority'
-        ],
         order_by => [
             { -desc => 'attribute_value.priority' },
             { -asc  => 'attribute_value.title' },
-        ]
+        ],
+        distinct => 1,
     };
     my @facet_list = $products->search( $cond, $attrs )->hri->all;
 
@@ -311,8 +306,7 @@ hook 'before_navigation_search' => sub {
                 title    => 'attribute.title',
                 priority => 'attribute.priority',
             },
-            group_by =>
-              [ 'attribute.name', 'attribute.title', 'attribute.priority', ],
+            distinct => 1,
         }
     );
     my $facet_group_rset2 = $products->search(
@@ -325,8 +319,7 @@ hook 'before_navigation_search' => sub {
                 title    => 'attribute.title',
                 priority => 'attribute.priority',
             },
-            group_by =>
-              [ 'attribute.name', 'attribute.title', 'attribute.priority', ],
+            distinct => 1,
         }
     );
 
@@ -371,8 +364,14 @@ hook 'before_navigation_search' => sub {
 
     my @products =
       $paged_products->listing( { users_id => session('logged_in_user_id') } )
-      ->group_by( \@group_by )
-      ->order_by( { "-$direction" => \@order_by } )->all;
+      ->search(
+        undef,
+        {
+
+            order_by => { "-$direction" => \@order_by },
+            distinct => 1,
+        }
+      )->all;
 
     if ( $view eq 'grid' ) {
         my @grid;
