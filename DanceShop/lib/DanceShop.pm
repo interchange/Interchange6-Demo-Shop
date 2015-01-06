@@ -130,6 +130,7 @@ hook 'before_navigation_search' => sub {
         { value => 'name',           label => 'Name' },
         { value => 'sku',            label => 'SKU' },
     );
+    $tokens->{order_by_iterator} = \@order_by_iterator;
 
     my $order     = $query{order};
     my $direction = $query{dir};
@@ -140,15 +141,11 @@ hook 'before_navigation_search' => sub {
     {
         $order = 'priority';
     }
-
-    # we need to prepend alias to most columns but not all
-    unless ( $order =~ /^(average_rating|selling_price)$/ ) {
-        $order = "product." . $order;
-    }
+    $tokens->{order_by} = $order;
 
     # maybe set default direction
     if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
-        if ( $order =~ /^(average_rating|selling_price)$/ ) {
+        if ( $order =~ /^(average_rating|priority)$/ ) {
             $direction = 'desc';
         }
         else {
@@ -156,8 +153,10 @@ hook 'before_navigation_search' => sub {
         }
     }
 
-    $tokens->{order_by_iterator} = \@order_by_iterator;
-    $tokens->{order_by} = $order;
+    # we need to prepend alias to most columns but not all
+    unless ( $order =~ /^(average_rating|selling_price)$/ ) {
+        $order = "product." . $order;
+    }
 
     # asc/desc arrow
     if ( $direction eq 'asc' ) {
@@ -246,6 +245,14 @@ hook 'before_navigation_search' => sub {
 
     my $paged_products = $products->limited_page( $tokens->{page}, $rows );
     my $pager = $paged_products->pager;
+
+    if ( $tokens->{page} > $pager->last_page ) {
+        # we're past the last page which happens a lot if we start on a high
+        # page then results are restricted via facets so reset the pager
+        $tokens->{page} = $pager->last_page;
+        $paged_products = $products->limited_page( $tokens->{page}, $rows );
+        $pager = $paged_products->pager;
+    }
     $tokens->{pager} = $pager;
 
     # facets
@@ -303,6 +310,7 @@ hook 'before_navigation_search' => sub {
     push @facet_list, $products->search( $cond, $attrs )->hri->all;
 
     # now we need the facet groups (name, title & priority)
+    # this can also be rather expensive
     my $facet_group_rset1 = $products->search(
         { 'attribute.name' => { '!=' => undef } },
         {
@@ -351,15 +359,18 @@ hook 'before_navigation_search' => sub {
                     name  => $facet_group->name,
                     value => $_->{value},
                     title => $_->{title},
-                    count => $_->{count}
+                    count => $_->{count},
+                    unchecked => 1, # cheaper to use param than container
                 }
             } @results ];
 
             if ( defined $query_facets{ $facet_group->name } ) {
                 foreach my $value ( @{ $data->{values} } ) {
-                    $value->{checked} = "yes"
-                      if grep { $_ eq $value->{value} }
-                      @{ $query_facets{ $facet_group->name } };
+                    if ( grep { $_ eq $value->{value} }
+                      @{ $query_facets{ $facet_group->name } } ) {
+                        $value->{checked} = "yes";
+                        delete $value->{unchecked};
+                    }
                 }
             }
             push @facets, $data;
@@ -374,9 +385,12 @@ hook 'before_navigation_search' => sub {
       ->search(
         undef,
         {
-
-            order_by => { "-$direction" => [ $order ] },
-            distinct => 1,
+            group_by => [
+                'product.sku', 'product.name',
+                'product.uri', 'product.price',
+                'product.short_description', 'product.canonical_sku',
+            ],
+            order_by => { "-$direction" => [$order] },
         }
       )->all;
 
