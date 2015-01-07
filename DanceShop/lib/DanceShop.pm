@@ -43,12 +43,7 @@ set session_options => {schema => schema};
 
 The DanceShop makes use of the following hooks.
 
-=head2 before_layout_render
-
-Add cart token.
-
-Create tokens for all L<Interchange6::Schema::Result::Navigation> menus where
-C<type> is C<nav> with the token name being the C<scope> prepended with C<nav->.
+=head2 before_template_render
 
 Maintain page history for interesting pages and add 'recent_history' token
 containing uri?query of most recent interesting page in history.
@@ -82,25 +77,8 @@ added only to C<all> then simply set that as the value of C<add_to_history>.
 
 =cut
 
-hook 'before_layout_render' => sub {
+hook 'before_template_render' => sub {
     my $tokens = shift;
-
-    $tokens->{cart} = cart;
-
-    # build menu tokens
-
-    my $nav = shop_navigation->search(
-        {
-            type => 'nav',
-            parent_id => undef,
-        },
-        {
-            order_by => { -desc => 'priority'},
-        }
-    );
-    while (my $record = $nav->next) {
-        push @{$tokens->{'nav-' . $record->scope}}, $record;
-    };
 
     # maintain history lists
 
@@ -130,6 +108,36 @@ hook 'before_layout_render' => sub {
     # add token with most recent history entry
 
     $tokens->{recent_history} = $history{all}[0];
+};
+
+=head2 before_layout_render
+
+Add cart token.
+
+Create tokens for all L<Interchange6::Schema::Result::Navigation> menus where
+C<type> is C<nav> with the token name being the C<scope> prepended with C<nav->.
+
+=cut
+
+hook 'before_layout_render' => sub {
+    my $tokens = shift;
+
+    $tokens->{cart} = cart;
+
+    # build menu tokens
+
+    my $nav = shop_navigation->search(
+        {
+            type => 'nav',
+            parent_id => undef,
+        },
+        {
+            order_by => { -desc => 'priority'},
+        }
+    );
+    while (my $record = $nav->next) {
+        push @{$tokens->{'nav-' . $record->scope}}, $record;
+    };
 };
 
 =head2 before_navigation_search
