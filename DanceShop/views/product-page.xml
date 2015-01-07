@@ -29,4 +29,15 @@
         <param name="review-date" field="created" filter="date"/>
         <param name="review-content" field="content"/>
     </list>
+    <container name="recent-products" value="recent_products">
+        <list name="recent-products" class="recent-product"
+            iterator="recent_products">
+            <param name="name"/>
+            <param name="uri" class="name" target="href" op="append"/>
+            <param name="product-price" field="selling_price"
+                filter="selling_price"/>
+            <param name="inventory" class="label" op="toggle" args="tree"/>
+            <param name="sku" target="value"/>
+        </list>
+    </container>
 </specification>

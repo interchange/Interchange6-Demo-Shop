@@ -34,6 +34,6 @@
     <value name="cart-total" field="cart_total" filter="currency"/>
     <value name="country" iterator="countries"/>
     <container name="continue-shopping" value="recent_history">
-        <value name="recent_history" target="href"/>
+        <value name="recent_history" field="recent_history.uri" target="href"/>
     </container>
 </specification>
