@@ -23,12 +23,25 @@
                 target="selected" op="toggle"/>
         </list>
     </list>
+    <container name="reviews" value="reviews.count">
     <list name="reviews" class="review-single" iterator="reviews">
         <param name="review-rating" field="rating"/>
         <param name="review-author" field="author.name"/>
         <param name="review-date" field="created" filter="date"/>
         <param name="review-content" field="content"/>
     </list>
+    </container>
+    <!-- accessories token not yet coded -->
+    <container name="accessories" value="accessories">
+        <list name="accessories" class="accessory" iterator="accessories">
+            <param name="name"/>
+            <param name="uri" class="name" target="href" op="append"/>
+            <param name="product-price" field="selling_price"
+                filter="selling_price"/>
+            <param name="inventory" class="label" op="toggle" args="tree"/>
+            <param name="sku" target="value"/>
+        </list>
+    </container>
     <container name="recent-products" value="recent_products">
         <list name="recent-products" class="recent-product"
             iterator="recent_products">
