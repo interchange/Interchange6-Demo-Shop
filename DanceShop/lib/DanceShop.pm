@@ -31,6 +31,7 @@ use Dancer::Plugin::Interchange6::Routes;
 use DanceShop::Routes::Checkout;
 use DateTime;
 use POSIX qw/ceil/;
+use Scalar::Util 'blessed';
 use Try::Tiny;
 use URI;
 use URL::Encode qw/url_decode_utf8/;
@@ -42,27 +43,42 @@ set session_options => {schema => schema};
 
 The DanceShop makes use of the following hooks.
 
-=head2 before_cart_display
-
-Catch the referer for use by the 'Continue shopping' button.
-
-=cut
-
-hook 'before_cart_display' => sub {
-    my $tokens = shift;
-    my $referer = request->referer;
-    if ( defined $referer ) {
-        my $uri = URI->new( $referer );
-        if ( $uri->path ne '/cart' ) {
-            session cart_referer => $referer;
-        }
-    }
-};
-
 =head2 before_layout_render
+
+Add cart token.
 
 Create tokens for all L<Interchange6::Schema::Result::Navigation> menus where
 C<type> is C<nav> with the token name being the C<scope> prepended with C<nav->.
+
+Maintain page history for interesting pages and add 'recent_history' token
+containing uri?query of most recent interesting page in history.
+
+The history list is a hash reference of arrays of URIs including query string.
+The hash key is set using the add_to_history var in a route:
+
+  var add_to_history => 'product';
+
+Assuming the URI and query string is:
+
+  /my-interesting-product
+
+and session history already contains:
+
+  {
+    all => [ '/hardware?f.color=red' ],
+    navigation => [ '/hardware?f.color=red' ],
+  }
+
+then the new history hash reference will become:
+
+  {
+    all => [ '/my-interesting-product', '/hardware?f.color=red' ],
+    navigation => [ '/hardware?f.color=red' ],
+    product => [ '/my-interesting-product' ],
+  }
+
+Note the special C<all> array which all URIs are added to. If a URI should be
+added only to C<all> then simply set that as the value of C<add_to_history>.
 
 =cut
 
@@ -70,6 +86,8 @@ hook 'before_layout_render' => sub {
     my $tokens = shift;
 
     $tokens->{cart} = cart;
+
+    # build menu tokens
 
     my $nav = shop_navigation->search(
         {
@@ -83,6 +101,35 @@ hook 'before_layout_render' => sub {
     while (my $record = $nav->next) {
         push @{$tokens->{'nav-' . $record->scope}}, $record;
     };
+
+    # maintain history lists
+
+    my %history;
+    my $session_history = session('history');
+    if ( ref($session_history) eq 'HASH' ) {
+        %history = %$session_history;
+    }
+
+    if ( var('add_to_history') ) {
+
+        my $key = var('add_to_history');
+
+        my $path_query =
+          uri_for( request->path, [ params('query') ] )->path_query;
+
+        unshift @{$history{$key}}, $path_query unless $key eq 'all';
+        unshift @{$history{all}}, $path_query;
+
+        # keep max 20 items in each history list and put back in session
+        foreach my $key ( keys %history ) {
+            pop @{$history{$key}} if scalar @{$history{$key}} > 20;
+        }
+        session history => \%history;
+    }
+
+    # add token with most recent history entry
+
+    $tokens->{recent_history} = $history{all}[0];
 };
 
 =head2 before_navigation_search
@@ -95,6 +142,9 @@ the fly and sort order.
 
 hook 'before_navigation_search' => sub {
     my $tokens = shift;
+
+    # an interesting page
+    var add_to_history => 'navigation';
 
     return if $tokens->{template} ne 'product-listing';
 
@@ -528,6 +578,10 @@ hook 'before_navigation_search' => sub {
 
 hook 'before_product_display' => sub {
     my $tokens = shift;
+
+    # an interesting page
+    var add_to_history => 'product';
+
     my $product = $tokens->{product};
 
     # TODO: setting of selling_price and discount should not be in demo shop

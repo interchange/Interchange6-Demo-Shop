@@ -33,7 +33,7 @@
     <value name="cart-subtotal" field="cart_subtotal" filter="currency"/>
     <value name="cart-total" field="cart_total" filter="currency"/>
     <value name="country" iterator="countries"/>
-    <container name="continue-shopping" value="session.cart_referer">
-        <value name="cart_referer" field="session.cart_referer" target="href"/>
+    <container name="continue-shopping" value="recent_history">
+        <value name="recent_history" target="href"/>
     </container>
 </specification>
