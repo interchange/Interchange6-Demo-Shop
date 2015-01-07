@@ -13,6 +13,7 @@
         <param name="remove" field="sku" target="href" op="append"/>
         <param name="link" class="product" field="uri" target="href"/>
         <container name="variant-error" value="session.shop_cart_error"/>
+
 <!--
         <list name="attributes" class="product-attributes-item"
             iterator="attribute_iterator">
@@ -32,4 +33,7 @@
     <value name="cart-subtotal" field="cart_subtotal" filter="currency"/>
     <value name="cart-total" field="cart_total" filter="currency"/>
     <value name="country" iterator="countries"/>
+    <container name="continue-shopping" value="session.cart_referer">
+        <value name="cart_referer" field="session.cart_referer" target="href"/>
+    </container>
 </specification>

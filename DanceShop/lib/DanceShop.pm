@@ -32,6 +32,7 @@ use DanceShop::Routes::Checkout;
 use DateTime;
 use POSIX qw/ceil/;
 use Try::Tiny;
+use URI;
 use URL::Encode qw/url_decode_utf8/;
 
 set session => 'DBIC';
@@ -40,6 +41,23 @@ set session_options => {schema => schema};
 =head1 HOOKS
 
 The DanceShop makes use of the following hooks.
+
+=head2 before_cart_display
+
+Catch the referer for use by the 'Continue shopping' button.
+
+=cut
+
+hook 'before_cart_display' => sub {
+    my $tokens = shift;
+    my $referer = request->referer;
+    if ( defined $referer ) {
+        my $uri = URI->new( $referer );
+        if ( $uri->path ne '/cart' ) {
+            session cart_referer => $referer;
+        }
+    }
+};
 
 =head2 before_layout_render
 
