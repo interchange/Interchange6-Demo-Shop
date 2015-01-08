@@ -53,4 +53,13 @@
             <param name="sku" target="value"/>
         </list>
     </container>
+    <container name="product-specs" value="hide-this-div-away"/>
+    <list name="specs" class="spec-attribute"
+        iterator="product.attribute_iterator">
+        <param name="txt-label" field="title"/>
+        <list name="spec-values" iterator="attribute_values" class="spec-values">
+            <param name="value" field="title"/>
+            <separator name="sep"/>
+        </list>
+    </list>
 </specification>
