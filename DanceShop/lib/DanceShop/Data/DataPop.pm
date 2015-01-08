@@ -109,14 +109,15 @@ sub pop_navigation{
         $shop_schema->resultset('NavigationProduct')->create(
             {
                 sku           => $product->sku,
-                navigation_id => $nav->navigation_id
+                navigation_id => $nav->navigation_id,
+                priority      => 1000,
             }
         );
         # also add to parent
         $shop_schema->resultset('NavigationProduct')->create(
             {
                 sku           => $product->sku,
-                navigation_id => $nav->parent->navigation_id
+                navigation_id => $nav->parent->navigation_id,
             }
         );
         $nav_progress->update ($count);
