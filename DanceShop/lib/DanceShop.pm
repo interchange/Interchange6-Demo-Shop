@@ -53,9 +53,8 @@ The history list is a hash reference of arrays of hash references.
 The hash key is set using the add_to_history var in a route. In a product
 route we might do the following:
 
-    var add_to_history => {
-        product => { name => 'Interesting Product', sku => 'IP00001' }
-    };
+    var add_to_history =>
+        { type => 'product', name => 'Interesting Product', sku => 'IP00001' };
 
 Assuming the URI plus query string is:
 
@@ -99,9 +98,14 @@ Note the special C<all> array which all history items are added to. If an
 item should only be added to C<all> then simply set that as the key
 for C<add_to_history>:
 
-    var add_to_history => {
-        all => { name => 'Blog page' }
-    };
+    var add_to_history => { type => 'all', name => 'Blog page' };
+
+A short form using just the history type is possible thus:
+
+    var add_to_history => 'all';
+
+Though in this case only the URI will be stored in the history list with no
+additional data such as name.
 
 =cut
 
@@ -163,37 +167,27 @@ hook 'before_template_render' => sub {
 
         if ( ref($var) eq '' ) {
             $key = $var;
-            debug "add_to_history scalar: $key";
         }
         elsif ( ref($var) eq 'HASH' ) {
-            debug "add_to_history hash: " . \$var;
-            my @keys = keys %$var;
-
-            die "hash reference for add_to_history must have only one key"
-              if scalar(@keys) > 1;
-
-            $key    = $keys[0];
-
-            die "values for add_to_history must be a hash reference"
-              unless ref($var->{$key}) eq 'HASH';
-
-            %values = %{$var->{$key}};
-        }
-        else {
-            die "unexpected add_to_history: " . ref($var);
+            $key = delete $var->{type};
+            %values = %$var;
         }
 
-        $values{uri} =
-          uri_for( request->path, [ params('query') ] )->path_query;
+        if ( defined $key ) {
 
-        unshift @{$history{$key}}, \%values unless $key eq 'all';
-        unshift @{$history{all}}, \%values;
+            # all OK so add history
+            $values{uri} =
+              uri_for( request->path, [ params('query') ] )->path_query;
 
-        # keep max 20 items in each history list and put back in session
-        foreach my $key ( keys %history ) {
-            pop @{$history{$key}} if scalar @{$history{$key}} > 20;
+            unshift @{ $history{$key} }, \%values unless $key eq 'all';
+            unshift @{ $history{all} }, \%values;
+
+            # keep max 20 items in each history list and put back in session
+            foreach my $key ( keys %history ) {
+                pop @{ $history{$key} } if scalar @{ $history{$key} } > 20;
+            }
+            session history => \%history;
         }
-        session history => \%history;
     }
 
     # add token with most recent history entry
@@ -244,7 +238,7 @@ hook 'before_navigation_search' => sub {
 
     # an interesting page
     var add_to_history =>
-      { navigation => { name => $tokens->{navigation}->name } };
+      { type => 'navigation', name => $tokens->{navigation}->name };
 
     return if $tokens->{template} ne 'product-listing';
 
@@ -683,7 +677,7 @@ hook 'before_product_display' => sub {
 
     # an interesting page
     var add_to_history =>
-      { product => { name => $product->name, sku => $product->sku } };
+      { type => 'product', name => $product->name, sku => $product->sku };
 
     # TODO: setting of selling_price and discount should not be in demo shop
     my $roles;

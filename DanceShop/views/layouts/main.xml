@@ -25,6 +25,7 @@
 </list>
 
 <!-- 'back to...' (not done) and breadcrumbs -->
+<container name="back-to" value="session.history.fred"/>
 <container name="breadcrumb" value="breadcrumb"/>
 <list name="crumb" iterator="breadcrumb">
     <param name="breadcrumb-name" field="name"/>
