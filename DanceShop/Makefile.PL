@@ -27,6 +27,9 @@ WriteMakefile(
         'Dancer::Template::TemplateFlute' => 0.0113,
         'Moo'        => 1.004006,
         'URL::Encode' => 0,
+        # validation
+        'Data::Transpose' => '0.0011',
+        'Email::Valid' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'DanceShop-*' },

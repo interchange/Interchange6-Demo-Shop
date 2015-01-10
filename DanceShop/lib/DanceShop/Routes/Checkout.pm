@@ -3,8 +3,11 @@ package DanceShop::Routes::Checkout;
 use strict;
 use warnings;
 
+use Data::Transpose::Validator;
+
 use Dancer ':syntax';
 use Dancer::Plugin::Interchange6;
+use Dancer::Plugin::Form;
 
 # our logic - we got x checkout steps
 # last step is saved in session
@@ -27,6 +30,25 @@ any '/checkout' => sub {
     my @steps = ({
                      name => 'address',
                      template => 'checkout-multipage-address',
+                     validate => [
+                         {
+                             name => 'email',
+                             validator => 'EmailValid',
+                             required => 1,
+                         },
+                         {
+                             name => 'first_name',
+                             required => 1,
+                         },
+                         {
+                             name => 'last_name',
+                             required => 1,
+                         },
+                         {
+                             name => 'city',
+                             required => 1,
+                         },
+                     ],
                  },
                  {
                      name => 'shipping',
@@ -50,23 +72,44 @@ any '/checkout' => sub {
         my $current_step = session('checkout_step');
 
         if ($current_step) {
+            my $clean = 1;
+            my $form = form('checkout-' . $current_step->{name});
+
             # validation ?
-            $current_step = next_step(\@steps, $current_step);
+            if ($current_step->{validate}) {
+                # validate input
+                my $validator = Data::Transpose::Validator->new;
+
+                $validator->prepare($current_step->{validate});
+                my $clean = $validator->transpose({params});
+
+                if ($clean) {
+                    # ready for next step
+                    $current_step = next_step(\@steps, $current_step);
+                }
+                else {
+                    debug "Form errors on step ", $current_step->{name},
+                        $validator->errors;
+                }
+            }
+            else {
+                $current_step = next_step(\@steps, $current_step);
+            }
         }
         else {
-            $current_step = $steps[0];
+            $current_step = next_step(\@steps, $current_step);
         }
+
+        my $form = form('checkout-' . $current_step->{name});
 
         session checkout_step => $current_step;
 
-        debug "Multi page: ", $current_step;
-
         $out = template $current_step->{template},
-            {cart => shop_cart};
+            {cart => shop_cart,
+             form => $form,
+         };
     }
     else {
-
-        debug "Single page for checkout.";
 
         $out = template 'checkout', {cart => shop_cart};
     }
@@ -76,7 +119,9 @@ any '/checkout' => sub {
 
 sub next_step {
     my ($steps_ref, $current_step) = @_;
-    my $next_step = {};
+    my $next_step = $steps_ref->[0];
+
+    return $next_step if ! defined $current_step;
 
     for my $step (reverse @$steps_ref) {
         if ($current_step->{name} eq $step->{name}) {
