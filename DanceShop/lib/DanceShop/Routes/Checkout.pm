@@ -70,6 +70,7 @@ any '/checkout' => sub {
 
     if (config->{checkout_type} eq 'multi') {
         my $current_step = session('checkout_step');
+        my %error_tokens;
 
         if ($current_step) {
             my $clean = 1;
@@ -89,7 +90,10 @@ any '/checkout' => sub {
                 }
                 else {
                     debug "Form errors on step ", $current_step->{name},
-                        $validator->errors;
+                        $validator->errors_hash;
+                    for my $key (keys %{$validator->errors_hash}) {
+                        $error_tokens{"${key}_status"} = 'has-error';
+                    }
                 }
             }
             else {
@@ -107,6 +111,7 @@ any '/checkout' => sub {
         $out = template $current_step->{template},
             {cart => shop_cart,
              form => $form,
+             %error_tokens,
          };
     }
     else {

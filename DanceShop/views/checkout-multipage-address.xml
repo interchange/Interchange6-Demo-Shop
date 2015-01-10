@@ -10,4 +10,12 @@
     <field name="postal_code"/>
     <field name="country_iso_code"/>
   </form>
+  <value name="email_status" id="email-status" target="class" op="append"
+         joiner=" "/>
+  <value name="first_name_status" id="first-name-status" target="class" op="append"
+         joiner=" "/>
+  <value name="last_name_status" id="last-name-status" target="class" op="append"
+         joiner=" "/>
+  <value name="city_status" id="city-status" target="class" op="append"
+         joiner=" "/>
 </specification>
