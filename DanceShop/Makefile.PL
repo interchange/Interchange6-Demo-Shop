@@ -22,7 +22,7 @@ WriteMakefile(
         'Test::More' => 0,
         'YAML'       => 0,
         'Dancer'     => 1.3124,
-        'Dancer::Plugin::Interchange6' => 0.061,
+        'Dancer::Plugin::Interchange6' => 0.071,
         'Template::Flute' => '0.0150',
         'Dancer::Template::TemplateFlute' => 0.0113,
         'Moo'        => 1.004006,
