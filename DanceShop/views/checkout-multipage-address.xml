@@ -1,2 +1,13 @@
 <specification>
+  <form name="checkout-address" link="name">
+    <field name="email"/>
+    <field name="first_name"/>
+    <field name="last_name"/>
+    <field name="address"/>
+    <field name="address_2"/>
+    <field name="city"/>
+    <field name="states_id"/>
+    <field name="postal_code"/>
+    <field name="country_iso_code"/>
+  </form>
 </specification>
