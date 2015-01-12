@@ -113,49 +113,10 @@ additional data such as name.
 hook 'before_template_render' => sub {
     my $tokens = shift;
 
-
     my %history;
     my $session_history = session('history');
     if ( ref($session_history) eq 'HASH' ) {
         %history = %$session_history;
-    }
-
-    # recently viewed products
-    if ( defined $history{product} ) {
-
-        # we want the 4 most recent unique products viewed
-
-        my %seen;
-        my @skus;
-        foreach my $product ( @{ $history{product} } ) {
-
-            next if $product->{uri} eq request->path;
-
-            unless ( $seen{ $product->{sku} } ) {
-                $seen{ $product->{sku} } = 1;
-                push @skus, $product->{sku};
-            }
-            last if scalar(@skus == 4);
-        }
-
-        my $products = schema->resultset('Product')->search(
-            {
-                'product.sku' => {
-                    -in => \@skus
-                }
-            },
-            {
-                alias => 'product',
-            }
-        );
-
-        if ( $products->has_rows ) {
-
-            # we have some results so set the token
-
-            $tokens->{recent_products} = [ $products->listing(
-                { users_id => session('logged_in_user_id') } )->all ];
-        }
     }
 
     # maintain history lists
@@ -712,6 +673,9 @@ hook 'before_product_display' => sub {
     var add_to_history =>
       { type => 'product', name => $product->name, sku => $product->sku };
 
+    &add_recent_products( $tokens, 4 );
+    &add_similar_products( $tokens, 2, $product->sku );
+
     # TODO: setting of selling_price and discount should not be in demo shop
     my $roles;
     if (logged_in_user) {
@@ -844,6 +808,116 @@ ajax '/check_variant' => sub {
     content_type('application/json');
     to_json({ html => $html });
 };
+
+=head1 SUBROUTINES
+
+=head2 add_recent_products($tokens, $quantity)
+
+Add recent_products token containing the most recently-viewed products.
+
+This sub must be given the current template tokens hash reference and
+quantity of results wanted.
+
+=cut
+
+sub add_recent_products {
+    my ( $tokens, $quantity ) = @_;
+
+    return if (!defined $tokens || !defined $quantity );
+
+    my %history;
+    my $session_history = session('history');
+    if ( ref($session_history) eq 'HASH' ) {
+        %history = %$session_history;
+    }
+
+    if ( defined $history{product} ) {
+
+        # we want the 4 most recent unique products viewed
+
+        my %seen;
+        my @skus;
+        foreach my $product ( @{ $history{product} } ) {
+
+            next if $product->{uri} eq request->path;
+
+            unless ( $seen{ $product->{sku} } ) {
+                $seen{ $product->{sku} } = 1;
+                push @skus, $product->{sku};
+            }
+            last if scalar(@skus == 4);
+        }
+
+        my $products = schema->resultset('Product')->search(
+            {
+                'product.sku' => {
+                    -in => \@skus
+                }
+            },
+            {
+                alias => 'product',
+            }
+        );
+
+        if ( $products->has_rows ) {
+
+            # we have some results so set the token
+
+            $tokens->{recent_products} = [ $products->listing(
+                { users_id => session('logged_in_user_id') } )->all ];
+        }
+    }
+}
+
+=head add_similar_products( $tokens, $quantity, $sku );
+
+Add similar_products token containing the most recently-viewed products.
+Returned products will be active and canonical.
+
+This sub must be given the current template tokens hash reference,
+the quantity of results wanted and a product sku.
+
+NOTE: should use solr to gather some SKUs since the subquery used here sucks
+way too much.
+
+=cut
+
+sub add_similar_products {
+    my ( $tokens, $quantity, $sku ) = @_;
+
+    return if (!defined $tokens || !defined $quantity );
+
+    my $schema = schema;
+
+    $tokens->{similar_products} = [
+        $schema->resultset('Product')->search(
+            {
+                'me.sku'           => {
+                    -in => $schema->resultset('NavigationProduct')->search(
+                        {
+                            'product.active' => 1,
+                            'product.canonical_sku' => undef,
+                            'me.sku'           => { '!=', $sku },
+                            'me.navigation_id' => {
+                                -in =>
+                                  $schema->resultset('NavigationProduct')
+                                  ->search(
+                                    {
+                                        'me.sku' => $sku,
+                                    }
+                                  )->get_column('navigation_id')->as_query
+                            }
+                        },
+                        {
+                            join => 'product',
+                            rows => $quantity,
+                        }
+                    )->get_column('me.sku')->as_query
+                },
+            }
+        )->listing->all
+    ];
+}
 
 shop_setup_routes;
 
