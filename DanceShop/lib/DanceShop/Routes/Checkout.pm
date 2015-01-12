@@ -68,7 +68,7 @@ any '/checkout' => sub {
                  }
              );
 
-    if (config->{checkout_type} eq 'multi') {
+    if (exists config->{checkout_type} && config->{checkout_type} eq 'multi') {
         my $current_step = session('checkout_step');
         my %error_tokens;
 
