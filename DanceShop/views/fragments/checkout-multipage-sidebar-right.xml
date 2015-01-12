@@ -1,2 +1,13 @@
 <specification>
+    <list name="cart" class="cartitem" iterator="cart.products">
+        <param name="name"/>
+        <param name="quantity"/>
+        <param name="selling_price" filter="currency"/>
+    </list>
+    <value name="subtotal" field="cart.subtotal" filter="currency"/>
+    <list name="costs" class="cost" iterator="cart.costs">
+        <param name="label" class="txt-label"/>
+        <param name="amount" field="current_amount"/>
+    </list>
+    <value name="total" field="cart.total" filter="currency"/>
 </specification>
