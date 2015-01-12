@@ -1,6 +1,12 @@
 <specification>
     <pattern name="discount" type="string">20</pattern>
 
+    <list name="view-selector" class="view" iterator="views">
+        <param name="name" class="view" target="value"/>
+        <param name="active" class="view" target="class" op="append"/>
+        <param name="icon_class" class="glyphicon" target="class"/>
+        <param name="title" class="view-text"/>
+    </list>
     <container name="view-list" value="navigation-view-list">
         <list name="view-list" class="product-box-list" iterator="products">
             <container name="has-discount" value="discount_percent"/>

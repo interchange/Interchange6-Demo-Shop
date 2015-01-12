@@ -30,6 +30,7 @@ use Dancer::Plugin::Interchange6;
 use Dancer::Plugin::Interchange6::Routes;
 use DanceShop::Routes::Checkout;
 use DateTime;
+use List::Util qw(first);
 use POSIX qw/ceil/;
 use Scalar::Util 'blessed';
 use Try::Tiny;
@@ -242,6 +243,10 @@ hook 'before_navigation_search' => sub {
 
     return if $tokens->{template} ne 'product-listing';
 
+    my $products =
+      $tokens->{navigation}->navigation_products->search_related('product')
+      ->active;
+
     my %query = params('query');
 
     my $routes_config = config->{plugin}->{'Interchange6::Routes'};
@@ -258,13 +263,39 @@ hook 'before_navigation_search' => sub {
 
     # determine which view to display
 
+    my @views = (
+        {
+            name => 'grid',
+            title => 'Grid',
+            icon_class => 'glyphicon glyphicon-th'
+        },
+        {
+            name => 'list',
+            title => 'List',
+            icon_class => 'glyphicon glyphicon-th-list'
+        },
+        {
+            name => 'simple',
+            title => 'Simple',
+            icon_class => 'glyphicon glyphicon-list'
+        },
+        {
+            name => 'compact',
+            title => 'Compact',
+            icon_class => 'glyphicon glyphicon-align-justify'
+        },
+    );
     my $view = $query{view};
     if (   !defined $view
-        || !grep { $_ eq $view } (qw/grid list simple compact/) )
+        || !grep { $_ eq $view } map { $_->{name} } @views )
     {
         $view = $routes_config->{navigation}->{default_view} || 'list';
     }
     $tokens->{"navigation-view-$view"} = 1;
+
+    my $view_index = first { $views[$_]->{name} eq $view } 0..$#views;
+    $views[$view_index]->{active} = 'active';
+    $tokens->{views} = \@views;
 
     # rows (products per page) 
 
@@ -317,7 +348,7 @@ hook 'before_navigation_search' => sub {
 
     # we need to prepend alias to most columns but not all
     unless ( $order =~ /^(average_rating|selling_price)$/ ) {
-        $order = "product." . $order;
+        $order = $products->me($order);
     }
 
     # asc/desc arrow
@@ -332,25 +363,20 @@ hook 'before_navigation_search' => sub {
           q(<span class="glyphicon glyphicon-arrow-down"></span>);
     }
 
-    # products
-
-    my $products =
-      $tokens->{navigation}->navigation_products->search_related('product')
-      ->active;
-
     # Filter products based on facets in query params if there are any.
     # This loopy query stuff is terrible - should be a much better way
     # to do this but I haven't found one yet that is as fast.
+
     if ( keys %query_facets ) {
 
-        my @skus = $products->get_column('product.sku')->all;
+        my @skus = $products->get_column($products->me('sku'))->all;
 
         foreach my $key ( keys %query_facets ) {
 
             @skus = $schema->resultset('Product')->search(
                 {
                     -and => [
-                        'me.sku' => { -in => \@skus },
+                        'product.sku' => { -in => \@skus },
                         -or      => [
                             -and => [
                                 'attribute.name' => $key,
@@ -366,7 +392,8 @@ hook 'before_navigation_search' => sub {
                     ]
                 },
                 {
-                    columns => [ 'me.sku' ],
+                    alias => 'product',
+                    columns => [ 'product.sku' ],
                     join  => [
                         {
                             product_attributes => [
@@ -390,7 +417,7 @@ hook 'before_navigation_search' => sub {
                         }
                     ],
                 },
-            )->get_column('me.sku')->all;
+            )->get_column('product.sku')->all;
         }
 
         $products = $schema->resultset('Product')->search(
@@ -398,7 +425,7 @@ hook 'before_navigation_search' => sub {
                 'product.sku' => { -in => \@skus }
             },
             {
-                alias => 'product'
+                alias => 'product',
             }
         );
     }
@@ -448,16 +475,19 @@ hook 'before_navigation_search' => sub {
         },
         columns    => [],
         '+columns' => [
-            { name        => 'attribute.name' },
+            { name  => 'attribute.name' },
             { value => 'attribute_value.value' },
             { title => 'attribute_value.title' },
-            { count => { count => { distinct => 'product.sku' }} },
+            { count => { count => { distinct => 'product.sku' } } },
         ],
         order_by => [
             { -desc => 'attribute_value.priority' },
             { -asc  => 'attribute_value.title' },
         ],
-        distinct => 1,
+        group_by => [
+            "attribute.name",        "attribute_value.value",
+            "attribute_value.title", "attribute_value.priority",
+        ],
     };
     my @facet_list = $products->search( $cond, $attrs )->hri->all;
 
@@ -501,8 +531,13 @@ hook 'before_navigation_search' => sub {
     );
 
     my $facet_group_rset =
-      $facet_group_rset1->union($facet_group_rset2)->distinct('product.name')
-      ->order_by('!product.priority,product.title');
+      $facet_group_rset1->union($facet_group_rset2)
+      ->distinct( $products->me('name') )->order_by(
+        [
+            { -desc => $products->me('priority') },
+            { -asc  => $products->me('title') }
+        ]
+      );
 
     # now construct facets token
     my @facets;
@@ -544,17 +579,15 @@ hook 'before_navigation_search' => sub {
 
     my @products =
       $paged_products->listing( { users_id => session('logged_in_user_id') } )
-      ->search(
-        undef,
-        {
-            group_by => [
-                'product.sku', 'product.name',
-                'product.uri', 'product.price',
-                'product.short_description', 'product.canonical_sku',
-            ],
-            order_by => { "-$direction" => [$order] },
-        }
-      )->all;
+      ->group_by(
+        [
+            map { $paged_products->me($_) } (
+                'sku',               'name',
+                'uri',               'price',
+                'short_description', 'canonical_sku'
+            )
+        ]
+      )->order_by( { "-$direction" => [$order] } )->all;
 
     if ( $view eq 'grid' ) {
         my @grid;
