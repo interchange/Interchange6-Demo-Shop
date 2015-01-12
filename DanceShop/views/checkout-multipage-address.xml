@@ -1,4 +1,5 @@
 <specification>
+  <value name="sidebar-right" include="fragments/checkout-multipage-sidebar-right.html"/>
   <form name="checkout-address" link="name">
     <field name="email"/>
     <field name="first_name"/>

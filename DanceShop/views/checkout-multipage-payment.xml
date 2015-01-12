@@ -1,2 +1,3 @@
 <specification>
+  <value name="sidebar-right" include="fragments/checkout-multipage-sidebar-right.html"/>
 </specification>
