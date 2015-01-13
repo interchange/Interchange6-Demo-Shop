@@ -42,9 +42,10 @@
             <param name="sku" target="value"/>
         </list>
     </container>
-    <container name="product-similar" value="similar_products">
-        <list name="similar-products" class="similar-product"
-            iterator="similar_products">
+
+    <container name="product-similar1" value="similar1">
+        <list name="similar-product1" class="similar-product1"
+            iterator="similar1">
             <param name="name"/>
             <param name="uri" class="name" target="href" op="append"/>
             <param name="product-price" field="selling_price"
@@ -53,6 +54,18 @@
             <param name="sku" target="value"/>
         </list>
     </container>
+    <container name="product-similar2" value="similar2">
+        <list name="similar-product2" class="similar-product2"
+            iterator="similar2">
+            <param name="name"/>
+            <param name="uri" class="name" target="href" op="append"/>
+            <param name="product-price" field="selling_price"
+                filter="selling_price"/>
+            <param name="inventory" class="label" op="toggle" args="tree"/>
+            <param name="sku" target="value"/>
+        </list>
+    </container>
+
     <container name="recent-products" value="recent_products">
         <list name="recent-products" class="recent-product"
             iterator="recent_products">

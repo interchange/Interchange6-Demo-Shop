@@ -673,8 +673,14 @@ hook 'before_product_display' => sub {
     var add_to_history =>
       { type => 'product', name => $product->name, sku => $product->sku };
 
+    # Recently view products
     &add_recent_products( $tokens, 4 );
-    &add_similar_products( $tokens, 2, $product->sku );
+
+    # Similar products
+    # we have 2 panels of 2 items so get 4 then split into 2 iterators
+    &add_similar_products( $tokens, 4, $product->sku );
+    $tokens->{similar1} = [ splice @{ $tokens->{similar_products} }, 0, 2 ];
+    $tokens->{similar2} = [ splice @{ $tokens->{similar_products} }, 0, 2 ];
 
     # TODO: setting of selling_price and discount should not be in demo shop
     my $roles;
@@ -892,28 +898,25 @@ sub add_similar_products {
     $tokens->{similar_products} = [
         $schema->resultset('Product')->search(
             {
-                'me.sku'           => {
-                    -in => $schema->resultset('NavigationProduct')->search(
+                'product.active'                    => 1,
+                'product.canonical_sku'             => undef,
+                'product.sku'                       => { '!=', $sku },
+                'navigation_products.navigation_id' => {
+                    '=' => $schema->resultset('NavigationProduct')->search(
                         {
-                            'product.active' => 1,
-                            'product.canonical_sku' => undef,
-                            'me.sku'           => { '!=', $sku },
-                            'me.navigation_id' => {
-                                -in =>
-                                  $schema->resultset('NavigationProduct')
-                                  ->search(
-                                    {
-                                        'me.sku' => $sku,
-                                    }
-                                  )->get_column('navigation_id')->as_query
-                            }
+                            'me.sku' => $sku,
                         },
                         {
-                            join => 'product',
-                            rows => $quantity,
+                            order_by => { -desc => 'me.priority' },
+                            rows     => 1,
                         }
-                    )->get_column('me.sku')->as_query
-                },
+                    )->get_column('navigation_id')->as_query
+                }
+            },
+            {
+                alias => 'product',
+                join  => 'navigation_products',
+                rows  => $quantity,
             }
         )->listing->all
     ];
