@@ -535,11 +535,6 @@ hook 'before_navigation_search' => sub {
       ->order_by( { "-$direction" => [$order] } )
       ->limited_page( $tokens->{page}, $rows );
 
-    my $product = $products->find('os28006');
-    debug "******** " . $product->price;
-    debug "******** " . $product->selling_price;
-    debug "******** " . $product->discount_percent;
-    debug "******** " . $product->quantity_in_stock;
     # pager
 
     my $pager = $products->pager;
