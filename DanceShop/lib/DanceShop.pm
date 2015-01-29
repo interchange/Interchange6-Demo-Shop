@@ -550,15 +550,7 @@ hook 'before_navigation_search' => sub {
       ->with_variant_count
       ->order_by( { "-$direction" => [$order] } );
 
-    $tokens->{products} = $product_listing;
-    #$tokens->{products} = [ $product_listing->all ];
-    #print STDERR "********* " . $products->count . "\n";
-    #while ( my $product = $products->next ) {
-    #    print STDERR "xxxxx " . $product->name . "\n";
-    #}
-    #$products->reset;
-
-    if ( $view eq 'gridNOT' ) {
+    if ( $view eq 'grid' ) {
 
         # grid view needs rows of 3 items
 
@@ -576,7 +568,7 @@ hook 'before_navigation_search' => sub {
         $tokens->{products} = \@grid;
     }
     else {
-        #$tokens->{products} = $products;
+        $tokens->{products} = $product_listing;
     }
 
     # pagination

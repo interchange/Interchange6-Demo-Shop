@@ -1,9 +1,8 @@
 <specification>
     <value name="sidebar-left" op="hook" include="fragments/product-listing-sidebar-left.html"/>
     <value name="listing-top" op="hook" include="fragments/product-listing-top.html"/>
-    <!--list name="view-grid" class="product-box-grid-row" iterator="products"-->
-        <!--list name="view-row" class="product-box-grid" iterator="row"-->
-        <list name="view-row" class="product-box-grid" iterator="products">
+    <list name="view-grid" class="product-box-grid-row" iterator="products">
+        <list name="view-row" class="product-box-grid" iterator="row">
             <container name="has-discount" value="discount_percent"/>
             <container name="has-variants" value="has_variants"/>
             <container name="instock" value="inventory"/>
@@ -14,5 +13,5 @@
             <param name="selling-price" field="selling_price" filter="selling_price"/>
             <!--param name="sku" class="product-image" target="src" filter="image"/-->
         </list>
-    <!--/list-->
+    </list>
 </specification>
