@@ -1,0 +1,13 @@
+<specification>
+    <list name="view-compact" class="product-box-compact" iterator="products">
+        <container name="has-discount" value="discount_percent"/>
+        <container name="has-variants" value="variant_count"/>
+        <container name="instock" value="inventory"/>
+        <param name="name" class="product-name"/>
+        <param name="uri" class="product-name" target="href" op="append"/>
+        <param name="sku"/>
+        <param name="price" filter="currency"/>
+        <param name="selling-price" field="selling_price" filter="selling_price"/>
+        <!--param name="sku" class="product-image" target="src" filter="image"/-->
+    </list>
+</specification>

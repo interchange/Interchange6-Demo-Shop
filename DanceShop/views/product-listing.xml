@@ -7,87 +7,22 @@
         <param name="icon_class" class="glyphicon" target="class"/>
         <param name="title" class="view-text"/>
     </list>
-    <container name="view-list" value="navigation-view-list">
-        <list name="view-list" class="product-box-list" iterator="products">
-            <container name="has-discount" value="discount_percent"/>
-            <container name="has-variants" value="has_variants"/>
-            <container name="instock" value="inventory"/>
-            <param name="name" class="product-name"/>
-            <param name="uri" class="product-name" target="href" op="append"/>
-            <param name="sku"/>
-            <param name="price" filter="currency"/>
-            <param name="selling-price" field="selling_price"
-                filter="selling_price"/>
-            <!--param name="sku" class="product-image" target="src"
-                filter="image"/-->
 
-            <!-- params specific to this view -->
-            <container name="show-rating" value="average_rating" />
-            <param name="short_description" class="product-description"/>
-            <param name="discount-list" field="discount_percent"
-                pattern="discount"/>
-            <param name="average_rating" class="rating-stars" target="class"
-                filter="rating_class"/>
-        </list>
+    <container name="navigation-view-compact" value="navigation-view-compact">
+        <value name="navigation-view-compact" op="hook"
+            include="fragments/product-listing-view-compact.html"/>
     </container>
-
-    <container name="view-simple" value="navigation-view-simple">
-        <list name="view-simple" class="product-box-simple" iterator="products">
-            <container name="has-discount" value="discount_percent"/>
-            <container name="has-variants" value="has_variants"/>
-            <container name="instock" value="inventory"/>
-            <param name="name" class="product-name"/>
-            <param name="uri" class="product-name" target="href" op="append"/>
-            <param name="sku"/>
-            <param name="price" filter="currency"/>
-            <param name="selling-price" field="selling_price"
-                filter="selling_price"/>
-            <!--param name="sku" class="product-image" target="src"
-                filter="image"/-->
-
-            <!-- params specific to this view -->
-            <container name="show-rating" value="average_rating" />
-            <param name="discount-list" field="discount_percent"
-                pattern="discount"/>
-            <param name="average_rating" class="rating-stars" target="class"
-                filter="rating_class"/>
-        </list>
+    <container name="navigation-view-grid" value="navigation-view-grid">
+        <value name="navigation-view-grid" op="hook"
+            include="fragments/product-listing-view-grid.html"/>
     </container>
-
-    <container name="view-compact" value="navigation-view-compact">
-        <list name="view-compact" class="product-box-compact"
-            iterator="products">
-            <container name="has-discount" value="discount_percent"/>
-            <container name="has-variants" value="has_variants"/>
-            <container name="instock" value="inventory"/>
-            <param name="name" class="product-name"/>
-            <param name="uri" class="product-name" target="href" op="append"/>
-            <param name="sku"/>
-            <param name="price" filter="currency"/>
-            <param name="selling-price" field="selling_price"
-                filter="selling_price"/>
-            <!--param name="sku" class="product-image" target="src"
-                filter="image"/-->
-        </list>
+    <container name="navigation-view-list" value="navigation-view-list">
+        <value name="navigation-view-list" op="hook"
+            include="fragments/product-listing-view-list.html"/>
     </container>
-
-    <container name="view-grid" value="navigation-view-grid">
-        <list name="view-grid" class="product-box-grid-row" iterator="products">
-            <list name="view-row" class="product-box-grid" iterator="row">
-                <container name="has-discount" value="discount_percent"/>
-                <container name="has-variants" value="has_variants"/>
-                <container name="instock" value="inventory"/>
-                <param name="name" class="product-name"/>
-                <param name="uri" class="product-name" target="href"
-                    op="append"/>
-                <param name="sku"/>
-                <param name="price" filter="currency"/>
-                <param name="selling-price" field="selling_price"
-                    filter="selling_price"/>
-                <!--param name="sku" class="product-image" target="src"
-                    filter="image"/-->
-            </list>
-        </list>
+    <container name="navigation-view-simple" value="navigation-view-simple">
+        <value name="navigation-view-simple" op="hook"
+            include="fragments/product-listing-view-simple.html"/>
     </container>
 
     <value name="pager_total_entries" field="pager.total_entries"/>
