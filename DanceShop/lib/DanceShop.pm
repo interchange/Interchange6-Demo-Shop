@@ -523,9 +523,25 @@ hook 'before_navigation_search' => sub {
     }
     $tokens->{facets} = \@facets;
 
+    # apply product resultset methods then sort and page
+
+    $products = $products->columns(
+        [ 'sku', 'name', 'uri', 'price', 'short_description' ] )
+      ->with_average_rating
+      ->with_lowest_selling_price(
+        { users_id => session('logged_in_user_id') } )
+      ->with_quantity_in_stock
+      ->with_variant_count
+      ->order_by( { "-$direction" => [$order] } )
+      ->limited_page( $tokens->{page}, $rows );
+
+    my $product = $products->find('os28006');
+    debug "******** " . $product->price;
+    debug "******** " . $product->selling_price;
+    debug "******** " . $product->discount_percent;
+    debug "******** " . $product->quantity_in_stock;
     # pager
 
-    $products = $products->limited_page( $tokens->{page}, $rows );
     my $pager = $products->pager;
 
     if ( $tokens->{page} > $pager->last_page ) {
@@ -539,21 +555,10 @@ hook 'before_navigation_search' => sub {
     }
     $tokens->{pager} = $pager;
 
-    # apply product resultset methods then sort and page
-
-    my $product_listing = $products->columns(
-        [ 'sku', 'name', 'uri', 'price', 'short_description' ] )
-      ->with_average_rating
-      ->with_lowest_selling_price(
-        { users_id => session('logged_in_user_id') } )
-      ->with_quantity_in_stock
-      ->with_variant_count
-      ->order_by( { "-$direction" => [$order] } );
+    # grid view can look messy unless we deliver products in nice rows
+    # or 3
 
     if ( $view eq 'grid' ) {
-
-        # grid view needs rows of 3 items
-
         my @grid;
         my @row;
         my $i = 0;
@@ -568,7 +573,7 @@ hook 'before_navigation_search' => sub {
         $tokens->{products} = \@grid;
     }
     else {
-        $tokens->{products} = $product_listing;
+        $tokens->{products} = $products;
     }
 
     # pagination

@@ -3,9 +3,9 @@
     <value name="listing-top" op="hook" include="fragments/product-listing-top.html"/>
     <pattern name="discount" type="string">20</pattern>
     <list name="view-simple" class="product-box-simple" iterator="products">
-        <container name="has-discount" value="discount_percent"/>
-        <container name="has-variants" value="variant_count"/>
-        <container name="instock" value="inventory"/>
+        <param name="has-discount" field="discount_percent" op="toggle" args="tree"/>
+        <param name="has-variants" field="variant_count" op="toggle" args="tree"/>
+        <param name="instock" field="quantity_in_stock" op="toggle" args="tree"/>
         <param name="name" class="product-name"/>
         <param name="uri" class="product-name" target="href" op="append"/>
         <param name="sku"/>
