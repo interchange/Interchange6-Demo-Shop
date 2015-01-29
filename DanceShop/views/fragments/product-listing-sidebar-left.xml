@@ -1,0 +1,27 @@
+<specification>
+    <list name="nav-sibling" iterator="nav-siblings">
+        <param name="badge" field="count"/>
+        <param name="link_name" class="link" field="name"/>
+        <param name="link" field="uri" target="href" op="append"/>
+        <param name="active" class="nav-sibling" target="class" value="active"
+            field="selected"/>
+    </list>
+
+    <list name="facet-group" iterator="facets" value="checked">
+        <param name="facet-group-title" field="title"/>
+        <list name="facet" class="checkbox" iterator="values">
+            <!--the following container is way too expensive with TF 0.0151
+                so for now we won't use it and replace with toggled param
+                with new list field-->
+            <!--container name="txt-secondary" class="txt-secondary" value="!checked"/-->
+            <param name="txt-secondary" field="unchecked" op="toggle" args="tree"/>
+            <param name="facet-title" field="title"/>
+            <param name="facet-name" field="name" target="name"/>
+            <param name="facet-value" class="facet-name" field="value"
+                target="value"/>
+            <param name="facet-count" field="count"/>
+            <param name="checked" class="facet-name" target="checked"
+                op="toggle"/>
+        </list>
+    </list>
+</specification>

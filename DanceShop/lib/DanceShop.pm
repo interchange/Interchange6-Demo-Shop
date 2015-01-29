@@ -253,6 +253,7 @@ hook 'before_navigation_search' => sub {
         $view = $routes_config->{navigation}->{default_view} || 'list';
     }
     $tokens->{"navigation-view-$view"} = 1;
+    $tokens->{template} = "product-listing-$view";
 
     my $view_index = first { $views[$_]->{name} eq $view } 0..$#views;
     $views[$view_index]->{active} = 'active';
@@ -391,20 +392,6 @@ hook 'before_navigation_search' => sub {
         );
     }
 
-    # pager needs a paged version of the products result set
-
-    my $paged_products = $products->limited_page( $tokens->{page}, $rows );
-    my $pager = $paged_products->pager;
-
-    if ( $tokens->{page} > $pager->last_page ) {
-        # we're past the last page which happens a lot if we start on a high
-        # page then results are restricted via facets so reset the pager
-        $tokens->{page} = $pager->last_page;
-        $paged_products = $products->limited_page( $tokens->{page}, $rows );
-        $pager = $paged_products->pager;
-    }
-    $tokens->{pager} = $pager;
-
     # facets
 
     # TODO: counting facets needs review since this can be slow
@@ -536,29 +523,60 @@ hook 'before_navigation_search' => sub {
     }
     $tokens->{facets} = \@facets;
 
-    # product listing using paged_products result set
+    # pager
 
-    my @products =
-      $paged_products->listing( { users_id => session('logged_in_user_id') } )
-      ->group_by(
-        [
-            map { $paged_products->me($_) } (
-                'sku',               'name',
-                'uri',               'price',
-                'short_description', 'canonical_sku'
-            )
-        ]
-      )->order_by( { "-$direction" => [$order] } )->all;
+    $products = $products->limited_page( $tokens->{page}, $rows );
+    my $pager = $products->pager;
 
-    if ( $view eq 'grid' ) {
+    if ( $tokens->{page} > $pager->last_page ) {
+
+        # we're past the last page which happens a lot if we start on a high
+        # page then results are restricted via facets so reset the pager
+
+        $tokens->{page} = $pager->last_page;
+        $products = $products->limited_page( $tokens->{page}, $rows );
+        $pager = $products->pager;
+    }
+    $tokens->{pager} = $pager;
+
+    # apply product resultset methods then sort and page
+
+    my $product_listing = $products->columns(
+        [ 'sku', 'name', 'uri', 'price', 'short_description' ] )
+      ->with_average_rating
+      ->with_lowest_selling_price(
+        { users_id => session('logged_in_user_id') } )
+      ->with_quantity_in_stock
+      ->with_variant_count
+      ->order_by( { "-$direction" => [$order] } );
+
+    $tokens->{products} = $product_listing;
+    #$tokens->{products} = [ $product_listing->all ];
+    #print STDERR "********* " . $products->count . "\n";
+    #while ( my $product = $products->next ) {
+    #    print STDERR "xxxxx " . $product->name . "\n";
+    #}
+    #$products->reset;
+
+    if ( $view eq 'gridNOT' ) {
+
+        # grid view needs rows of 3 items
+
         my @grid;
-        while ( scalar @products > 0 ) {
-            push @grid, +{ row => [ splice @products, 0, 3 ] };
+        my @row;
+        my $i = 0;
+        while( my $product = $products->next ) {
+            $i++;
+            push @row, $product;
+            unless ( $i % 3 ) {
+                push @grid, +{ row => [@row] };
+                undef @row;
+            }
         }
         $tokens->{products} = \@grid;
     }
     else {
-        $tokens->{products} = \@products;
+        #$tokens->{products} = $products;
     }
 
     # pagination

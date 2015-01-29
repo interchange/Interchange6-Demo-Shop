@@ -1,6 +1,7 @@
 <specification>
-    <pattern name="discount" type="string">20</pattern>
-    <list name="view-list" class="product-box-list" iterator="products">
+    <value name="sidebar-left" op="hook" include="fragments/product-listing-sidebar-left.html"/>
+    <value name="listing-top" op="hook" include="fragments/product-listing-top.html"/>
+    <list name="view-compact" class="product-box-compact" iterator="products">
         <container name="has-discount" value="discount_percent"/>
         <container name="has-variants" value="variant_count"/>
         <container name="instock" value="inventory"/>
@@ -10,9 +11,5 @@
         <param name="price" filter="currency"/>
         <param name="selling-price" field="selling_price" filter="selling_price"/>
         <!--param name="sku" class="product-image" target="src" filter="image"/-->
-        <container name="show-rating" value="average_rating" />
-        <param name="short_description" class="product-description"/>
-        <param name="discount-list" field="discount_percent" pattern="discount"/>
-        <param name="average_rating" class="rating-stars" target="class" filter="rating_class"/>
     </list>
 </specification>

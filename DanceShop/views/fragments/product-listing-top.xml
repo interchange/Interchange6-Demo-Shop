@@ -1,0 +1,34 @@
+<specification>
+
+    <list name="view-selector" class="view" iterator="views">
+        <param name="name" class="view" target="value"/>
+        <param name="active" class="view" target="class" op="append"/>
+        <param name="icon_class" class="glyphicon" target="class"/>
+        <param name="title" class="view-text"/>
+    </list>
+
+    <value name="pager_total_entries" field="pager.total_entries"/>
+    <value name="pager_first_entry" field="pager.first"/>
+    <value name="pager_last_entry" field="pager.last"/>
+
+    <value name="per_page" iterator="per_page_iterator"/>
+    <value name="order_by" iterator="order_by_iterator"/>
+    <value name="order_by_glyph" class="order_direction" op="hook"/>
+    <value name="reverse_order" class="order_direction" target="value"/>
+
+    <container name="pagination" value="pagination"/>
+    <container name="enable_pagination_previous" value="pagination_previous"/>
+    <container name="disable_pagination_previous" value="!pagination_previous"/>
+    <container name="enable_pagination_next" value="pagination_next"/>
+    <container name="disable_pagination_next" value="!pagination_next"/>
+    <value name="pagination_previous" target="href"/>
+    <value name="pagination_next" target="href"/>
+    <list name="pagination" class="page" iterator="pagination">
+        <container name="active" value="active">
+            <param name="active" class="page" target="class" op="append"/>
+        </container>
+        <param name="page" class="page_number"/>
+        <param name="uri" target="href" class="page_number"/>
+    </list>
+
+</specification>
