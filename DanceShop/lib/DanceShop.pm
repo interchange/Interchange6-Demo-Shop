@@ -175,16 +175,19 @@ hook 'before_layout_render' => sub {
 
     my @nav = shop_navigation->search(
         {
+            'me.active'    => 1,
             'me.type'      => 'nav',
             'me.parent_id' => undef,
         },
         {
-            prefetch => 'children',
-            order_by => { -desc => [ 'me.priority', 'children.priority' ]},
+            prefetch => 'active_children',
+            order_by =>
+              { -desc => [ 'me.priority', 'active_children.priority' ] },
         }
-    )->all;
+    )->hri->all;
+
     foreach my $record ( @nav ) {
-        push @{$tokens->{'nav-' . $record->scope}}, $record;
+        push @{$tokens->{'nav-' . $record->{scope}}}, $record;
     };
 };
 
