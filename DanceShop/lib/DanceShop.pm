@@ -173,16 +173,17 @@ hook 'before_layout_render' => sub {
 
     # build menu tokens
 
-    my $nav = shop_navigation->search(
+    my @nav = shop_navigation->search(
         {
-            type => 'nav',
-            parent_id => undef,
+            'me.type'      => 'nav',
+            'me.parent_id' => undef,
         },
         {
-            order_by => { -desc => 'priority'},
+            prefetch => 'children',
+            order_by => [ 'me.name', 'children.name' ],
         }
-    );
-    while (my $record = $nav->next) {
+    )->all;
+    foreach my $record ( @nav ) {
         push @{$tokens->{'nav-' . $record->scope}}, $record;
     };
 };

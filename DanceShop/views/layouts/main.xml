@@ -21,7 +21,12 @@
 
 <list name="main" class="nav-menu-main" iterator="nav-menu-main">
     <param name="name" class="link-main" field = "name"/>
+    <param name="submenu-name" field = "name"/>
     <param name="link-main" field="uri" target="href" op="append"/>
+    <list name="main-sub" class="submenu" iterator="children">
+        <param name="name-sub" class="link-sub" field = "name"/>
+        <param name="link-sub" field="uri" target="href" op="append"/>
+    </list>
 </list>
 
 <!-- 'back to...' (not done) and breadcrumbs -->
