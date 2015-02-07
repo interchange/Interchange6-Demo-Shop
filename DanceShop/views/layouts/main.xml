@@ -19,11 +19,21 @@
   <param name="selling_price" class="product-price" filter="currency"/>
 </list>
 
+<pattern name="megadiscount" type="string">45</pattern>
 <list name="main" class="nav-menu-main" iterator="nav-menu-main">
     <param name="name" class="link-main" field = "name"/>
     <param name="submenu-name" field = "name"/>
     <param name="link-main" field="uri" target="href" op="append"/>
-    <list name="main-sub" class="submenu" iterator="children">
+    <list name="megaproducts" class="" iterator="products">
+        <param name="has-discount" field="discount_percent" op="toggle" args="tree"/>
+        <param name="discount" field="discount_percent" pattern="megadiscount"/>
+        <param name="mega-product-link" field="uri" target="href" op="append"/>
+        <param name="mega-product-name" class="mega-product-link" field="name"/>
+        <param name="price" class="original-price" filter="currency"/>
+        <param name="selling_price" class="product-price" filter="currency"/>
+        <param name="stock" field="quantity_in_stock" op="toggle" args="tree"/>
+    </list>
+    <list name="main-sub" class="submenu" iterator="active_children">
         <param name="name-sub" class="link-sub" field = "name"/>
         <param name="link-sub" field="uri" target="href" op="append"/>
     </list>

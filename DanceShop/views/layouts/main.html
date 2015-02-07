@@ -272,14 +272,16 @@
                       <li><a href="#">John Deere</a></li>
                     </ul>
                   </li>
-                  <li class="col-sm-3">
+                  <!--li class="col-sm-3">
                     <div class="promo-box dropdown">
 							This is a Category 1 Promo item. Special sale -30% on all items here
 						</div>
-                  </li>
-                  <li class="col-sm-3">
+                  </li-->
+                  <li class="col-sm-3 megaproducts">
                     <div class="product-box">
-                      <span class="label label-warning discount">-45%</span>
+                      <span class="has-discount">
+                        <span class="label label-warning discount">-45%</span>
+                      </span>
                       <div class="row">
                         <div class="col-md-5">
                           <img class="img-responsive" src="/img/img_product.jpg" />
@@ -287,13 +289,15 @@
                         <div class="col-md-7">
                           <div class="product-details">
                             <div class="product-description">
-                              <a href="product-page.html">Organic gift basket for babies</a>
+                              <a class="mega-product-link" href="/">Organic gift basket for babies</a>
                             </div>
                             <div class="product-options">
-                              <strike>$1660,99</strike>
+                              <span class="has-discount">
+                                <strike class="original-price">$1660,99</strike>
+                              </span>
                               <br />
                               <div class="product-price">$1520,99</div>
-                              <div class="form-group">
+                              <div class="form-group stock">
                                 <span class="label label-info">in stock</span>
                               </div>
                               <button class="btn btn-success btn-sm">Add to cart</button>

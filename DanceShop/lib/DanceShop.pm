@@ -181,14 +181,73 @@ hook 'before_layout_render' => sub {
         },
         {
             prefetch => 'active_children',
-            order_by =>
-              { -desc => [ 'me.priority', 'active_children.priority' ] },
+            order_by => [
+                { -desc => 'me.priority' },
+                'me.name',
+                { -desc => 'active_children.priority' },
+                'active_children.name',
+            ],
         }
     )->hri->all;
 
     foreach my $record ( @nav ) {
         push @{$tokens->{'nav-' . $record->{scope}}}, $record;
     };
+
+    my @roles_cond = ( undef );
+
+    if (logged_in_user) {
+
+        my $subquery =
+          shop_schema->resultset('UserRole')
+          ->search( { "users_id" => users_id => session('logged_in_user_id') } )
+          ->get_column('roles_id')->as_query;
+
+        push @roles_cond, { -in => $subquery };
+    }
+
+    foreach my $nav ( @{$tokens->{"nav-menu-main"}} ) {
+        my @products = shop_product->search(
+            {
+                'me.active'                => 1,
+                'price_modifiers.roles_id' => \@roles_cond,
+                'price_modifiers.price' => { '!=', undef},
+                'navigation_products.navigation_id' => $nav->{navigation_id},
+            },
+            {
+                join       => [ 'price_modifiers', 'navigation_products'],
+                '+columns' => [
+                    { selling_price => 'price_modifiers.price' },
+                    {
+                        discount_percent => \
+                          "(me.price - price_modifiers.price)/me.price"
+                    },
+                ],
+                order_by =>
+                  { -desc => \"(me.price - price_modifiers.price)/me.price" },
+                rows => 2,
+            }
+        )->with_quantity_in_stock->all;
+
+        my $count = scalar @products;
+
+        if ( $count < 2 ) {
+            push @products, shop_product->search(
+                {
+                    'me.active' => 1,
+                    'navigation_products.navigation_id' =>
+                      $nav->{navigation_id},
+                },
+                {
+                    join       => 'navigation_products',
+                    '+columns' => { selling_price => 'price' },
+                    rows       => 2 - $count,
+                }
+            )->with_quantity_in_stock->all;
+        }
+
+        $nav->{products} = \@products;
+    }
 };
 
 =head2 before_navigation_search
@@ -700,7 +759,6 @@ hook 'before_product_display' => sub {
     my $roles;
     if (logged_in_user) {
         $roles = user_roles;
-        push @$roles, 'authenticated';
     }
     $tokens->{selling_price} = $product->selling_price( { roles => $roles } );
 
