@@ -180,7 +180,7 @@ hook 'before_layout_render' => sub {
         },
         {
             prefetch => 'children',
-            order_by => [ 'me.name', 'children.name' ],
+            order_by => { -desc => [ 'me.priority', 'children.priority' ]},
         }
     )->all;
     foreach my $record ( @nav ) {
