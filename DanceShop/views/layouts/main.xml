@@ -32,6 +32,7 @@
         <param name="price" class="original-price" filter="currency"/>
         <param name="selling_price" class="product-price" filter="currency"/>
         <param name="stock" field="quantity_in_stock" op="toggle" args="tree"/>
+        <param name="sku" target="value"/>
     </list>
     <list name="main-sub" class="submenu" iterator="active_children">
         <param name="name-sub" class="link-sub" field = "name"/>
