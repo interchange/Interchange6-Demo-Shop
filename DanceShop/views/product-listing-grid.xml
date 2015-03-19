@@ -10,7 +10,7 @@
             <param name="uri" class="product-name" target="href" op="append"/>
             <param name="sku"/>
             <param name="price" filter="currency"/>
-            <param name="selling-price" field="selling_price" filter="selling_price"/>
+            <param name="selling-price" field="selling_price" filter="currency"/>
             <!--param name="sku" class="product-image" target="src" filter="image"/-->
         </list>
     </list>
