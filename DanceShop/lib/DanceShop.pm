@@ -200,7 +200,7 @@ hook 'before_layout_render' => sub {
 
         my $subquery =
           shop_schema->resultset('UserRole')
-          ->search( { "users_id" => users_id => session('logged_in_user_id') } )
+          ->search( { users_id => session('logged_in_user_id') } )
           ->get_column('roles_id')->as_query;
 
         push @roles_cond, { -in => $subquery };
