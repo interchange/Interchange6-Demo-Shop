@@ -19,4 +19,5 @@
          joiner=" "/>
   <value name="city_status" id="city-status" target="class" op="append"
          joiner=" "/>
+  <container name="signin" id="checkout-signin" value="!session.logged_in_user"/>
 </specification>
