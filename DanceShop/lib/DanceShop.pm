@@ -28,6 +28,7 @@ use Dancer::Plugin::Auth::Extensible;
 use Dancer::Plugin::DBIC;
 use Dancer::Plugin::Interchange6;
 use Dancer::Plugin::Interchange6::Routes;
+use Dancer::Plugin::PageHistory;
 use DanceShop::Routes::Checkout;
 use DateTime;
 use List::Util qw(first);
@@ -43,119 +44,6 @@ set session_options => {schema => schema};
 =head1 HOOKS
 
 The DanceShop makes use of the following hooks.
-
-=head2 before_template_render
-
-Maintain page history for interesting pages and add 'recent_history' token
-containing uri?query of most recent interesting page in history.
-
-The history list is a hash reference of arrays of hash references.
-
-The hash key is set using the add_to_history var in a route. In a product
-route we might do the following:
-
-    var add_to_history =>
-        { type => 'product', name => 'Interesting Product', sku => 'IP00001' };
-
-Assuming the URI plus query string is:
-
-  /my-interesting-product
-
-and session history already contains:
-
-    {
-        all => [
-            { name => 'Hardware', uri  => '/hardware?f.color=red' }
-        ],
-        navigation => [
-            { name => 'Hardware', uri => '/hardware?f.color=red' }
-        ],
-    }
-
-then the new history hash reference will become:
-
-    {
-        all => [
-            {
-                name => 'Interesting Product',
-                uri  => '/my-interesting-product',
-                sku  => 'IP00001',
-            },
-            { name => 'Hardware', uri  => '/hardware?f.color=red' }
-        ],
-        product => [
-            {
-                name => 'Interesting Product',
-                uri  => '/my-interesting-product',
-                sku  => 'IP00001'
-            }
-        ]
-        navigation => [
-            { name => 'Hardware', uri => '/hardware?f.color=red' }
-        ],
-    }
-
-Note the special C<all> array which all history items are added to. If an
-item should only be added to C<all> then simply set that as the key
-for C<add_to_history>:
-
-    var add_to_history => { type => 'all', name => 'Blog page' };
-
-A short form using just the history type is possible thus:
-
-    var add_to_history => 'all';
-
-Though in this case only the URI will be stored in the history list with no
-additional data such as name.
-
-=cut
-
-hook 'before_template_render' => sub {
-    my $tokens = shift;
-
-    my %history;
-    my $session_history = session('history');
-    if ( ref($session_history) eq 'HASH' ) {
-        %history = %$session_history;
-    }
-
-    # maintain history lists
-
-    my $var = var('add_to_history');
-
-    if ( defined $var ) {
-
-        my ( $key, %values );
-
-        if ( ref($var) eq '' ) {
-            $key = $var;
-        }
-        elsif ( ref($var) eq 'HASH' ) {
-            $key = delete $var->{type};
-            %values = %$var;
-        }
-
-        if ( defined $key ) {
-
-            # all OK so add history
-            $values{uri} =
-              uri_for( request->path, [ params('query') ] )->path_query;
-
-            unshift @{ $history{$key} }, \%values unless $key eq 'all';
-            unshift @{ $history{all} }, \%values;
-
-            # keep max 20 items in each history list and put back in session
-            foreach my $key ( keys %history ) {
-                pop @{ $history{$key} } if scalar @{ $history{$key} } > 20;
-            }
-            session history => \%history;
-        }
-    }
-
-    # add token with most recent history entry
-
-    $tokens->{recent_history} = $history{all}[0];
-};
 
 =head2 before_layout_render
 
@@ -261,9 +149,7 @@ the fly and sort order.
 hook 'before_navigation_search' => sub {
     my $tokens = shift;
 
-    # an interesting page
-    var add_to_history =>
-      { type => 'navigation', name => $tokens->{navigation}->name };
+    add_to_history( type => 'navigation', name => $tokens->{navigation}->name );
 
     return if $tokens->{template} ne 'product-listing';
 
@@ -743,8 +629,11 @@ hook 'before_product_display' => sub {
     my $product = $tokens->{product};
 
     # an interesting page
-    var add_to_history =>
-      { type => 'product', name => $product->name, sku => $product->sku };
+    add_to_history(
+        type       => 'product',
+        name       => $product->name,
+        attributes => { sku => $product->sku }
+    );
 
     # Recently view products
     &add_recent_products( $tokens, 4 );
@@ -901,49 +790,44 @@ quantity of results wanted.
 sub add_recent_products {
     my ( $tokens, $quantity ) = @_;
 
-    return if (!defined $tokens || !defined $quantity );
+    return if ( !defined $tokens || !defined $quantity );
 
-    my %history;
-    my $session_history = session('history');
-    if ( ref($session_history) eq 'HASH' ) {
-        %history = %$session_history;
+    # we want the 4 most recent unique products viewed
+
+    my %seen;
+    my @skus;
+    foreach my $product ( @{ history->product } ) {
+
+        # not current product
+        next if $product->path eq request->path;
+
+        if ( my $sku = $product->attributes->{sku} ) {
+            if ( !$seen{$sku} ) {
+                $seen{$sku} = 1;
+                push @skus, $sku;
+            }
+        }
+        last if scalar( @skus == 4 );
     }
 
-    if ( defined $history{product} ) {
-
-        # we want the 4 most recent unique products viewed
-
-        my %seen;
-        my @skus;
-        foreach my $product ( @{ $history{product} } ) {
-
-            next if $product->{uri} eq request->path;
-
-            unless ( $seen{ $product->{sku} } ) {
-                $seen{ $product->{sku} } = 1;
-                push @skus, $product->{sku};
+    my $products = schema->resultset('Product')->search(
+        {
+            'product.sku' => {
+                -in => \@skus
             }
-            last if scalar(@skus == 4);
+        },
+        {
+            alias => 'product',
         }
+    );
 
-        my $products = schema->resultset('Product')->search(
-            {
-                'product.sku' => {
-                    -in => \@skus
-                }
-            },
-            {
-                alias => 'product',
-            }
-        );
+    if ( $products->has_rows ) {
 
-        if ( $products->has_rows ) {
+        # we have some results so set the token
 
-            # we have some results so set the token
-
-            $tokens->{recent_products} = [ $products->listing(
-                { users_id => session('logged_in_user_id') } )->all ];
-        }
+        $tokens->{recent_products} =
+          [ $products->listing( { users_id => session('logged_in_user_id') } )
+              ->all ];
     }
 }
 

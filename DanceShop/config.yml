@@ -75,6 +75,15 @@ plugins:
     account:
       login:
         template: sign-in
+  PageHistory:
+    add_all_pages: 0
+    PageSet:
+      fallback_page:
+        path: /
+      max_items: 10
+      methods:
+        - product
+        - navigation
 
 # DanceShop settings
 checkout_type: multi
