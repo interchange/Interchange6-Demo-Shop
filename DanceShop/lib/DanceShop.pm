@@ -94,6 +94,8 @@ hook 'before_layout_render' => sub {
         push @roles_cond, { -in => $subquery };
     }
 
+    # find 2 products with the largest percentage discount for each top-level
+    # nav to add to megadrop
     foreach my $nav ( @{$tokens->{"nav-menu-main"}} ) {
         my @products = shop_product->search(
             {
@@ -119,6 +121,7 @@ hook 'before_layout_render' => sub {
 
         my $count = scalar @products;
 
+        # less than 2 products have discount so find some more
         if ( $count < 2 ) {
             push @products, shop_product->search(
                 {
@@ -628,6 +631,9 @@ hook 'before_product_display' => sub {
 
     my $product = $tokens->{product};
 
+    # Add recently viewed products token before we add this page to history
+    add_recent_products( $tokens, 4 );
+
     # an interesting page
     add_to_history(
         type       => 'product',
@@ -635,12 +641,9 @@ hook 'before_product_display' => sub {
         attributes => { sku => $product->sku }
     );
 
-    # Recently view products
-    &add_recent_products( $tokens, 4 );
-
     # Similar products
     # we have 2 panels of 2 items so get 4 then split into 2 iterators
-    &add_similar_products( $tokens, 4, $product->sku );
+    add_similar_products( $tokens, 4, $product->sku );
     $tokens->{similar1} = [ splice @{ $tokens->{similar_products} }, 0, 2 ];
     $tokens->{similar2} = [ splice @{ $tokens->{similar_products} }, 0, 2 ];
 
