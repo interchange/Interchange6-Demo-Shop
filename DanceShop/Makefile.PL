@@ -8,30 +8,34 @@ my $eumm_version = $ExtUtils::MakeMaker::VERSION;
 $eumm_version =~ s/_//;
 
 WriteMakefile(
-    NAME                => 'DanceShop',
-    AUTHOR              => q{Stefan Hornburg (Racke) <racke@linuxia.de>},
-    VERSION_FROM        => 'lib/DanceShop.pm',
-    ABSTRACT            => 'Interchange6 Open Source Shop Machine Demo Shop',
-    ($eumm_version >= 6.47
-      ? ('LICENSE'=> 'perl')
-      : ()),
-    MIN_PERL_VERSION    => '5.014000',
-    PL_FILES            => {},
-    PREREQ_PM => {
-        'Class::Load' => 0,
-        'Test::More' => 0,
-        'YAML'       => 0,
-        'Dancer'     => 1.3124,
-        'Dancer::Plugin::Interchange6' => 0.071,
-        'Dancer::Plugin::PageHistory' => '0.006',
-        'Template::Flute' => '0.0150',
-        'Dancer::Template::TemplateFlute' => 0.0113,
-        'Moo'        => 1.004006,
-        'URL::Encode' => 0,
+    NAME         => 'DanceShop',
+    AUTHOR       => q{Stefan Hornburg (Racke) <racke@linuxia.de>},
+    VERSION_FROM => 'lib/DanceShop.pm',
+    ABSTRACT     => 'Interchange6 Open Source Shop Machine Demo Shop',
+    (
+        $eumm_version >= 6.47
+        ? ( 'LICENSE' => 'perl' )
+        : ()
+    ),
+    MIN_PERL_VERSION => '5.014000',
+    PL_FILES         => {},
+    PREREQ_PM        => {
+        'Class::Load'                     => 0,
+        'Test::More'                      => 0,
+        'YAML'                            => 0,
+        'Dancer'                          => '1.3124',
+        'Dancer::Plugin::Interchange6'    => '0.071',
+        'Dancer::Plugin::PageHistory'     => '0.006',
+        'Template::Flute'                 => '0.0150',
+        'Dancer::Template::TemplateFlute' => '0.0113',
+        'Moo'                             => '2.000001',
+        'Type::Tiny'                      => '1.000005',
+        'URL::Encode'                     => 0,
+
         # validation
         'Data::Transpose' => '0.0011',
-        'Email::Valid' => 0,
+        'Email::Valid'    => 0,
     },
-    dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'DanceShop-*' },
+    dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    clean => { FILES    => 'DanceShop-*' },
 );
