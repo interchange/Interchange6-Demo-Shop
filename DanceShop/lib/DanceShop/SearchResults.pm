@@ -272,17 +272,23 @@ Adds the following tokens to L</tokens>:
 =cut
 
 sub BUILD {
-    my $self = shift;
+    my $self   = shift;
     my $tokens = $self->tokens;
 
     $tokens->{order_by} = $self->order_by;
 
     $tokens->{order_by_iterator} = $self->order_by_iterator;
 
-    $tokens->{per_page} = $self->rows;
+    if ( $self->rows ) {
 
-    $tokens->{per_page_iterator} =
-      [ map { +{ value => $self->default_rows * $_ } } 1 .. 4 ];
+        # rows == 0 means we show all rows so only set these next two tokens
+        # if we have some rows
+
+        $tokens->{per_page} = $self->rows if $self->rows;
+
+        $tokens->{per_page_iterator} =
+          [ map { +{ value => $self->default_rows * $_ } } 1 .. 4 ];
+    }
 
     # add 'active' to the current view from $self->views
     my @views = @{ $self->views };
