@@ -111,24 +111,24 @@ has views => (
     default => sub {
         return [
             {
-                name       => 'grid',
-                title      => 'Grid',
-                icon_class => 'fa fa-th'
+                name  => 'grid',
+                title => 'Grid',
+                icon  => 'icon-view-grid',
             },
             {
-                name       => 'list',
-                title      => 'List',
-                icon_class => 'fa fa-th-list'
+                name  => 'list',
+                title => 'List',
+                icon  => 'icon-view-list',
             },
             {
-                name       => 'simple',
-                title      => 'Simple',
-                icon_class => 'fa fa-list'
+                name  => 'simple',
+                title => 'Simple',
+                icon  => 'icon-view-simple',
             },
             {
-                name       => 'compact',
-                title      => 'Compact',
-                icon_class => 'fa fa-align-justify'
+                name  => 'compact',
+                title => 'Compact',
+                icon  => 'icon-view-compact',
             },
         ];
     },
@@ -243,13 +243,11 @@ sub select_sorting {
     # asc/desc arrow
     if ( $direction eq 'asc' ) {
         $tokens->{reverse_order} = 'desc';
-        $tokens->{order_by_glyph} =
-          q(<span class="fa fa-long-arrow-up"></span>);
+        $tokens->{order_by_class} = 'icon icon-arrow-up';
     }
     else {
         $tokens->{reverse_order} = 'asc';
-        $tokens->{order_by_glyph} =
-          q(<span class="fa fa-long-arrow-down"></span>);
+        $tokens->{order_by_class} = 'icon icon-arrow-down';
     }
     $self->set_current_sorting($order);
     $self->set_current_sorting_direction($direction);

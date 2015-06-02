@@ -30,6 +30,7 @@ use Dancer::Plugin::Interchange6;
 use Dancer::Plugin::Interchange6::Routes;
 use Dancer::Plugin::PageHistory;
 use DanceShop::Routes::Checkout;
+use DanceShop::SearchResults;
 use DateTime;
 use List::Util qw(first);
 use POSIX qw/ceil/;
@@ -152,9 +153,9 @@ the fly and sort order.
 hook 'before_navigation_search' => sub {
     my $tokens = shift;
 
-    add_to_history( type => 'navigation', name => $tokens->{navigation}->name );
-
     return if $tokens->{template} ne 'product-listing';
+
+    add_to_history( type => 'navigation', name => $tokens->{navigation}->name );
 
     my $products =
       $tokens->{navigation}->navigation_products->search_related('product')
@@ -162,7 +163,7 @@ hook 'before_navigation_search' => sub {
 
     my %query = params('query');
 
-    my $routes_config = config->{plugin}->{'Interchange6::Routes'};
+    my $routes_config = config->{plugin}->{'Interchange6::Routes'} || {};
 
     my $schema = shop_schema;
 
@@ -174,108 +175,17 @@ hook 'before_navigation_search' => sub {
               [ split( /\!/, url_decode_utf8( $query{"f.$_"} ) ) ]
     } grep { /^f\./ } keys %query;
 
-    # determine which view to display
+    # setup search results handler
 
-    my @views = (
-        {
-            name => 'grid',
-            title => 'Grid',
-            icon_class => 'glyphicon glyphicon-th'
-        },
-        {
-            name => 'list',
-            title => 'List',
-            icon_class => 'glyphicon glyphicon-th-list'
-        },
-        {
-            name => 'simple',
-            title => 'Simple',
-            icon_class => 'glyphicon glyphicon-list'
-        },
-        {
-            name => 'compact',
-            title => 'Compact',
-            icon_class => 'glyphicon glyphicon-align-justify'
-        },
+    my $results_handler = DanceShop::SearchResults->new(
+        routes_config => $routes_config,
+        tokens        => $tokens,
+        query         => \%query,
     );
-    my $view = $query{view};
-    if (   !defined $view
-        || !grep { $_ eq $view } map { $_->{name} } @views )
-    {
-        $view = $routes_config->{navigation}->{default_view} || 'list';
-    }
-    $tokens->{"navigation-view-$view"} = 1;
-    $tokens->{template} = "product-listing-$view";
 
-    my $view_index = first { $views[$_]->{name} eq $view } 0..$#views;
-    $views[$view_index]->{active} = 'active';
-    $tokens->{views} = \@views;
+    # now we know the view we can correct the template token
 
-    # rows (products per page) 
-
-    my $rows = $query{rows};
-    if ( !defined $rows || $rows !~ /^\d+$/ ) {
-        $rows = $routes_config->{navigation}->{records} || 10;
-    }
-
-    my @rows_iterator;
-    if ( $view eq 'grid' ) {
-        $rows = ceil($rows/3)*3;
-        $tokens->{per_page_iterator} = [ map { +{ value => 12 * $_ } } 1 .. 4 ];
-    }
-    else {
-        $tokens->{per_page_iterator} = [ map { +{ value => 10 * $_ } } 1 .. 4 ];
-    }
-    $tokens->{per_page} = $rows;
-
-    # order
-
-    my @order_by_iterator = (
-        { value => 'priority',       label => 'Position' },
-        { value => 'average_rating', label => 'Rating' },
-        { value => 'selling_price',  label => 'Price' },
-        { value => 'name',           label => 'Name' },
-        { value => 'sku',            label => 'SKU' },
-    );
-    $tokens->{order_by_iterator} = \@order_by_iterator;
-
-    my $order     = $query{order};
-    my $direction = $query{dir};
-
-    # maybe set default order(_by)
-    if (   !defined $order
-        || !grep { $_ eq $order } map { $_->{value} } @order_by_iterator )
-    {
-        $order = 'priority';
-    }
-    $tokens->{order_by} = $order;
-
-    # maybe set default direction
-    if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
-        if ( $order =~ /^(average_rating|priority)$/ ) {
-            $direction = 'desc';
-        }
-        else {
-            $direction = 'asc';
-        }
-    }
-
-    # we need to prepend alias to most columns but not all
-    unless ( $order =~ /^(average_rating|selling_price)$/ ) {
-        $order = $products->me($order);
-    }
-
-    # asc/desc arrow
-    if ( $direction eq 'asc' ) {
-        $tokens->{reverse_order} = 'desc';
-        $tokens->{order_by_glyph} =
-          q(<span class="glyphicon glyphicon-arrow-up"></span>);
-    }
-    else {
-        $tokens->{reverse_order} = 'asc';
-        $tokens->{order_by_glyph} =
-          q(<span class="glyphicon glyphicon-arrow-down"></span>);
-    }
+    $tokens->{template} = "product-listing-" . $results_handler->current_view;
 
     # Filter products based on facets in query params if there are any.
     # This loopy query stuff is terrible - should be a much better way
@@ -477,6 +387,17 @@ hook 'before_navigation_search' => sub {
 
     # apply product resultset methods then sort and page
 
+    my $order     = $results_handler->current_sorting;
+    my $direction = $results_handler->current_sorting_direction;
+
+    # we need to prepend alias to most columns but not all
+    unless ( $order =~ /^(average_rating|selling_price)$/ ) {
+        $order = $products->me($order);
+    }
+
+    # restrict returned columns in products query and add required
+    # resultset methods
+
     $products = $products->columns(
         [ 'sku', 'name', 'uri', 'price', 'short_description' ] )
       ->with_average_rating
@@ -485,7 +406,7 @@ hook 'before_navigation_search' => sub {
       ->with_quantity_in_stock
       ->with_variant_count
       ->order_by( { "-$direction" => [$order] } )
-      ->limited_page( $tokens->{page}, $rows );
+      ->limited_page( $tokens->{page}, $tokens->{per_page} );
 
     # pager
 
@@ -497,25 +418,20 @@ hook 'before_navigation_search' => sub {
         # page then results are restricted via facets so reset the pager
 
         $tokens->{page} = $pager->last_page;
-        $products = $products->limited_page( $tokens->{page}, $rows );
+        $products =
+          $products->limited_page( $tokens->{page}, $tokens->{per_page} );
         $pager = $products->pager;
     }
     $tokens->{pager} = $pager;
 
-    # grid view can look messy unless we deliver products in nice rows
-    # or 3
+    # grid view can look messy unless we deliver products in nice rows of
+    # three products per row
 
-    if ( $view eq 'grid' ) {
+    if ( $results_handler->current_view eq 'grid' ) {
         my @grid;
-        my @row;
-        my $i = 0;
-        while( my $product = $products->next ) {
-            $i++;
-            push @row, $product;
-            unless ( $i % 3 ) {
-                push @grid, +{ row => [@row] };
-                undef @row;
-            }
+        my @products = $products->all;
+        while ( my @row = splice( @products, 0, 3 ) ) {
+            push @grid, +{ row => \@row };
         }
         $tokens->{products} = \@grid;
     }
