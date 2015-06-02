@@ -304,7 +304,6 @@ sub BUILD {
         $tokens->{reverse_order}  = 'asc';
         $tokens->{order_by_class} = 'icon icon-arrow-down';
     }
-    $self->add_tokens;
 }
 
 1;
