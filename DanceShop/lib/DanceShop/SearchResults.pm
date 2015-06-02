@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Moo;
-use MooX::Types::MooseLike::Base qw(HashRef);
+use MooX::Types::MooseLike::Base qw(ArrayRef HashRef Int is_Str Str);
 
 use POSIX qw/ceil/;
 use List::Util qw(first);
@@ -15,7 +15,7 @@ use List::Util qw(first);
 =head2 routes_config
 
 Hash reference from L<Dancer::Plugin::Interchange6::Routes> plugin
-configuration (required).
+configuration (hash reference, required).
 
 =cut
 
@@ -27,7 +27,7 @@ has routes_config => (
 
 =head2 query
 
-Query parameters from HTTP request.
+Query parameters from HTTP request (hash reference, required).
 
 =cut
 
@@ -49,56 +49,160 @@ has tokens => (
     required => 1,
 );
 
-=head2 current_view
+=head2 default_rows
+
+The default number of rows defined by ->{navigation}->{records} in
+L</routes_config> or 10 if not defined. When L</view> is C<grid> then
+this value is increased to the next multiple of 3 if it is not already
+a multiple of 3.
+
+=cut
+
+has default_rows => (
+    is  => 'lazy',
+    isa => Int,
+);
+
+sub _build_default_rows {
+    my $self = shift;
+
+    my $default_rows = $self->routes_config->{navigation}->{records};
+    $default_rows = defined $default_rows ? $default_rows : 10;
+    if ( $self->view eq 'grid' ) {
+        $default_rows = ceil( $default_rows / 3 ) * 3;
+    }
+    return $default_rows;
+}
+
+=head2 view
 
 Returns name of current view.
 
-=over
-
-=item writer: set_current_view
-
-=back
+Defaults to L</routes_config>->{navigation}->{default_view} or C<grid>.
 
 =cut
 
-has current_view => (
-    is     => 'ro',
-    writer => 'set_current_view',
+has view => (
+    is  => 'lazy',
+    isa => Str,
 );
 
-=head2 current_sorting
+sub _build_view {
+    my $self          = shift;
+    my $routes_config = $self->routes_config;
+    my @views         = @{ $self->views };
+    my $view          = $self->query->{view};
 
-Returns the name of the current sort order, after calling C<select_sorting>.
+    if (   !defined $view
+        || !grep { $_ eq $view } map { $_->{name} } @views )
+    {
+        $view = $routes_config->{navigation}->{default_view} || 'grid';
+    }
+    return $view;
+}
 
-=over
-
-=item writer: set_current_sorting
-
-=back
+=head2 order_by_iterator
 
 =cut
 
-has current_sorting => (
-    is     => 'ro',
-    writer => 'set_current_sorting'
+has order_by_iterator => (
+    is  => 'lazy',
+    isa => ArrayRef [HashRef],
 );
 
-=head2 set_current_sorting
+sub _build_order_by_iterator {
+    my @order_by_iterator = (
+        { value => 'priority',       label => 'Position' },
+        { value => 'average_rating', label => 'Rating' },
+        { value => 'selling_price',  label => 'Price' },
+        { value => 'name',           label => 'Name' },
+        { value => 'sku',            label => 'SKU' },
 
-Returns the name of the current sorting direction, after calling C<select_sorting>.
+    );
+    return \@order_by_iterator;
+}
 
-=over
+=head2 rows
 
-=item writer: set_current_sorting_direction
-
-=back
+Returns the number of rows (products) to display.
 
 =cut
 
-has current_sorting_direction => (
-    is     => 'ro',
-    writer => 'set_current_sorting_direction'
+has rows => (
+    is  => 'lazy',
+    isa => Int,
 );
+
+sub _build_rows {
+    my $self = shift;
+
+    my $rows = $self->query->{rows};
+
+    if ( !defined $rows || $rows !~ /^\d+$/ ) {
+        $rows = $self->default_rows;
+    }
+
+    # round up to next power of 3 for grid view
+    if ( $self->view eq 'grid' ) {
+        $rows = ceil( $rows / 3 ) * 3;
+    }
+
+    return $rows;
+}
+
+=head2 order_by
+
+Returns the name of the current sort column. Defaults to <priority>.
+
+=cut
+
+has order_by => (
+    is  => 'lazy',
+    isa => Str,
+);
+
+sub _build_order_by {
+    my $self  = shift;
+    my $order = $self->query->{order};
+    if (
+           !defined $order
+        || !grep { $_ eq $order }
+        map      { $_->{value} } @{ $self->order_by_iterator }
+      )
+    {
+        $order = 'priority';
+    }
+    return $order;
+}
+
+=head2 order_direction
+
+Returns the name of the current sort direction.
+
+=cut
+
+has order_direction => (
+    is  => 'lazy',
+    isa => sub {
+        die "bad sort_order"
+          unless ( is_Str( $_[0] ) && $_[0] =~ /^(a|d)/ );
+    },
+);
+
+sub _build_order_direction {
+    my $self      = shift;
+    my $direction = $self->query->{dir};
+
+    if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
+        if ( $self->order_by =~ /^(average_rating|priority)$/ ) {
+            $direction = 'desc';
+        }
+        else {
+            $direction = 'asc';
+        }
+    }
+    return $direction;
+}
 
 =head2 views
 
@@ -107,9 +211,10 @@ Returns list of views.
 =cut
 
 has views => (
-    is      => 'rw',
+    is      => 'ro',
+    isa     => ArrayRef [HashRef],
     default => sub {
-        return [
+        +[
             {
                 name  => 'grid',
                 title => 'Grid',
@@ -136,123 +241,6 @@ has views => (
 
 =head1 METHODS
 
-=head2 select_view
-
-determine which view to display
-
-=cut
-
-sub select_view {
-    my ($self)        = @_;
-    my $routes_config = $self->routes_config;
-    my $tokens        = $self->tokens;
-    my @views         = @{ $self->views };
-    my $view          = $self->query->{view};
-
-    if (   !defined $view
-        || !grep { $_ eq $view } map { $_->{name} } @views )
-    {
-        $view = $routes_config->{navigation}->{default_view} || 'grid';
-    }
-    $self->set_current_view($view);
-
-    $tokens->{"navigation-view-$view"} = 1;
-
-    my $view_index = first { $views[$_]->{name} eq $view } 0 .. $#views;
-    $views[$view_index]->{active} = 'active';
-    $tokens->{views} = \@views;
-}
-
-=head2 select_rows
-
-Set C<per_page_iterator> token ('show X per page' dropdown) and C<per_page>
-token (rows to display for this request).
-
-C<per_page_iterator> values are taken from
-$self->routes_config->{navigation}->{records} with default being 10. For grid
-view this is rounded up to first higher value that is divisible by three.
-
-=cut
-
-sub select_rows {
-    my ($self)        = @_;
-    my $routes_config = $self->routes_config;
-    my $tokens        = $self->tokens;
-
-    # rows (products per page)
-
-    # default rows per page from config
-    my $config_rows = $routes_config->{navigation}->{records} || 10;
-
-    my $rows = $self->query->{rows};
-
-    if ( !defined $rows || $rows !~ /^\d+$/ ) {
-        $rows = $config_rows;
-    }
-
-    my @rows_iterator;
-    if ( $self->current_view eq 'grid' ) {
-        $config_rows = ceil( $config_rows / 3 ) * 3;
-        $rows        = ceil( $rows / 3 ) * 3;
-    }
-    $tokens->{per_page_iterator} =
-      [ map { +{ value => $config_rows * $_ } } 1 .. 4 ];
-    $tokens->{per_page} = $rows;
-}
-
-=head2 select_sorting
-
-=cut
-
-sub select_sorting {
-    my ($self) = @_;
-    my $tokens = $self->tokens;
-    my $query  = $self->query;
-
-    my @order_by_iterator = (
-        { value => 'priority',       label => 'Position' },
-        { value => 'average_rating', label => 'Rating' },
-        { value => 'selling_price',  label => 'Price' },
-        { value => 'name',           label => 'Name' },
-        { value => 'sku',            label => 'SKU' },
-
-    );
-    $tokens->{order_by_iterator} = \@order_by_iterator;
-
-    my $order     = $query->{order};
-    my $direction = $query->{dir};
-
-    # maybe set default order(_by)
-    if (   !defined $order
-        || !grep { $_ eq $order } map { $_->{value} } @order_by_iterator )
-    {
-        $order = 'priority';
-    }
-    $tokens->{order_by} = $order;
-
-    # maybe set default direction
-    if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
-        if ( $order =~ /^(average_rating|priority)$/ ) {
-            $direction = 'desc';
-        }
-        else {
-            $direction = 'asc';
-        }
-    }
-
-    # asc/desc arrow
-    if ( $direction eq 'asc' ) {
-        $tokens->{reverse_order} = 'desc';
-        $tokens->{order_by_class} = 'icon icon-arrow-up';
-    }
-    else {
-        $tokens->{reverse_order} = 'asc';
-        $tokens->{order_by_class} = 'icon icon-arrow-down';
-    }
-    $self->set_current_sorting($order);
-    $self->set_current_sorting_direction($direction);
-    return $order;
-}
 
 =head2 sorting_for_solr
 
@@ -260,7 +248,7 @@ sub select_sorting {
 
 sub sorting_for_solr {
     my $self    = shift;
-    my $sorting = $self->current_sorting;
+    my $sorting = $self->order_by;
     if ( $sorting and $sorting eq 'priority' ) {
         return 'score';
     }
@@ -271,17 +259,46 @@ sub sorting_for_solr {
 
 =head2 BUILD
 
-Calls L</select_view>, L</select_sorting> and L</select_rows> and also sets
-the token C<views>.
+Adds the following tokens to L</tokens>:
+
+  order_by
+  order_by_iterator
+  per_page
+  per_page_iterator
+  views
+  reverse_order
+  order_by_class
 
 =cut
 
 sub BUILD {
     my $self = shift;
-    $self->select_view;
-    $self->select_sorting;
-    $self->tokens->{views} = $self->views;
-    $self->select_rows;
+    my $tokens = $self->tokens;
+
+    $tokens->{order_by} = $self->order_by;
+
+    $tokens->{order_by_iterator} = $self->order_by_iterator;
+
+    $tokens->{per_page} = $self->rows;
+
+    $tokens->{per_page_iterator} =
+      [ map { +{ value => $self->default_rows * $_ } } 1 .. 4 ];
+
+    # add 'active' to the current view from $self->views
+    my @views = @{ $self->views };
+    my $view_index = first { $views[$_]->{name} eq $self->view } 0 .. $#views;
+    $views[$view_index]->{active} = 'active';
+    $tokens->{views} = \@views;
+
+    if ( $self->order_direction =~ /^a/ ) {
+        $tokens->{reverse_order}  = 'desc';
+        $tokens->{order_by_class} = 'icon icon-arrow-up';
+    }
+    else {
+        $tokens->{reverse_order}  = 'asc';
+        $tokens->{order_by_class} = 'icon icon-arrow-down';
+    }
+    $self->add_tokens;
 }
 
 1;

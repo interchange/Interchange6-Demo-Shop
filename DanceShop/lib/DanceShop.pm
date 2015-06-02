@@ -1,4 +1,5 @@
 use utf8;
+
 package DanceShop;
 
 =encoding utf8
@@ -40,7 +41,7 @@ use URI;
 use URL::Encode qw/url_decode_utf8/;
 
 set session => 'DBIC';
-set session_options => {schema => schema};
+set session_options => { schema => schema };
 
 =head1 HOOKS
 
@@ -79,11 +80,11 @@ hook 'before_layout_render' => sub {
         }
     )->hri->all;
 
-    foreach my $record ( @nav ) {
-        push @{$tokens->{'nav-' . $record->{scope}}}, $record;
-    };
+    foreach my $record (@nav) {
+        push @{ $tokens->{ 'nav-' . $record->{scope} } }, $record;
+    }
 
-    my @roles_cond = ( undef );
+    my @roles_cond = (undef);
 
     if (logged_in_user) {
 
@@ -97,16 +98,16 @@ hook 'before_layout_render' => sub {
 
     # find 2 products with the largest percentage discount for each top-level
     # nav to add to megadrop
-    foreach my $nav ( @{$tokens->{"nav-menu-main"}} ) {
+    foreach my $nav ( @{ $tokens->{"nav-menu-main"} } ) {
         my @products = shop_product->search(
             {
-                'me.active'                => 1,
-                'price_modifiers.roles_id' => \@roles_cond,
-                'price_modifiers.price' => { '!=', undef},
+                'me.active'                         => 1,
+                'price_modifiers.roles_id'          => \@roles_cond,
+                'price_modifiers.price'             => { '!=', undef },
                 'navigation_products.navigation_id' => $nav->{navigation_id},
             },
             {
-                join       => [ 'price_modifiers', 'navigation_products'],
+                join       => [ 'price_modifiers', 'navigation_products' ],
                 '+columns' => [
                     { selling_price => 'price_modifiers.price' },
                     {
@@ -124,7 +125,8 @@ hook 'before_layout_render' => sub {
 
         # less than 2 products have discount so find some more
         if ( $count < 2 ) {
-            push @products, shop_product->search(
+            push @products,
+              shop_product->search(
                 {
                     'me.active' => 1,
                     'navigation_products.navigation_id' =>
@@ -135,7 +137,7 @@ hook 'before_layout_render' => sub {
                     '+columns' => { selling_price => 'price' },
                     rows       => 2 - $count,
                 }
-            )->with_quantity_in_stock->all;
+              )->with_quantity_in_stock->all;
         }
 
         $nav->{products} = \@products;
@@ -163,7 +165,7 @@ hook 'before_navigation_search' => sub {
 
     my %query = params('query');
 
-    my $routes_config = config->{plugin}->{'Interchange6::Routes'} || {};
+    my $routes_config = config->{plugins}->{'Interchange6::Routes'} || {};
 
     my $schema = shop_schema;
 
@@ -172,7 +174,7 @@ hook 'before_navigation_search' => sub {
     my %query_facets = map {
         $_ =~ s/^f\.//
           && url_decode_utf8($_) =>
-              [ split( /\!/, url_decode_utf8( $query{"f.$_"} ) ) ]
+          [ split( /\!/, url_decode_utf8( $query{"f.$_"} ) ) ]
     } grep { /^f\./ } keys %query;
 
     # setup search results handler
@@ -185,7 +187,7 @@ hook 'before_navigation_search' => sub {
 
     # now we know the view we can correct the template token
 
-    $tokens->{template} = "product-listing-" . $results_handler->current_view;
+    $tokens->{template} = "product-listing-" . $results_handler->view;
 
     # Filter products based on facets in query params if there are any.
     # This loopy query stuff is terrible - should be a much better way
@@ -193,7 +195,7 @@ hook 'before_navigation_search' => sub {
 
     if ( keys %query_facets ) {
 
-        my @skus = $products->get_column($products->me('sku'))->all;
+        my @skus = $products->get_column( $products->me('sku') )->all;
 
         foreach my $key ( keys %query_facets ) {
 
@@ -201,7 +203,7 @@ hook 'before_navigation_search' => sub {
                 {
                     -and => [
                         'product.sku' => { -in => \@skus },
-                        -or      => [
+                        -or           => [
                             -and => [
                                 'attribute.name' => $key,
                                 'attribute_value.value' =>
@@ -216,9 +218,9 @@ hook 'before_navigation_search' => sub {
                     ]
                 },
                 {
-                    alias => 'product',
-                    columns => [ 'product.sku' ],
-                    join  => [
+                    alias   => 'product',
+                    columns => ['product.sku'],
+                    join    => [
                         {
                             product_attributes => [
                                 'attribute',
@@ -259,9 +261,7 @@ hook 'before_navigation_search' => sub {
     # TODO: counting facets needs review since this can be slow
 
     # start by grabbing the non-variant then variant facets into @facet_list
-    my $cond = {
-        'attribute.name' => { '!=' => undef }
-    };
+    my $cond = { 'attribute.name' => { '!=' => undef } };
 
     $cond = {
         -or => [
@@ -329,7 +329,7 @@ hook 'before_navigation_search' => sub {
     my $facet_group_rset2 = $products->search(
         { 'attribute.name' => { '!=' => undef } },
         {
-            join       => { variants => { product_attributes => 'attribute' }},
+            join       => { variants => { product_attributes => 'attribute' } },
             columns    => [],
             '+columns' => {
                 name     => 'attribute.name',
@@ -353,28 +353,32 @@ hook 'before_navigation_search' => sub {
     my @facets;
     my %seen;
     while ( my $facet_group = $facet_group_rset->next ) {
+
         # it could in theory be possible to have two attributes with the same
         # name in the facet groups list so we skip if we've seen it before
-        unless ( $seen{$facet_group->name} ) {
+        unless ( $seen{ $facet_group->name } ) {
 
             my $data;
             my @results = grep { $_->{name} eq $facet_group->name } @facet_list;
             $data->{title} = $facet_group->get_column('title');
 
-            $data->{values} = [ map {
-                {
-                    name  => $facet_group->name,
-                    value => $_->{value},
-                    title => $_->{title},
-                    count => $_->{count},
-                    unchecked => 1, # cheaper to use param than container
-                }
-            } @results ];
+            $data->{values} = [
+                map {
+                    {
+                        name  => $facet_group->name,
+                        value => $_->{value},
+                        title => $_->{title},
+                        count => $_->{count},
+                        unchecked => 1,    # cheaper to use param than container
+                    }
+                } @results
+            ];
 
             if ( defined $query_facets{ $facet_group->name } ) {
                 foreach my $value ( @{ $data->{values} } ) {
                     if ( grep { $_ eq $value->{value} }
-                      @{ $query_facets{ $facet_group->name } } ) {
+                        @{ $query_facets{ $facet_group->name } } )
+                    {
                         $value->{checked} = "yes";
                         delete $value->{unchecked};
                     }
@@ -387,8 +391,8 @@ hook 'before_navigation_search' => sub {
 
     # apply product resultset methods then sort and page
 
-    my $order     = $results_handler->current_sorting;
-    my $direction = $results_handler->current_sorting_direction;
+    my $order     = $results_handler->order_by;
+    my $direction = $results_handler->order_direction;
 
     # we need to prepend alias to most columns but not all
     unless ( $order =~ /^(average_rating|selling_price)$/ ) {
@@ -400,34 +404,38 @@ hook 'before_navigation_search' => sub {
 
     $products = $products->columns(
         [ 'sku', 'name', 'uri', 'price', 'short_description' ] )
-      ->with_average_rating
-      ->with_lowest_selling_price(
+      ->with_average_rating->with_lowest_selling_price(
         { users_id => session('logged_in_user_id') } )
-      ->with_quantity_in_stock
-      ->with_variant_count
-      ->order_by( { "-$direction" => [$order] } )
-      ->limited_page( $tokens->{page}, $tokens->{per_page} );
+      ->with_quantity_in_stock->with_variant_count->order_by(
+        { "-$direction" => [$order] } );
 
     # pager
 
-    my $pager = $products->pager;
+    my $pager;
+    if ( $tokens->{per_page} ) {
 
-    if ( $tokens->{page} > $pager->last_page ) {
-
-        # we're past the last page which happens a lot if we start on a high
-        # page then results are restricted via facets so reset the pager
-
-        $tokens->{page} = $pager->last_page;
         $products =
           $products->limited_page( $tokens->{page}, $tokens->{per_page} );
+
         $pager = $products->pager;
+
+        if ( $tokens->{page} > $pager->last_page ) {
+
+            # we're past the last page which happens a lot if we start on a high
+            # page then results are restricted via facets so reset the pager
+
+            $tokens->{page} = $pager->last_page;
+            $products =
+              $products->limited_page( $tokens->{page}, $tokens->{per_page} );
+            $pager = $products->pager;
+        }
+        $tokens->{pager} = $pager;
     }
-    $tokens->{pager} = $pager;
 
     # grid view can look messy unless we deliver products in nice rows of
     # three products per row
 
-    if ( $results_handler->current_view eq 'grid' ) {
+    if ( $results_handler->view eq 'grid' ) {
         my @grid;
         my @products = $products->all;
         while ( my @row = splice( @products, 0, 3 ) ) {
@@ -441,7 +449,7 @@ hook 'before_navigation_search' => sub {
 
     # pagination
 
-    if ( $pager->last_page > 1 ) {
+    if ( $pager && $pager->last_page > 1 ) {
 
         # we want pagination as there is more than one page of products
 
@@ -455,15 +463,12 @@ hook 'before_navigation_search' => sub {
             if ( $pager->current_page <= 3 ) {
                 $last_page = 5;
             }
-            elsif (
-                $pager->last_page - $pager->current_page <
-                3 )
-            {
+            elsif ( $pager->last_page - $pager->current_page < 3 ) {
                 $first_page = $pager->last_page - 4;
             }
             else {
                 $first_page = $pager->current_page - 2;
-                $last_page = $pager->current_page + 2;
+                $last_page  = $pager->current_page + 2;
             }
 
             my @pages = map {
@@ -477,7 +482,6 @@ hook 'before_navigation_search' => sub {
             } $first_page .. $last_page;
 
             $tokens->{pagination} = \@pages;
-
 
             if ( $pager->current_page > 1 ) {
 
@@ -500,15 +504,14 @@ hook 'before_navigation_search' => sub {
                   : $pager->last_page;
 
                 $tokens->{pagination_next} =
-                  uri_for( $tokens->{navigation}->uri . '/' . $next,
-                    \%query );
+                  uri_for( $tokens->{navigation}->uri . '/' . $next, \%query );
             }
         }
     }
 
     # breadcrumb and page name
 
-    $tokens->{breadcrumb} = [$tokens->{navigation}->ancestors];
+    $tokens->{breadcrumb} = [ $tokens->{navigation}->ancestors ];
     $tokens->{"page-name"} = $tokens->{navigation}->name;
 
     # navigation siblings
@@ -520,7 +523,7 @@ hook 'before_navigation_search' => sub {
           ->add_columns(
             {
                 count => $siblings_with_self->correlate('navigation_products')
-                  ->search_related( 'product' )->active->count_rs->as_query
+                  ->search_related('product')->active->count_rs->as_query
             }
           )->order_by('!priority,name')->hri->all
     ];
@@ -571,13 +574,14 @@ hook 'before_product_display' => sub {
     $tokens->{selling_price} = $product->selling_price( { roles => $roles } );
 
     $tokens->{discount} =
-      int( ( $product->price  - $tokens->{selling_price} ) /
+      int( ( $product->price - $tokens->{selling_price} ) /
           $product->price *
           100 );
 
     my $in_stock = $product->quantity_in_stock;
     if ( defined $in_stock ) {
         if ( $in_stock == 0 ) {
+
             # TODO: we need something in the schema (product attributes?)
             # to set this token
             # TODO: should say something along the lines of "try another
@@ -585,6 +589,7 @@ hook 'before_product_display' => sub {
             $tokens->{"product-availability"} = "Currently out of stock";
         }
         elsif ( $in_stock <= 10 ) {
+
             # TODO: maybe this ^^ number can be configured somewhere?
             $tokens->{"low-stock-alert"} = $in_stock;
         }
@@ -595,16 +600,16 @@ hook 'before_product_display' => sub {
     while ( my $review = $reviews->next ) {
         push @reviews,
           {
-            rating   => $review->rating,
-            author => $review->author,
-            created  => $review->created->ymd,
-            content  => $review->content,
+            rating  => $review->rating,
+            author  => $review->author,
+            created => $review->created->ymd,
+            content => $review->content,
           };
     }
-    $tokens->{reviews} = \@reviews;
+    $tokens->{reviews}         = \@reviews;
     $tokens->{"extra-js-file"} = 'product-page.js';
-    $tokens->{breadcrumb} = $product->path;
-    $tokens->{"page-name"} = $product->name;
+    $tokens->{breadcrumb}      = $product->path;
+    $tokens->{"page-name"}     = $product->name;
 };
 
 get '/' => sub {
@@ -631,7 +636,7 @@ ajax '/check_variant' => sub {
     }
 
     my $product = shop_product($sku);
-    unless ( $product ) {
+    unless ($product) {
 
         # product sku not found
         # TODO: do something here
@@ -642,11 +647,12 @@ ajax '/check_variant' => sub {
     }
     catch {
         error "find_variant error: $_";
+
         # TODO: more to do than just return
         return undef;
     };
 
-    unless ( $product ) {
+    unless ($product) {
 
         # variant not found
         # TODO: do something here
@@ -667,7 +673,7 @@ ajax '/check_variant' => sub {
     $tokens->{selling_price} =
       $product->selling_price( { roles => $roles, quantity => $quantity } ),
 
-    $tokens->{discount} =
+      $tokens->{discount} =
       int( ( $product->price - $tokens->{selling_price} ) /
           $product->price *
           100 );
@@ -675,24 +681,27 @@ ajax '/check_variant' => sub {
     my $in_stock = $product->quantity_in_stock;
     if ( defined $in_stock ) {
         if ( $in_stock == 0 ) {
+
             # TODO: we need something in the schema (product attributes?)
             # to set this token
             $tokens->{"product-availability"} = "Currently out of stock";
         }
         elsif ( $in_stock <= 10 ) {
+
             # TODO: maybe this ^^ number can be configured somewhere?
             $tokens->{"low-stock-alert"} = $in_stock;
         }
     }
 
     my $html = template "/fragments/product-price-and-stock", $tokens;
+
     # TODO: find out why this html gets wrapped into a complete page and
     # fix cleanly instead of doing the following (or else work out how
     # to send it as json that jquery will convert back to html).
     $html =~ s/^.+?div/<div/;
     $html =~ s|</body></html>$||;
     content_type('application/json');
-    to_json({ html => $html });
+    to_json( { html => $html } );
 };
 
 =head1 SUBROUTINES
@@ -766,7 +775,7 @@ way too much.
 sub add_similar_products {
     my ( $tokens, $quantity, $sku ) = @_;
 
-    return if (!defined $tokens || !defined $quantity );
+    return if ( !defined $tokens || !defined $quantity );
 
     my $schema = schema;
 
