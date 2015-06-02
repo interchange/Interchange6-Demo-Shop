@@ -138,7 +138,9 @@ sub _build_rows {
 
     my $rows = $self->query->{rows};
 
-    if ( !defined $rows || $rows !~ /^\d+$/ ) {
+    # we don't check whether rows is undefined since we don't want a user
+    # to be able to set a value of 0 unless we allow that in our config
+    if ( !$rows || $rows !~ /^\d+$/ ) {
         $rows = $self->default_rows;
     }
 
@@ -279,12 +281,12 @@ sub BUILD {
 
     $tokens->{order_by_iterator} = $self->order_by_iterator;
 
-    if ( $self->rows ) {
+    if ( $self->default_rows ) {
 
         # rows == 0 means we show all rows so only set these next two tokens
         # if we have some rows
 
-        $tokens->{per_page} = $self->rows if $self->rows;
+        $tokens->{per_page} = $self->rows;
 
         $tokens->{per_page_iterator} =
           [ map { +{ value => $self->default_rows * $_ } } 1 .. 4 ];

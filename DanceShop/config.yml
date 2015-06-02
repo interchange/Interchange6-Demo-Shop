@@ -70,6 +70,7 @@ plugins:
     navigation:
       template: product-listing
       default_view: list
+      records: 10
     product:
       template: product-page
     account:

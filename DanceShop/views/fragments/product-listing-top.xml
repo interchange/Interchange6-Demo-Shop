@@ -7,11 +7,15 @@
         <param name="title" class="view-text"/>
     </list>
 
-    <value name="pager_total_entries" field="pager.total_entries"/>
-    <value name="pager_first_entry" field="pager.first"/>
-    <value name="pager_last_entry" field="pager.last"/>
+    <container name="listing-results-number" value="per_page_iterator">
+      <value name="pager_total_entries" field="pager.total_entries"/>
+      <value name="pager_first_entry" field="pager.first"/>
+      <value name="pager_last_entry" field="pager.last"/>
+    </container>
 
-    <value name="per_page" iterator="per_page_iterator"/>
+    <container name="per-page-iterator" value="per_page_iterator">
+      <value name="per_page" iterator="per_page_iterator"/>
+    </container>
     <value name="order_by" iterator="order_by_iterator"/>
     <value name="order_by_class" class="order-class" target="class"/>
     <value name="reverse_order" class="order_direction" target="value"/>
