@@ -30,6 +30,7 @@ use Dancer::Plugin::DBIC;
 use Dancer::Plugin::Interchange6;
 use Dancer::Plugin::Interchange6::Routes;
 use Dancer::Plugin::PageHistory;
+use DanceShop::Paging;
 use DanceShop::Routes::Checkout;
 use DanceShop::SearchResults;
 use DateTime;
@@ -37,7 +38,6 @@ use List::Util qw(first);
 use POSIX qw/ceil/;
 use Scalar::Util 'blessed';
 use Try::Tiny;
-use URI;
 use URL::Encode qw/url_decode_utf8/;
 
 set session => 'DBIC';
@@ -565,6 +565,7 @@ hook 'before_product_display' => sub {
     add_similar_products( $tokens, 4, $product->sku );
     $tokens->{similar1} = [ splice @{ $tokens->{similar_products} }, 0, 2 ];
     $tokens->{similar2} = [ splice @{ $tokens->{similar_products} }, 0, 2 ];
+    delete $tokens->{similar_products};
 
     # TODO: setting of selling_price and discount should not be in demo shop
     my $roles;
@@ -802,7 +803,7 @@ sub add_similar_products {
                 join  => 'navigation_products',
                 rows  => $quantity,
             }
-        )->listing->all
+        )->listing->hri->all
     ];
 }
 

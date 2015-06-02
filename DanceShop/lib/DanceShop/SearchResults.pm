@@ -1,9 +1,5 @@
 package DanceShop::SearchResults;
 
-use 5.010001;
-use strict;
-use warnings;
-
 use Moo;
 use MooX::Types::MooseLike::Base qw(ArrayRef HashRef Int is_Str Str);
 
