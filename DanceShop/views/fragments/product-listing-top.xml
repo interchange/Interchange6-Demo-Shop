@@ -3,7 +3,7 @@
     <list name="view-selector" class="view" iterator="views">
         <param name="name" class="view" target="value"/>
         <param name="active" class="view" target="class" op="append"/>
-        <param name="icon_class" class="glyphicon" target="class"/>
+        <param name="icon" target="class" op="append" joiner=" "/>
         <param name="title" class="view-text"/>
     </list>
 
@@ -13,7 +13,7 @@
 
     <value name="per_page" iterator="per_page_iterator"/>
     <value name="order_by" iterator="order_by_iterator"/>
-    <value name="order_by_glyph" class="order_direction" op="hook"/>
+    <value name="order_by_class" class="order-class" target="class"/>
     <value name="reverse_order" class="order_direction" target="value"/>
 
     <container name="pagination" value="pagination"/>

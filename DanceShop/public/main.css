@@ -967,10 +967,6 @@ a.cat-name {
 	font-size: 12px;
 }
 
-/* view buttons don't like to get squashed to 14px */
-.view.btn {
-	font-size: 12px;
-}
 /* ----- rating stars -----
  css and images taken from metacpan see
  https://github.com/CPAN-API/metacpan-web/blob/master/LICENSE
@@ -1021,4 +1017,31 @@ a.cat-name {
 }
 .rating-50 {
     background-position: 0 0;
+}
+/* Icons */
+.icon {
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: 14px;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translate(0, 0);
+}
+.icon-view-compact:before {
+  content: "\f039";
+}
+.icon-view-grid:before {
+  content: "\f00a";
+}
+.icon-view-list:before {
+  content: "\f00b";
+}
+.icon-view-simple:before {
+  content: "\f03a";
+}
+.icon-arrow-down:before {
+  content: "\f175";
+}
+.icon-arrow-up:before {
+  content: "\f176";
 }
