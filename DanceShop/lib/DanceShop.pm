@@ -574,10 +574,7 @@ hook 'before_product_display' => sub {
     }
     $tokens->{selling_price} = $product->selling_price( { roles => $roles } );
 
-    $tokens->{discount} =
-      int( ( $product->price - $tokens->{selling_price} ) /
-          $product->price *
-          100 );
+    $tokens->{discount} = $product->discount_percent;
 
     my $in_stock = $product->quantity_in_stock;
     if ( defined $in_stock ) {
