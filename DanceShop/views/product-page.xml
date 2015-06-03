@@ -6,9 +6,9 @@
     <value name="short-description" field="product.short_description"/>
     <value name="description" field="product.description"/>
     <value name="rating" field="product.average_rating" pattern="rating"/>
-    <value name="review-count" field="product.product_reviews.count"/>
-    <container name="product-rating-wrap" value="reviews.count"/>
-    <container name="first-review" value="!reviews.count"/>
+    <value name="review-count" field="reviews_count"/>
+    <container name="product-rating-wrap" value="reviews_count"/>
+    <container name="first-review" value="!reviews_count"/>
     <container name="variant-error" value="session.shop_cart_error"/>
     <list name="attributes" class="product-attributes-item"
         iterator="product.attribute_iterator">
@@ -23,11 +23,11 @@
                 target="selected" op="toggle"/>
         </list>
     </list>
-    <container name="reviews" value="reviews.count">
+    <container name="reviews" value="reviews_count">
     <list name="reviews" class="review-single" iterator="reviews">
         <param name="review-rating" field="rating"/>
-        <param name="review-author" field="author.name"/>
-        <param name="review-date" field="created" filter="date"/>
+        <param name="review-author" field="author"/>
+        <param name="review-date" field="created"/>
         <param name="review-content" field="content"/>
     </list>
     </container>

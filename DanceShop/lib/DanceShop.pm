@@ -598,13 +598,15 @@ hook 'before_product_display' => sub {
     while ( my $review = $reviews->next ) {
         push @reviews,
           {
-            rating  => $review->rating,
-            author  => $review->author,
+            rating  => $review->rating * 1,     # convert from string
+            author  => $review->author->name,
             created => $review->created->ymd,
             content => $review->content,
           };
+
     }
     $tokens->{reviews}         = \@reviews;
+    $tokens->{reviews_count}   = scalar @reviews;
     $tokens->{"extra-js-file"} = 'product-page.js';
     $tokens->{breadcrumb}      = $product->path;
     $tokens->{"page-name"}     = $product->name;
