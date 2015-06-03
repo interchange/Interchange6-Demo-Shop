@@ -31,6 +31,10 @@ engines:
       currency:
         options:
           int_curr_symbol: "$"
+      date_only:
+        class: "Template::Flute::Filter::Date"
+        options:
+          format: '%x'
       rating_class:
         class: "DanceShop::Filters::RatingClass"
       selling_price:

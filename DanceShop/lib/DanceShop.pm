@@ -600,7 +600,7 @@ hook 'before_product_display' => sub {
           {
             rating  => $review->rating * 1,     # convert from string
             author  => $review->author->name,
-            created => $review->created->ymd,
+            created => $review->created,
             content => $review->content,
           };
 
