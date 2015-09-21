@@ -28,6 +28,7 @@ WriteMakefile(
         'Dancer::Plugin::PageHistory'     => '0.006',
         'Template::Flute'                 => '0.0150',
         'Dancer::Template::TemplateFlute' => '0.0113',
+        'Number::Format'                  => 0,          # currency filter
         'Moo'                             => '2.000001',
         'Type::Tiny'                      => '1.000005',
         'URL::Encode'                     => 0,
