@@ -519,6 +519,17 @@ hook 'before_product_display' => sub {
 
     my $product = $tokens->{product};
 
+    my $images = $product->media_by_type('image');
+    $tokens->{image} = $images->first->display_uri('product');
+
+    if ( $images->count > 1 ) {
+        my @thumbs;
+        while ( my $image = $images->next ) {
+            push @thumbs, { uri => $image->display_uri('product') };
+        }
+        $tokens->{thumbs} = \@thumbs;
+    }
+
     # Add recently viewed products token before we add this page to history
     add_recent_products( $tokens, 4 );
 

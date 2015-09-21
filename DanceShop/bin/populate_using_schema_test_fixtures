@@ -21,10 +21,10 @@ my $public = setting('public');
 debug $public;
 
 my $schema = shop_schema;
-$schema->deploy( { add_drop_table => 1 } );
+#$schema->deploy( { add_drop_table => 1 } );
 
 my $fixtures = Fixtures->new( { ic6s_schema => $schema } );
-$fixtures->load_all_fixtures;
+#$fixtures->load_all_fixtures;
 
 $schema->txn_do(
     sub {
@@ -37,7 +37,7 @@ $schema->txn_do(
             {
                 type => 'product',
                 name => 'product',
-                path => "/img/product",
+                path => "/img/products",
             }
         );
 
