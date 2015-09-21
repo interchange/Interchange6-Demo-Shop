@@ -25,7 +25,7 @@ WriteMakefile(
         'YAML'                            => 0,
         'Dancer'                          => '1.3142',
         'Dancer::Plugin::Interchange6'    => '0.100',
-        'Dancer::Plugin::PageHistory'     => '0.101',
+        'Dancer::Plugin::PageHistory'     => '0.102',
         'Template::Flute'                 => '0.0184',
         'Dancer::Template::TemplateFlute' => '0.0142',
         'Number::Format'                  => 0,          # currency filter
