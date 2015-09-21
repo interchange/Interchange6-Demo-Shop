@@ -2,7 +2,7 @@
     <pattern name="rating" type="string">4.7</pattern>
     <value name="image" target="src"/>
     <list name="thumbs" iterator="thumbs">
-      <param name="image" class="img-thumbnail" target="src"/>
+      <param name="uri" class="img-thumbnail" target="src"/>
     </list>
     <value name="fragment-product-price-and-stock"
         include="fragments/product-price-and-stock.html"/>

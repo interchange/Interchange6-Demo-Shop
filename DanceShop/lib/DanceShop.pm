@@ -401,6 +401,17 @@ hook 'before_navigation_search' => sub {
         $tokens->{pager} = $pager;
     }
 
+    $products = $products->search(
+        {
+            'media.active'    => 1,
+            'media_type.type' => 'image',
+        },
+        {
+            prefetch => { media_products => 'media' },
+            join     => { media_products => { media => 'media_type' } },
+        }
+    );
+
     # grid view can look messy unless we deliver products in nice rows of
     # three products per row
 
@@ -520,14 +531,10 @@ hook 'before_product_display' => sub {
     my $product = $tokens->{product};
 
     my $images = $product->media_by_type('image');
-    $tokens->{image} = $images->first->display_uri('product');
+    $tokens->{image} = $images->first->uri;
 
     if ( $images->count > 1 ) {
-        my @thumbs;
-        while ( my $image = $images->next ) {
-            push @thumbs, { uri => $image->display_uri('product') };
-        }
-        $tokens->{thumbs} = \@thumbs;
+        $tokens->{thumbs} = [ $images->hri->all ];
     }
 
     # Add recently viewed products token before we add this page to history

@@ -3,6 +3,7 @@
     <value name="listing-top" op="hook" include="fragments/product-listing-top.html"/>
     <list name="view-grid" class="product-box-grid-row" iterator="products">
         <list name="view-row" class="product-box-grid" iterator="row">
+          <param name="img-responsive" field="media_products.first.media.uri"/>
             <param name="has-discount" field="discount_percent" op="toggle" args="tree"/>
             <param name="has-variants" field="variant_count" op="toggle" args="tree"/>
             <param name="instock" field="quantity_in_stock" op="toggle" args="tree"/>

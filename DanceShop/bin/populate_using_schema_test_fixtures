@@ -33,14 +33,6 @@ $schema->txn_do(
         my $imagetype =
           $schema->resultset('MediaType')->create( { type => 'image' } );
 
-        $imagetype->add_to_media_displays(
-            {
-                type => 'product',
-                name => 'product',
-                path => "/img/products",
-            }
-        );
-
         my $products = shop_product;
         while ( my $product = $products->next ) {
 
@@ -54,7 +46,7 @@ $schema->txn_do(
                 $product->add_to_media(
                     {
                         file => $path,
-                        uri => $img,
+                        uri => "/img/products/$img",
                         mime_type => 'image/gif',
                         media_type => { type => 'image' },
                     }
