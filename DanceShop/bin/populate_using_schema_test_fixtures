@@ -7,9 +7,7 @@ package Fixtures;
 use Moo;
 with 'Interchange6::Test::Role::Fixtures';
 
-has 'ic6s_schema' => (
-    is      => 'ro',
-);
+has 'ic6s_schema' => ( is => 'ro', );
 
 package main;
 use Dancer ':script';
@@ -19,9 +17,49 @@ use Fixtures;
 set logger        => 'console';
 set logger_format => '%m';
 
+my $public = setting('public');
+debug $public;
+
 my $schema = shop_schema;
 $schema->deploy( { add_drop_table => 1 } );
 
-my $fixtures = Fixtures->new({ ic6s_schema => $schema });
-
+my $fixtures = Fixtures->new( { ic6s_schema => $schema } );
 $fixtures->load_all_fixtures;
+
+$schema->txn_do(
+    sub {
+        $fixtures->clear_media;
+
+        my $imagetype =
+          $schema->resultset('MediaType')->create( { type => 'image' } );
+
+        $imagetype->add_to_media_displays(
+            {
+                type => 'product',
+                name => 'product',
+                path => "/img/product",
+            }
+        );
+
+        my $products = shop_product;
+        while ( my $product = $products->next ) {
+
+            my $sku = $product->canonical_sku || $product->sku;
+
+            my $img = "$sku.gif";
+
+            my $path = path( $public, "img", "products", $img );
+
+            if ( -r $path ) {
+                $product->add_to_media(
+                    {
+                        file => $path,
+                        uri => $img,
+                        mime_type => 'image/gif',
+                        media_type => { type => 'image' },
+                    }
+                );
+            }
+        }
+    }
+);
