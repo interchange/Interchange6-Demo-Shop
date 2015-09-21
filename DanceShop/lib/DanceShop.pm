@@ -583,13 +583,12 @@ hook 'before_product_display' => sub {
     my @reviews;
     my $reviews = $product->top_reviews;
     while ( my $review = $reviews->next ) {
-        push @reviews,
-          {
+        push @reviews, {
             rating  => $review->rating * 1,     # convert from string
             author  => $review->author->name,
             created => $review->created,
             content => $review->content,
-          };
+        };
 
     }
     $tokens->{reviews}         = \@reviews;
@@ -712,20 +711,22 @@ sub offers {
     my %cond  = %{ shift || {} };
     my %attrs = %{ shift || {} };
 
-    my @join = ( 'price_modifiers' );
+    my @join =
+      ( 'price_modifiers', { media_products => { media => 'media_type' } } );
+
     if ( $attrs{join} ) {
-        if ( ref($attrs{join}) eq 'ARRAY' ) {
-            push @join , @{ $attrs{join} };
+        if ( ref( $attrs{join} ) eq 'ARRAY' ) {
+            push @join, @{ $attrs{join} };
         }
         else {
-            push @join , $attrs{join};
+            push @join, $attrs{join};
         }
         delete $attrs{join};
     }
 
     # we need our best two offers
 
-    my $today = shop_schema->format_datetime(DateTime->today);
+    my $today    = shop_schema->format_datetime( DateTime->today );
     my $products = shop_product->search(
         {
             'me.active'                  => 1,
@@ -733,24 +734,27 @@ sub offers {
             'price_modifiers.end_date'   => [ undef, { '>=', $today } ],
             'price_modifiers.quantity' => { '<=' => 1 },
             'price_modifiers.price' => { '!=', undef },
+            'media.active'          => 1,
+            'media_type.type'       => 'image',
             %cond,
         },
         {
             columns => [ 'sku', 'name', 'uri', 'price' ],
-            join      => \@join,
+            join    => \@join,
+            prefetch  => { media_products => 'media' },
             '+select' => {
                 max => \q[ (me.price - price_modifiers.price)/me.price ],
                 -as => 'discount_percent'
             },
             order_by => { -desc => 'discount_percent' },
-            distinct => 1,
+            group_by => 'me.sku',
             rows     => 1,
             %attrs,
         }
     )->with_quantity_in_stock;
 
     # possible role-based pricing
-    my $user  = logged_in_user;
+    my $user = logged_in_user;
     if ($user) {
         $products = $products->search(
             {
@@ -795,23 +799,24 @@ sub offers {
 
         my @skus = map { $_->canonical_sku || $_->sku } @offers;
 
-        push @offers,
-          shop_product->search(
+        push @offers, shop_product->search(
             {
                 'me.active'        => 1,
                 'me.sku'           => { -not_in => \@skus },
                 'me.canonical_sku' => undef,
+                'media.active'     => 1,
+                'media_type.type'  => 'image',
                 %cond,
             },
             {
                 join => \@join,
                 %attrs
             }
-          )->rand( $wanted - $num_offers )->with_quantity_in_stock->all;
+        )->rand( $wanted - $num_offers )->with_quantity_in_stock->all;
     }
 
     return \@offers;
-};
+}
 
 shop_setup_routes;
 

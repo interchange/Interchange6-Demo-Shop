@@ -26,6 +26,7 @@
     <param name="link-main" field="uri" target="href" op="append"/>
     <list name="megaproducts" class="" iterator="products">
         <param name="has-discount" field="discount_percent" op="toggle" args="tree"/>
+        <param name="img-responsive" field="media_products.first.media.uri"/>
         <param name="discount" field="discount_percent" pattern="megadiscount"/>
         <param name="mega-product-link" field="uri" target="href" op="append"/>
         <param name="mega-product-name" class="mega-product-link" field="name"/>

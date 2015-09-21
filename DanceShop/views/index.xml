@@ -2,6 +2,7 @@
   <pattern name="discount" type="string">45</pattern>
   <list name="offers" iterator="offers">
     <param name="has-discount" field="discount_percent" op="toggle" args="tree"/>
+    <param name="img-responsive" field="media_products.first.media.uri"/>
     <param name="discount" field="discount_percent" pattern="discount"/>
     <param name="name"/>
     <param name="uri" class="name" target="href" op="append"/>
@@ -11,6 +12,7 @@
     <param name="instock" field="quantity_in_stock" op="toggle" args="tree"/>
   </list>
   <list name="products" iterator="products">
+    <param name="img-responsive" field="media_products.first.media.uri"/>
     <param name="has-discount" field="discount_percent" op="toggle" args="tree"/>
     <param name="discount" field="discount_percent" pattern="discount"/>
     <param name="name"/>
