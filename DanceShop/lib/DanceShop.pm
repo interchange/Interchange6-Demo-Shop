@@ -772,9 +772,6 @@ sub offers {
 
     if ( $num_offers < $wanted ) {
 
-        print STDERR to_dumper( \%cond );
-        print STDERR to_dumper( \%attrs );
-
         # not enough offers so add some more canonical products to fill
         # in the gaps
 
