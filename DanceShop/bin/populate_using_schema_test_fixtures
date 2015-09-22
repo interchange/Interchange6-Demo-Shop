@@ -26,6 +26,83 @@ $schema->deploy( { add_drop_table => 1 } );
 my $fixtures = Fixtures->new( { ic6s_schema => $schema } );
 $fixtures->load_all_fixtures;
 
+my @navs = (
+    {
+        uri      => 'contact-us',
+        type     => 'nav',
+        scope    => 'top-left',
+        name     => 'Contact Us',
+        priority => 200,
+        template => 'contact-us',
+    },
+    {
+        uri      => 'orders',
+        type     => 'nav',
+        scope    => 'top-left',
+        name     => 'Order Tracking',
+        priority => 180,
+    },
+    {
+        uri      => 'ship-to',
+        type     => 'nav',
+        scope    => 'top-right',
+        name     => 'Ship To',
+        priority => 60,
+    },
+    {
+        uri      => 'language',
+        type     => 'nav',
+        scope    => 'top-right',
+        name     => 'Language',
+        priority => 30,
+    },
+    {
+        uri   => 'login',
+        type  => 'nav',
+        scope => 'top-login',
+        name  => 'Sign In',
+    },
+    {
+        uri   => 'logout',
+        type  => 'nav',
+        scope => 'top-logout',
+        name  => 'Sign Out',
+    },
+    {
+        uri => 'privacy',
+        type => 'nav',
+        scope => 'footer',
+        name => 'Privacy Policy',
+        priority => 200,
+        template => 'privacy',
+    },
+    {
+        uri => 'terms',
+        type => 'nav',
+        scope => 'footer',
+        name => 'Terms and Conditions',
+        priority => 180,
+        template => 'terms',
+    },
+    {
+        uri => 'returns',
+        type => 'nav',
+        scope => 'footer',
+        name => 'Return Orders',
+        priority => 160,
+        template => 'privacy',
+    },
+    {
+        uri => 'gift-certificates',
+        type => 'nav',
+        scope => 'footer',
+        name => 'Gift Certificates',
+        priority => 140,
+        template => 'gift-certificates',
+    },
+);
+
+# align media with actual images and add navigation
 $schema->txn_do(
     sub {
         $fixtures->clear_media;
@@ -45,13 +122,19 @@ $schema->txn_do(
             if ( -r $path ) {
                 $product->add_to_media(
                     {
-                        file => $path,
-                        uri => "/img/products/$img",
-                        mime_type => 'image/gif',
+                        file       => $path,
+                        uri        => "/img/products/$img",
+                        mime_type  => 'image/gif',
                         media_type => { type => 'image' },
                     }
                 );
             }
+        }
+
+        foreach my $nav ( @navs ) {
+            my $template = delete $nav->{template};
+            my $result = shop_navigation->create($nav);
+            $result->add_attribute('template', $template) if $template;
         }
     }
 );
