@@ -53,7 +53,7 @@ get '/' => sub {
     my $user = logged_in_user;
     if ($user) {
         $products =
-          $products->with_lowest_selling_price( users_id => $user->id );
+          $products->with_lowest_selling_price( { users_id => $user->id } );
     }
     else {
         $products = $products->with_lowest_selling_price;
