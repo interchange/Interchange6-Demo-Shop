@@ -3,58 +3,138 @@
 use strict;
 use warnings;
 
+package Fixtures;
+use Moo;
+with 'Interchange6::Test::Role::Fixtures';
+
+has 'ic6s_schema' => ( is => 'ro', );
+
+package main;
 use Dancer ':script';
 use Dancer::Plugin::Interchange6;
+use Fixtures;
 
-set logger => 'console';
+set logger        => 'console';
 set logger_format => '%m';
 
-use Locale::SubCountry;
-use DateTime qw();
+my $public = setting('public');
+debug $public;
 
-my $now = DateTime->now;
 my $schema = shop_schema;
+$schema->deploy( { add_drop_table => 1 } );
 
-shop_schema->deploy({add_drop_table => 1});
+my $fixtures = Fixtures->new( { ic6s_schema => $schema } );
+$fixtures->load_all_fixtures;
 
-# populate countries array
-use Interchange6::Schema::Populate::CountryLocale;
-my $pop_countries = Interchange6::Schema::Populate::CountryLocale->new->records;
+my @navs = (
+    {
+        uri      => 'contact-us',
+        type     => 'nav',
+        scope    => 'top-left',
+        name     => 'Contact Us',
+        priority => 200,
+        template => 'contact-us',
+    },
+    {
+        uri      => 'orders',
+        type     => 'nav',
+        scope    => 'top-left',
+        name     => 'Order Tracking',
+        priority => 180,
+    },
+    {
+        uri      => 'ship-to',
+        type     => 'nav',
+        scope    => 'top-right',
+        name     => 'Ship To',
+        priority => 60,
+    },
+    {
+        uri      => 'language',
+        type     => 'nav',
+        scope    => 'top-right',
+        name     => 'Language',
+        priority => 30,
+    },
+    {
+        uri   => 'login',
+        type  => 'nav',
+        scope => 'top-login',
+        name  => 'Sign In',
+    },
+    {
+        uri   => 'logout',
+        type  => 'nav',
+        scope => 'top-logout',
+        name  => 'Sign Out',
+    },
+    {
+        uri => 'privacy',
+        type => 'nav',
+        scope => 'footer',
+        name => 'Privacy Policy',
+        priority => 200,
+        template => 'privacy',
+    },
+    {
+        uri => 'terms',
+        type => 'nav',
+        scope => 'footer',
+        name => 'Terms and Conditions',
+        priority => 180,
+        template => 'terms',
+    },
+    {
+        uri => 'returns',
+        type => 'nav',
+        scope => 'footer',
+        name => 'Return Orders',
+        priority => 160,
+        template => 'privacy',
+    },
+    {
+        uri => 'gift-certificates',
+        type => 'nav',
+        scope => 'footer',
+        name => 'Gift Certificates',
+        priority => 140,
+        template => 'gift-certificates',
+    },
+);
 
-# populate states array
-use Interchange6::Schema::Populate::StateLocale;
-my $pop_states = Interchange6::Schema::Populate::StateLocale->new->records;
+# align media with actual images and add navigation
+$schema->txn_do(
+    sub {
+        $fixtures->clear_media;
 
-# populate zones array
-use Interchange6::Schema::Populate::Zone;
-my $pop_zones = Interchange6::Schema::Populate::Zone->new->records;
+        my $imagetype =
+          $schema->resultset('MediaType')->create( { type => 'image' } );
 
-# populate message_types 
-use Interchange6::Schema::Populate::MessageType;
-my $pop_message_types = Interchange6::Schema::Populate::MessageType->new->records;
+        my $products = shop_product;
+        while ( my $product = $products->next ) {
 
-# populate countries table
-$schema->populate(Country => $pop_countries);
+            my $sku = $product->canonical_sku || $product->sku;
 
-# populate states table
-$schema->populate(State => $pop_states);
+            my $img = "$sku.gif";
 
-# populate zones table
-scalar $schema->populate(Zone => $pop_zones);
+            my $path = path( $public, "img", "products", $img );
 
-# populate message_types table
-$schema->populate(MessageType => $pop_message_types);
-
-my $imagetype =
-  $schema->resultset('MediaType')->create( { type => 'image' } );
-
-foreach my $display (qw/image_cart image_detail image_thumb/) {
-    $imagetype->add_to_media_displays(
-        {
-            type => $display,
-            name => $display,
-            path => "/images/$display",
+            if ( -r $path ) {
+                $product->add_to_media(
+                    {
+                        file       => $path,
+                        uri        => "/img/products/$img",
+                        mime_type  => 'image/gif',
+                        media_type => { type => 'image' },
+                    }
+                );
+            }
         }
-    );
-}
 
+        foreach my $nav ( @navs ) {
+            my $template = delete $nav->{template};
+            my $result = shop_navigation->create($nav);
+            $result->add_attribute('template', $template) if $template;
+        }
+    }
+);
