@@ -18,6 +18,14 @@ The DanceShop has two checkout types: single and multi.
 Currently the default configuration enables the multistep
 checkout.
 
+=head1 TEST DATA
+
+After you set your configuration with the proper information
+for your database, the following script will populate it
+with initial test data:
+
+    ./bin/populate
+
 =cut
 
 our $VERSION = '0.001';
