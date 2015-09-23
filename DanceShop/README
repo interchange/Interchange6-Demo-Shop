@@ -1,0 +1,38 @@
+NAME
+    DanceShop - base Demo Shop for Interchange 6
+
+VERSION
+    0.001
+
+CHECKOUT
+    The DanceShop has two checkout types: single and multi. Currently the
+    default configuration enables the multistep checkout.
+
+TEST DATA
+    After you set your configuration with the proper information for your
+    database, the following script will populate it with initial test data:
+
+        ./bin/populate
+
+HOOKS
+    The DanceShop makes use of the following hooks.
+
+  before_layout_render
+    Add cart token.
+
+    Create tokens for all Interchange6::Schema::Result::Navigation menus
+    where `type' is `nav' with the token name being the `scope' prepended
+    with `nav-'.
+
+  before_navigation_search
+    This hooks replaces the standard Dancer::Plugin::Interchange6::Routes
+    navigation route to enable us to alter product listing items per page on
+    the fly and sort order.
+
+SUBROUTINES
+  add_recent_products($tokens, $quantity)
+    Add recent_products token containing the most recently-viewed products.
+
+    This sub must be given the current template tokens hash reference and
+    quantity of results wanted.
+
