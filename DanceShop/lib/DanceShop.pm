@@ -820,7 +820,7 @@ sub offers {
                 join => \@join,
                 %attrs
             }
-        )->rand( $wanted - $num_offers )->with_quantity_in_stock->all;
+        )->rand( $wanted - $num_offers )->with_quantity_in_stock->with_lowest_selling_price->all;
     }
 
     return \@offers;

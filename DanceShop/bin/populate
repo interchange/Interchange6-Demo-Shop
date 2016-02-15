@@ -47,26 +47,14 @@ my @navs = (
         type     => 'nav',
         scope    => 'top-right',
         name     => 'Ship To',
-        priority => 60,
+        priority => 100,
     },
     {
         uri      => 'language',
         type     => 'nav',
         scope    => 'top-right',
         name     => 'Language',
-        priority => 30,
-    },
-    {
-        uri   => 'login',
-        type  => 'nav',
-        scope => 'top-login',
-        name  => 'Sign In',
-    },
-    {
-        uri   => 'logout',
-        type  => 'nav',
-        scope => 'top-logout',
-        name  => 'Sign Out',
+        priority => 200,
     },
     {
         uri => 'privacy',

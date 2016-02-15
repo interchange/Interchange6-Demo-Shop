@@ -4,6 +4,25 @@
 <!-- login / sign-in -->
 <container name="dropdown-signin" id="dropdown-signin" value="!session.logged_in_user"/>
 <container name="dropdown-logout" id="dropdown-logout" value="session.logged_in_user"/>
+<container name="nav-top-login" value="!session.logged_in_user"/>
+<container name="nav-top-logout" value="session.logged_in_user"/>
+
+<list name="nav-top-left" iterator="nav-top-left">
+  <param name="name" class="uri"/>
+  <param name="uri" target="href" op="append"/>
+</list>
+<list name="nav-top-right" iterator="nav-top-right">
+  <param name="name" class="uri"/>
+  <param name="uri" target="href" op="append"/>
+</list>
+<list name="nav-top-footer" iterator="nav-top-left">
+  <param name="name" class="uri"/>
+  <param name="uri" target="href" op="append"/>
+</list>
+<list name="nav-footer" iterator="nav-footer">
+  <param name="name" class="uri"/>
+  <param name="uri" target="href" op="append"/>
+</list>
 
 <!-- number of items in the cart -->
 <pattern name="nitems" type="string">321</pattern>
@@ -20,7 +39,7 @@
 </list>
 
 <pattern name="megadiscount" type="string">45</pattern>
-<list name="main" class="nav-menu-main" iterator="nav-menu-main">
+<list name="nav-menu-main" iterator="nav-menu-main">
     <param name="name" class="link-main" field = "name"/>
     <param name="submenu-name" field = "name"/>
     <param name="link-main" field="uri" target="href" op="append"/>
