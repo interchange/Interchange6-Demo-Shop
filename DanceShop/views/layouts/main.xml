@@ -15,10 +15,6 @@
   <param name="name" class="uri"/>
   <param name="uri" target="href" op="append"/>
 </list>
-<list name="nav-top-footer" iterator="nav-top-left">
-  <param name="name" class="uri"/>
-  <param name="uri" target="href" op="append"/>
-</list>
 <list name="nav-footer" iterator="nav-footer">
   <param name="name" class="uri"/>
   <param name="uri" target="href" op="append"/>
