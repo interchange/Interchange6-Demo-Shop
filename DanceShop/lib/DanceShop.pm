@@ -70,49 +70,56 @@ hook 'before_layout_render' => sub {
 
     $tokens->{cart} = cart;
 
-    # try to get nav from dbic cache
-    my $nav =
-      cache( dbic => { driver => 'RawMemory', global => 1, expires_in => 300 } )
+    my $menu_main = cache_get 'nav-menu-main';
+
+    # try to get nav from memory cache
+    my $nav = cache(
+        memory => { driver => 'RawMemory', global => 1, expires_in => 300 } )
       ->get('nav');
 
     if ( !$nav ) {
 
-        # build menu tokens
+        my @navs = shop_navigation->search(
+            {
+                'me.active'    => 1,
+                'me.type'      => 'nav',
+                'me.parent_id' => undef,
+            },
+            {
+                prefetch => 'active_children',
+                order_by => [
+                    { -desc => 'me.priority' },
+                    'me.name',
+                    { -desc => 'active_children.priority' },
+                    'active_children.name',
+                ],
+            }
+        )->hri->all;
 
-        $nav = [
-            shop_navigation->search(
-                {
-                    'me.active'    => 1,
-                    'me.type'      => 'nav',
-                    'me.parent_id' => undef,
-                },
-                {
-                    prefetch => 'active_children',
-                    order_by => [
-                        { -desc => 'me.priority' },
-                        'me.name',
-                        { -desc => 'active_children.priority' },
-                        'active_children.name',
-                    ],
-                }
-            )->hri->all
-        ];
+        # stash navs where scope is not menu-main
 
-       # find 2 products with the largest percentage discount for each top-level
-       # nav to add to megadrop
-        foreach my $subnav (@$nav) {
+        push( @{ $nav->{ 'nav-' . $_->{scope} } }, $_ )
+          for grep { $_->{scope} ne 'menu-main' } @navs;
 
-            $subnav->{products} = DanceShop::offers(
+        # now handle menu-main
+
+        my @menu_main = grep { $_->{scope} eq 'menu-main' } @navs;
+
+        # find 2 products with the largest percentage discount for megadrop
+
+        foreach my $nav (@menu_main) {
+
+            $nav->{products} = DanceShop::offers(
                 2,
                 {
                     -or => [
                         {
                             'navigation_products.navigation_id' =>
-                              $subnav->{navigation_id}
+                              $nav->{navigation_id}
                         },
                         {
                             'navigation_products_2.navigation_id' =>
-                              $subnav->{navigation_id}
+                              $nav->{navigation_id}
                         }
                     ]
                 },
@@ -125,13 +132,19 @@ hook 'before_layout_render' => sub {
             );
         }
 
-        # cache nav for 5 minutes
-        cache('dbic')->set( nav => $nav );
+        # construct nav-main-menu template
+
+        $nav->{'nav-menu-main'} = template 'fragments/nav-menu-main',
+          { "nav-menu-main" => \@menu_main }, { layout => undef };
+
+        # cache all our navs
+
+        cache('memory')->set( nav => $nav );
     }
 
-    # create the nav tokens
-    foreach my $record (@$nav) {
-        push @{ $tokens->{ 'nav-' . $record->{scope} } }, $record;
+    # put $nav into tokens
+    while ( my ( $key, $value ) = each %$nav ) {
+        $tokens->{$key} = $value;
     }
 };
 
