@@ -34,6 +34,7 @@ use Dancer ':syntax';
 use Dancer::Plugin;
 use Dancer::Plugin::Ajax;
 use Dancer::Plugin::Auth::Extensible;
+use Dancer::Plugin::Cache::CHI;
 use Dancer::Plugin::DBIC;
 use Dancer::Plugin::Interchange6;
 use Dancer::Plugin::Interchange6::Routes;
@@ -69,56 +70,69 @@ hook 'before_layout_render' => sub {
 
     $tokens->{cart} = cart;
 
-    # build menu tokens
+    # try to get nav from dbic cache
+    my $nav =
+      cache( dbic => { driver => 'RawMemory', global => 1, expires_in => 300 } )
+      ->get('nav');
 
-    my @nav = shop_navigation->search(
-        {
-            'me.active'    => 1,
-            'me.type'      => 'nav',
-            'me.parent_id' => undef,
-        },
-        {
-            prefetch => 'active_children',
-            order_by => [
-                { -desc => 'me.priority' },
-                'me.name',
-                { -desc => 'active_children.priority' },
-                'active_children.name',
-            ],
+    if ( !$nav ) {
+
+        # build menu tokens
+
+        $nav = [
+            shop_navigation->search(
+                {
+                    'me.active'    => 1,
+                    'me.type'      => 'nav',
+                    'me.parent_id' => undef,
+                },
+                {
+                    prefetch => 'active_children',
+                    order_by => [
+                        { -desc => 'me.priority' },
+                        'me.name',
+                        { -desc => 'active_children.priority' },
+                        'active_children.name',
+                    ],
+                }
+            )->hri->all
+        ];
+
+       # find 2 products with the largest percentage discount for each top-level
+       # nav to add to megadrop
+        foreach my $subnav (@$nav) {
+
+            $subnav->{products} = DanceShop::offers(
+                2,
+                {
+                    -or => [
+                        {
+                            'navigation_products.navigation_id' =>
+                              $subnav->{navigation_id}
+                        },
+                        {
+                            'navigation_products_2.navigation_id' =>
+                              $subnav->{navigation_id}
+                        }
+                    ]
+                },
+                {
+                    join => [
+                        'navigation_products',
+                        { 'canonical' => 'navigation_products' },
+                    ]
+                }
+            );
         }
-    )->hri->all;
 
-    foreach my $record (@nav) {
+        # cache nav for 5 minutes
+        cache('dbic')->set( nav => $nav );
+    }
+
+    # create the nav tokens
+    foreach my $record (@$nav) {
         push @{ $tokens->{ 'nav-' . $record->{scope} } }, $record;
     }
-
-    # find 2 products with the largest percentage discount for each top-level
-    # nav to add to megadrop
-    foreach my $nav ( @{ $tokens->{"nav-menu-main"} } ) {
-
-        $nav->{products} = DanceShop::offers(
-            2,
-            {
-                -or => [
-                    {
-                        'navigation_products.navigation_id' =>
-                          $nav->{navigation_id}
-                    },
-                    {
-                        'navigation_products_2.navigation_id' =>
-                          $nav->{navigation_id}
-                    }
-                ]
-            },
-            {
-                join => [
-                    'navigation_products',
-                    { 'canonical' => 'navigation_products' },
-                ]
-            }
-        );
-    }
-
 };
 
 =head2 before_navigation_search

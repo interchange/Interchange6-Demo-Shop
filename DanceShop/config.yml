@@ -43,6 +43,12 @@ engines:
           int_curr_symbol: "$"
 
 plugins:
+  Cache::CHI:
+    driver: File
+    l1_cache:
+      driver: RawMemory
+      global: 1
+      max_size: 10
   DBIC:
     default:
       dsn: dbi:mysql:database=danceshop
