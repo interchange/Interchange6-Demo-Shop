@@ -1,10 +1,12 @@
 package DanceShop::SearchResults;
 
-use Moo;
-use MooX::Types::MooseLike::Base qw(ArrayRef HashRef Int is_Str Str);
-
-use POSIX qw/ceil/;
+use Dancer 'session';
 use List::Util qw(first);
+use MooX::Types::MooseLike::Base qw(ArrayRef HashRef Int Object is_Str Str);
+use POSIX qw/ceil/;
+
+use Moo;
+use namespace::clean;
 
 =head1 ATTRIBUTES
 
@@ -87,13 +89,17 @@ sub _build_view {
     my $self          = shift;
     my $routes_config = $self->routes_config;
     my @views         = @{ $self->views };
-    my $view          = $self->query->{view};
+    my $session_view  = session('search_view');
+    my $view          = $self->query->{view} || $session_view;
 
     if (   !defined $view
         || !grep { $_ eq $view } map { $_->{name} } @views )
     {
         $view = $routes_config->{navigation}->{default_view} || 'grid';
     }
+
+    session(search_view => $view) if $session_view ne $view;
+
     return $view;
 }
 
@@ -132,7 +138,8 @@ has rows => (
 sub _build_rows {
     my $self = shift;
 
-    my $rows = $self->query->{rows};
+    my $session_rows = session('search_rows');
+    my $rows = $self->query->{rows} || $session_rows;
 
     # we don't check whether rows is undefined since we don't want a user
     # to be able to set a value of 0 unless we allow that in our config
@@ -144,6 +151,8 @@ sub _build_rows {
     if ( $self->view eq 'grid' ) {
         $rows = ceil( $rows / 3 ) * 3;
     }
+
+    session(search_rows => $rows) unless $session_rows eq $rows;
 
     return $rows;
 }
@@ -161,7 +170,8 @@ has order_by => (
 
 sub _build_order_by {
     my $self  = shift;
-    my $order = $self->query->{order};
+    my $session_order = session('search_order');
+    my $order = $self->query->{order} || $session_order;
     if (
            !defined $order
         || !grep { $_ eq $order }
@@ -170,6 +180,9 @@ sub _build_order_by {
     {
         $order = 'priority';
     }
+
+    session(search_order => $order) unless $session_order eq $order;
+
     return $order;
 }
 
@@ -188,8 +201,9 @@ has order_direction => (
 );
 
 sub _build_order_direction {
-    my $self      = shift;
-    my $direction = $self->query->{dir};
+    my $self = shift;
+    my $session_direction = session('search_direction');
+    my $direction = $self->query->{dir} || $session_direction;
 
     if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
         if ( $self->order_by =~ /^(average_rating|priority)$/ ) {
@@ -199,6 +213,10 @@ sub _build_order_direction {
             $direction = 'asc';
         }
     }
+
+    session( search_direction => $direction )
+      unless $session_direction eq $direction;
+
     return $direction;
 }
 
