@@ -376,15 +376,9 @@ hook 'before_navigation_search' => sub {
         $order = $products->me($order);
     }
 
-    # restrict returned columns in products query and add required
-    # resultset methods
+    # get ordered product listing
 
-    $products = $products->columns(
-        [ 'sku', 'name', 'uri', 'price', 'short_description' ] )
-      ->with_average_rating->with_lowest_selling_price(
-        { users_id => session('logged_in_user_id') } )
-      ->with_quantity_in_stock->with_variant_count->order_by(
-        { "-$direction" => [$order] } );
+    $products = $products->listing->order_by( { "-$direction" => [$order] } );
 
     # pager
 
@@ -409,16 +403,9 @@ hook 'before_navigation_search' => sub {
         $tokens->{pager} = $pager;
     }
 
-    $products = $products->search(
-        {
-            'media.active'    => 1,
-            'media_type.type' => 'image',
-        },
-        {
-            prefetch => { media_products => 'media' },
-            join     => { media_products => { media => 'media_type' } },
-        }
-    );
+    # prefetch media
+
+    $products = $products->with_media;
 
     # grid view can look messy unless we deliver products in nice rows of
     # three products per row
@@ -562,12 +549,7 @@ hook 'before_product_display' => sub {
     $tokens->{similar2} = [ splice @{ $tokens->{similar_products} }, 0, 2 ];
     delete $tokens->{similar_products};
 
-    # TODO: setting of selling_price and discount should not be in demo shop
-    my $roles;
-    if (logged_in_user) {
-        $roles = user_roles;
-    }
-    $tokens->{selling_price} = $product->selling_price( { roles => $roles } );
+    $tokens->{selling_price} = $product->selling_price;
 
     $tokens->{discount} = $product->discount_percent;
 
@@ -589,7 +571,8 @@ hook 'before_product_display' => sub {
     }
 
     my @reviews;
-    my $reviews = $product->top_reviews;
+    my $reviews =
+      $product->top_reviews->search( undef, { prefetch => "author" } );
     while ( my $review = $reviews->next ) {
         push @reviews, {
             rating  => $review->rating * 1,     # convert from string
