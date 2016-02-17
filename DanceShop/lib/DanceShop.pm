@@ -585,8 +585,7 @@ hook 'before_product_display' => sub {
     }
 
     my @reviews;
-    my $reviews =
-      $product->top_reviews->search( undef, { prefetch => "author" } );
+    my $reviews = $product->top_reviews;
     while ( my $review = $reviews->next ) {
         push @reviews, {
             rating  => $review->rating * 1,     # convert from string

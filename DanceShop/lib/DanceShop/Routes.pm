@@ -74,24 +74,18 @@ ajax '/check_variant' => sub {
 
     my %params = params;
 
-    my $sku = $params{sku};
-    delete $params{sku};
+    my $sku = delete $params{sku};
 
-    my $quantity = $params{quantity};
-    delete $params{quantity};
+    my $quantity = delete $params{quantity};
     $quantity = 1 unless defined $quantity;
 
-    unless ( defined $sku ) {
+    # nothing to do if no sku or no variant attributes
+    return undef unless ( defined $sku && %params);
 
-        # sku not passed in params
-        # TODO: do something here
-    }
-
-    my $product = shop_product($sku);
-    unless ($product) {
-
-        # product sku not found
-        # TODO: do something here
+    my $product = shop_product->single({ sku => $sku, active => 1 });
+    if (!$product) {
+        error "check_variant did not find product: $sku";
+        return undef;
     }
 
     try {
@@ -104,7 +98,7 @@ ajax '/check_variant' => sub {
         return undef;
     };
 
-    unless ($product) {
+    if (!$product) {
 
         # variant not found
         # TODO: do something here
