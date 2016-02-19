@@ -38,6 +38,11 @@ WriteMakefile(
         # validation
         'Data::Transpose' => '0.0011',
         'Email::Valid'    => 0,
+
+        # development
+        'Plack::Middleware::Debug::Dancer::TemplateVariables' => 0,
+        'Plack::Middleware::Debug::Dancer::Version' => 0,
+        'Plack::Middleware::Debug::DBIC::QueryLog' => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES    => 'DanceShop-*' },
