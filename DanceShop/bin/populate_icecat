@@ -114,7 +114,13 @@ sub category_recurse {
     );
 
     while ( my $child = $children->next ) {
+        my $products = $child->products;
+
+        # drop empty categories
+        next if ( $child->is_leaf && !$products->count );
+
         my $name = $child->names->first->value;
+
         ( my $uri = $name ) =~ s/\s+/-/g;
         if ($nav) {
             $uri = $nav->uri . "/$uri";
@@ -131,7 +137,6 @@ sub category_recurse {
             }
         );
 
-        my $products = $child->products;
         while ( my $product = $products->next ) {
             my $description = $product->descriptions->next;
             next unless $description;
