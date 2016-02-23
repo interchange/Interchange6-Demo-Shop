@@ -1,5 +1,14 @@
 <specification>
   <pattern name="discount" type="string">45</pattern>
+
+  <container name="brands-full" value="brands"/>
+  <list name="brands" iterator="brands">
+    <list name="brand" iterator="col">
+      <param name="name" class="uri"/>
+      <param name="uri" target="href" op="append"/>
+    </list>
+  </list>
+
   <list name="offers" iterator="offers">
     <param name="has-discount" field="discount_percent" op="toggle" args="tree"/>
     <param name="img-responsive" field="media_products.first.media.uri"/>

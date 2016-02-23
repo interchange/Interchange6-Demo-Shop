@@ -17,6 +17,7 @@ use Dancer ':syntax';
 use Dancer::Plugin::Ajax;
 use Dancer::Plugin::Auth::Extensible;
 use Dancer::Plugin::Interchange6;
+use POSIX 'ceil';
 use Try::Tiny;
 
 use DanceShop::Routes::Checkout;
@@ -32,7 +33,7 @@ See also: L<DanceShop::Routes::Checkout>
 get '/' => sub {
     my $tokens = {};
 
-    $tokens->{offers} = DanceShop::offers(2);
+    $tokens->{offers} = DanceShop::offers(3);
 
     # need four random products not already in offers
 
@@ -59,7 +60,18 @@ get '/' => sub {
         $products = $products->with_lowest_selling_price;
     }
 
-    $tokens->{products} = [ $products->rand(4)->with_quantity_in_stock->all ];
+    $tokens->{products} = [ $products->rand(6)->with_quantity_in_stock->all ];
+
+    # brands
+
+    my @brands = shop_navigation->search( { scope => 'brands', active => 1 },
+        { order_by => 'name' } )->hri->all;
+
+    my $brands_per_col = ceil( @brands / 6 );
+
+    while ( my @col = splice( @brands, 0, $brands_per_col ) ) {
+        push @{ $tokens->{brands} }, +{ col => \@col };
+    }
 
     template 'index', $tokens;
 };
@@ -80,10 +92,10 @@ ajax '/check_variant' => sub {
     $quantity = 1 unless defined $quantity;
 
     # nothing to do if no sku or no variant attributes
-    return undef unless ( defined $sku && %params);
+    return undef unless ( defined $sku && %params );
 
-    my $product = shop_product->single({ sku => $sku, active => 1 });
-    if (!$product) {
+    my $product = shop_product->single( { sku => $sku, active => 1 } );
+    if ( !$product ) {
         error "check_variant did not find product: $sku";
         return undef;
     }
@@ -98,7 +110,7 @@ ajax '/check_variant' => sub {
         return undef;
     };
 
-    if (!$product) {
+    if ( !$product ) {
 
         # variant not found
         # TODO: do something here
@@ -111,6 +123,7 @@ ajax '/check_variant' => sub {
     }
 
     my $tokens;
+
     # TODO: refactoring alert: code duplication!
 
     $tokens->{product} = $product;
