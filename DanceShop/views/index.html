@@ -46,31 +46,41 @@
 <div>
   <div class="product-box">
     <div class="row">
-      <div class="col-md-2 col-sm-6 col-xs-12 products">
+
+      <div class="col-md-2 col-sm-6 col-xs-12 products"><!-- expect 6 -->
         <div class="product-box-sml">
-          <img class="img-responsive" src="/img/img_product.jpg" />
-          <div class="product-details">
-            <div class="product-description">
-              <a class="name" href="/">Organic gift basket for babies</a>
+          <div class="row">
+            <div class="col-xs-12">
+              <img class="img-responsive" src="/img/img_product.jpg" />
             </div>
-            <div class="product-options">
-              <div class="has-discount">
-                <strike class="original-price">$1660,99</strike>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="product-details">
+                <div class="product-description">
+                  <a class="name" href="/">Organic gift basket for babies</a>
+                </div>
+                <div class="product-options">
+                  <div class="has-discount">
+                    <strike class="original-price">$1660,99</strike>
+                  </div>
+                  <div class="form-group">
+                    <span class="product-price">$1520,99</span>
+                  </div>
+                  <div class="form-group instock">
+                    <span class="label label-info">in stock</span>
+                  </div>
+                  <form action="/cart" method="post">
+                    <input type="hidden" name="sku" class="sku" value="">
+                    <button class="btn btn-success btn-sm">Add to cart</button>
+                  </form>
+                </div>
               </div>
-              <div class="form-group">
-                <span class="product-price">$1520,99</span>
-              </div>
-              <div class="form-group instock">
-                <span class="label label-info">in stock</span>
-              </div>
-              <form action="/cart" method="post">
-                <input type="hidden" name="sku" class="sku" value="">
-                <button class="btn btn-success btn-sm">Add to cart</button>
-              </form>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
