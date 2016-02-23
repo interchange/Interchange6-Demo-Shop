@@ -194,4 +194,28 @@ sub category_recurse {
 }
 
 my $topcat = $icecat->resultset('Category')->find($topcatid);
+
 category_recurse($topcat);
+
+# clean out empty leaf navs
+
+my $nav_rset = shop_navigation;
+my $navs     = $nav_rset->search(
+    {
+        type  => "nav",
+        scope => "menu-main",
+    },
+    {
+        '+columns' => {
+            count =>
+              $nav_rset->correlate('navigation_products')->count_rs->as_query
+        },
+    }
+);
+
+while ( my $nav = $navs->next ) {
+    if ( $nav->is_leaf && !$nav->get_column('count') ) {
+        print "removing empty leaf nav: ", $nav->uri, "\n";
+        $nav->delete;
+    }
+}
