@@ -1,0 +1,189 @@
+#! /usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Dancer ':script';
+use Dancer::Plugin::Interchange6;
+
+set logger        => 'console';
+set logger_format => '%m';
+
+my $schema = shop_schema;
+
+$schema->deploy( { add_drop_table => 1 } );
+
+my $icecat   = shop_schema('icecat');
+my $topcatid = '1314';
+
+my @navs = (
+    {
+        uri      => 'contact-us',
+        type     => 'nav',
+        scope    => 'top-left',
+        name     => 'Contact Us',
+        priority => 200,
+        template => 'contact-us',
+    },
+    {
+        uri      => 'orders',
+        type     => 'nav',
+        scope    => 'top-left',
+        name     => 'Order Tracking',
+        priority => 180,
+    },
+    {
+        uri      => 'ship-to',
+        type     => 'nav',
+        scope    => 'top-right',
+        name     => 'Ship To',
+        priority => 100,
+    },
+    {
+        uri      => 'language',
+        type     => 'nav',
+        scope    => 'top-right',
+        name     => 'Language',
+        priority => 200,
+    },
+    {
+        uri      => 'privacy',
+        type     => 'nav',
+        scope    => 'footer',
+        name     => 'Privacy Policy',
+        priority => 200,
+        template => 'privacy',
+    },
+    {
+        uri      => 'terms',
+        type     => 'nav',
+        scope    => 'footer',
+        name     => 'Terms and Conditions',
+        priority => 180,
+        template => 'terms',
+    },
+    {
+        uri      => 'returns',
+        type     => 'nav',
+        scope    => 'footer',
+        name     => 'Return Orders',
+        priority => 160,
+        template => 'privacy',
+    },
+    {
+        uri      => 'gift-certificates',
+        type     => 'nav',
+        scope    => 'footer',
+        name     => 'Gift Certificates',
+        priority => 140,
+        template => 'gift-certificates',
+    },
+);
+
+foreach my $nav (@navs) {
+    my $template = delete $nav->{template};
+    my $result   = shop_navigation->create($nav);
+    $result->add_attribute( 'template', $template ) if $template;
+}
+
+sub category_recurse {
+    my ( $cat, $nav ) = @_;
+
+    my $children = $cat->children->search(
+        {
+            'names.langid'                        => 1,
+            'descriptions.langid'                 => 1,
+            'descriptions.product_description_id' => { '!=' => undef },
+        },
+        {
+            prefetch => [
+                {
+                    children => {
+                        products => [
+                            'descriptions', 'features',
+                            'galleries',    'supplier',
+                        ],
+                    },
+                },
+                'names',
+                'descriptions'
+            ],
+        },
+    );
+
+    while ( my $child = $children->next ) {
+        my $name = $child->names->first->value;
+        ( my $uri = $name ) =~ s/\s+/-/g;
+        if ($nav) {
+            $uri = $nav->uri . "/$uri";
+        }
+
+        my $child_nav = shop_navigation->create(
+            {
+                uri         => $uri,
+                type        => "nav",
+                scope       => "menu-main",
+                name        => $name,
+                description => $child->descriptions->first->value,
+                parent_id   => $nav ? $nav->id : undef,
+            }
+        );
+
+        my $products = $child->products;
+        while ( my $product = $products->next ) {
+            my $description = $product->descriptions->next;
+            next unless $description;
+            my $supplier    = $product->supplier;
+
+            # brand nav references all products from this supplier
+
+            my $brand_nav = shop_navigation->search(
+                {
+                    type  => 'brand',
+                    scope => 'brands',
+                    name  => $supplier->name,
+                },
+                {
+                    rows => 1,
+                }
+            )->next;
+
+            if ( !$brand_nav ) {
+                my $uri = lc( 'brand/' . $supplier->name );
+                $uri =~ s/\s+/-/g;
+                $brand_nav = shop_navigation->create(
+                    {
+                        uri   => $uri,
+                        type  => 'brand',
+                        scope => 'brands',
+                        name  => $supplier->name
+                    }
+                );
+            }
+
+            # build sku from supplier name and product ID
+
+            my $sku = lc( $supplier->name . '-' . $product->prod_id );
+            $sku =~ s/\s+/-/g;
+
+            my $ic6_product = shop_product->create(
+                {
+                    sku               => $sku,
+                    name              => $product->name,
+                    short_description => $description->short_desc,
+                    description       => $description->long_desc,
+                    price => 0,    # we don't have any prices yet
+                }
+            );
+            $ic6_product->create_related( 'navigation_products',
+                { navigation_id => $child_nav->id } );
+            $ic6_product->create_related( 'navigation_products',
+                { navigation_id => $brand_nav->id } );
+
+        }
+        category_recurse( $child, $child_nav ) unless $child->is_leaf;
+    }
+}
+
+my $topcat = $icecat->resultset('Category')->find($topcatid);
+category_recurse($topcat);
