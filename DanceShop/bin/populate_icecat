@@ -86,24 +86,26 @@ foreach my $nav (@navs) {
     $result->add_attribute( 'template', $template ) if $template;
 }
 
+my $media_type_image =
+  shop_schema->resultset('MediaType')->create( { type => 'image' } );
+
+my $media_type_video =
+  shop_schema->resultset('MediaType')->create( { type => 'video' }, );
+
 sub category_recurse {
     my ( $cat, $nav ) = @_;
 
-    my $children = $cat->children->search(
+    my $children = $cat->search_related(
+        'children',
         {
-            'names.langid'                        => 1,
-            'descriptions.langid'                 => 1,
-            'descriptions.product_description_id' => { '!=' => undef },
+            'names.langid'          => 1,
+            'descriptions_2.langid' => 1,
         },
         {
             prefetch => [
                 {
-                    children => {
-                        products => [
-                            'descriptions', 'features',
-                            'galleries',    'supplier',
-                        ],
-                    },
+                    products =>
+                      [ 'descriptions', 'features', 'galleries', 'supplier', ],
                 },
                 'names',
                 'descriptions'
@@ -133,7 +135,7 @@ sub category_recurse {
         while ( my $product = $products->next ) {
             my $description = $product->descriptions->next;
             next unless $description;
-            my $supplier    = $product->supplier;
+            my $supplier = $product->supplier;
 
             # brand nav references all products from this supplier
 
@@ -172,7 +174,7 @@ sub category_recurse {
                     name              => $product->name,
                     short_description => $description->short_desc,
                     description       => $description->long_desc,
-                    price => 0,    # we don't have any prices yet
+                    price             => int( rand(10000) ) / 100 + 1,
                 }
             );
             $ic6_product->create_related( 'navigation_products',
@@ -181,6 +183,7 @@ sub category_recurse {
                 { navigation_id => $brand_nav->id } );
 
         }
+
         category_recurse( $child, $child_nav ) unless $child->is_leaf;
     }
 }
