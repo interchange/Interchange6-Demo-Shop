@@ -26,7 +26,7 @@ has pager => (
 
 has words => (
     is => 'rw',
-    isa => 'ArrayRef',
+    isa => ArrayRef,
     default => sub { [] },
 );
 
