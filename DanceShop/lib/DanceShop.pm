@@ -522,7 +522,12 @@ hook 'before_navigation_search' => sub {
 
     # navigation siblings
 
-    my $siblings_with_self = $tokens->{navigation}->siblings_with_self;
+    my $siblings_with_self = $tokens->{navigation}->siblings_with_self->search(
+        {
+            scope => $tokens->{navigation}->scope,
+            type  => $tokens->{navigation}->type
+        }
+    );
 
     my $siblings = [
         $siblings_with_self->columns( [qw/navigation_id uri name/] )
