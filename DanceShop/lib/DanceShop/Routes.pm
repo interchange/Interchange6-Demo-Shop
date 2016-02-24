@@ -34,34 +34,37 @@ See also: L<DanceShop::Routes::Checkout> L<DanceShop::Routes::Search>
 get '/' => sub {
     my $tokens = {};
 
+    # 3 offers
+
     $tokens->{offers} = DanceShop::offers(3);
 
-    # need four random products not already in offers
+    # need 6 random products not already in offers
 
     my @skus = map { $_->canonical_sku || $_->sku } @{ $tokens->{offers} };
 
-    my $products = shop_product->search(
-        {
-            'me.active'        => 1,
-            'me.canonical_sku' => undef,
-            'me.sku'           => { -not_in => \@skus },
-        },
-        {
-            join => 'price_modifiers',
-        }
-    );
-
-    # possible role-based pricing
-    my $user = logged_in_user;
-    if ($user) {
-        $products =
-          $products->with_lowest_selling_price( { users_id => $user->id } );
-    }
-    else {
-        $products = $products->with_lowest_selling_price;
-    }
-
-    $tokens->{products} = [ $products->rand(6)->with_quantity_in_stock->all ];
+    $tokens->{products} = [
+        shop_product->search(
+            {
+                'me.sku' => {
+                    -in => shop_product->search(
+                        {
+                            'active'        => 1,
+                            'canonical_sku' => undef,
+                            'sku'           => { -not_in => \@skus },
+                        }
+                    )->rand(6)->get_column('sku')->as_query
+                },
+                'media.active'    => 1,
+                'media.label'     => [ '', 'low', 'thumb' ],
+                'media_type.type' => 'image',
+            },
+            {
+                prefetch => { media_products => 'media' },
+                join     => { media_products => { media => 'media_type' } },
+                order_by => 'media.priority',
+            }
+        )->listing->all
+    ];
 
     # brands
 
