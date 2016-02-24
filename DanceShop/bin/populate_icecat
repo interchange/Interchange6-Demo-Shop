@@ -187,6 +187,94 @@ sub category_recurse {
             $ic6_product->create_related( 'navigation_products',
                 { navigation_id => $brand_nav->id } );
 
+            if ( my $uri = $product->thumb_pic ) {
+                $ic6_product->add_to_media(
+                    {
+                        uri            => $uri,
+                        media_types_id => $media_type_image->id,
+                        label          => "thumb",
+                    }
+                );
+            }
+
+            if ( my $uri = $product->low_pic ) {
+                $ic6_product->add_to_media(
+                    {
+                        uri            => $uri,
+                        media_types_id => $media_type_image->id,
+                        label          => "low",
+                    }
+                );
+            }
+
+            if ( my $uri = $product->medium_pic ) {
+                $ic6_product->add_to_media(
+                    {
+                        uri            => $uri,
+                        media_types_id => $media_type_image->id,
+                        label          => "medium",
+                    }
+                );
+            }
+
+            if ( my $uri = $product->high_pic ) {
+                $ic6_product->add_to_media(
+                    {
+                        uri            => $uri,
+                        media_types_id => $media_type_image->id,
+                        label          => "high",
+                    }
+                );
+            }
+
+            my $galleries = $product->galleries;
+            my $i         = 0;
+            while ( my $gallery = $galleries->next ) {
+                $i++;
+                if ( my $uri = $gallery->thumb_link ) {
+                    $ic6_product->add_to_media(
+                        {
+                            priority       => $i,
+                            uri            => $uri,
+                            media_types_id => $media_type_image->id,
+                            label          => "thumb",
+                        }
+                    );
+                }
+
+                if ( my $uri = $gallery->low_link ) {
+                    $ic6_product->add_to_media(
+                        {
+                            priority       => $i,
+                            uri            => $uri,
+                            media_types_id => $media_type_image->id,
+                            label          => "low",
+                        }
+                    );
+                }
+
+                if ( my $uri = $gallery->medium_link ) {
+                    $ic6_product->add_to_media(
+                        {
+                            priority       => $i,
+                            uri            => $uri,
+                            media_types_id => $media_type_image->id,
+                            label          => "medium",
+                        }
+                    );
+                }
+
+                if ( my $uri = $gallery->link ) {
+                    $ic6_product->add_to_media(
+                        {
+                            priority       => $i,
+                            uri            => $uri,
+                            media_types_id => $media_type_image->id,
+                            label          => "high",
+                        }
+                    );
+                }
+            }
         }
 
         category_recurse( $child, $child_nav ) unless $child->is_leaf;
