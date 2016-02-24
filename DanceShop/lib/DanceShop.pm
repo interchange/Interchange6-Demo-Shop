@@ -722,119 +722,54 @@ sub add_similar_products {
 =cut
 
 sub offers {
-    my $wanted = shift;
+    my ( $wanted, $cond, $attrs ) = @_;
     die "offers needs valid wanted" unless ( $wanted && $wanted =~ /^\d+$/ );
 
-    my %cond  = %{ shift || {} };
-    my %attrs = %{ shift || {} };
-
-    my @join =
-      ( 'price_modifiers', { media_products => { media => 'media_type' } } );
-
-    if ( $attrs{join} ) {
-        if ( ref( $attrs{join} ) eq 'ARRAY' ) {
-            push @join, @{ $attrs{join} };
-        }
-        else {
-            push @join, $attrs{join};
-        }
-        delete $attrs{join};
-    }
-
-    # we need our best two offers
+    # we need our best $wanted offers
 
     my $today    = shop_schema->format_datetime( DateTime->today );
-    my $products = shop_product->search(
+    my $subquery = shop_product->search(
         {
             'me.active'                  => 1,
             'price_modifiers.start_date' => [ undef, { '<=', $today } ],
             'price_modifiers.end_date'   => [ undef, { '>=', $today } ],
-            'price_modifiers.quantity' => { '<=' => 1 },
-            'price_modifiers.price' => { '!=', undef },
-            'media.active'          => 1,
-            'media_type.type'       => 'image',
-            %cond,
+            'price_modifiers.quantity'   => [ undef, { '<=', 1 } ],
         },
         {
-            columns => [ 'sku', 'name', 'uri', 'price' ],
-            join    => \@join,
-            prefetch  => { media_products => 'media' },
+            columns   => ['sku'],
+            join      => 'price_modifiers',
             '+select' => {
-                max => \q[ (me.price - price_modifiers.price)/me.price ],
+                max => \q[
+                    CASE
+                        WHEN price_modifiers.price_modifiers_id IS NOT NULL
+                            THEN (me.price - price_modifiers.price)/me.price
+                        ELSE 0
+                    END
+                    ],
                 -as => 'discount_percent'
             },
             order_by => { -desc => 'discount_percent' },
             group_by => 'me.sku',
-            rows     => 1,
-            %attrs,
+            rows     => $wanted,
         }
-    )->with_quantity_in_stock;
+        )->search( $cond, $attrs )->get_column('sku')->as_query;
 
-    # possible role-based pricing
-    my $user = logged_in_user;
-    if ($user) {
-        $products = $products->search(
+    return [
+        shop_product->search(
             {
-                'price_modifiers.roles_id' =>
-                  [ undef, $user->roles->get_column('roles_id')->all ]
-            }
-        );
-    }
-    else {
-        $products =
-          $products->search( { 'price_modifiers.roles_id' => undef } );
-    }
-
-    my @offers;
-    my @skus;
-    while ( scalar @offers < $wanted ) {
-
-        my $offer;
-        if ( scalar @skus ) {
-            $offer = $products->search(
-                {
-                    'me.sku' => { -not_in => \@skus }
-                }
-            )->next;
-        }
-        else {
-            $offer = $products->next;
-        }
-
-        last unless $offer;
-
-        push @offers, $offer;
-        push @skus, $offer->canonical_sku || $offer->sku;
-    }
-
-    my $num_offers = scalar @offers;
-
-    if ( $num_offers < $wanted ) {
-
-        # not enough offers so add some more canonical products to fill
-        # in the gaps
-
-        my @skus = map { $_->canonical_sku || $_->sku } @offers;
-
-        push @offers, shop_product->search(
-            {
-                'me.active'        => 1,
-                'me.sku'           => { -not_in => \@skus },
-                'me.canonical_sku' => undef,
-                'media.active'     => 1,
-                'media_type.type'  => 'image',
-                %cond,
+                'me.sku'       => { -in => $subquery },
+                'media.active' => 1,
+                'media.label'     => [ '', 'low', 'thumb' ],
+                'media_type.type' => 'image',
             },
             {
-                join => \@join,
-                %attrs
+                join => [ { media_products => { media => 'media_type' } } ],
+                prefetch => { media_products => 'media' },
+                order_by => 'media.priority',
             }
-        )->rand( $wanted - $num_offers )->with_quantity_in_stock->with_lowest_selling_price->all;
-    }
-
-    return \@offers;
+        )->all
+    ];
 }
-
 shop_setup_routes;
 
 true;
