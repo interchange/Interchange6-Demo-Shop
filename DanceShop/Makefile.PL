@@ -44,6 +44,9 @@ WriteMakefile(
         'Plack::Middleware::Debug::Dancer::TemplateVariables' => 0,
         'Plack::Middleware::Debug::Dancer::Version' => 0,
         'Plack::Middleware::Debug::DBIC::QueryLog' => 0,
+
+        # default deployment
+        'Starman' => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES    => 'DanceShop-*' },
