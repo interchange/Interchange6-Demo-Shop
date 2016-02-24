@@ -34,6 +34,7 @@ WriteMakefile(
         'Moo'                             => '2.000001',
         'Type::Tiny'                      => '1.000005',
         'URL::Encode'                     => 0,
+        'Interchange::Search::Solr'      => '0.12',
 
         # validation
         'Data::Transpose' => '0.0011',

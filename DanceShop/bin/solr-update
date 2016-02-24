@@ -1,0 +1,188 @@
+#! /usr/bin/env perl
+#
+# Script to update Solr Index from commandline
+#
+# Copyright 2013-2016 Stefan Hornburg (Racke) <racke@linuxia.de>
+
+use strict;
+use warnings;
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+use Getopt::Long;
+use Interchange6::Schema;
+use Interchange::Search::Solr;
+use DateTime;
+use Date::Parse qw/str2time/;
+use Data::Dumper;
+my $system_timezone = 'Europe/Berlin';
+
+my $schema = Interchange6::Schema->connect('danceshop');
+
+# commandline options
+my (%opts, $mode);
+
+my $whandler = $SIG{__WARN__};
+$SIG{__WARN__} = sub {print STDERR "$0: @_";};
+unless (GetOptions (\%opts,
+                    qw/delta full clear verbose help/,
+                    'date=s')) {
+    exit 1;
+}
+
+# determine mode
+if ($opts{delta}) {
+    $mode = 'delta';
+    die "Not implemented yet";
+}
+elsif ($opts{full}) {
+    $mode = 'full';
+}
+elsif ($opts{clear}) {
+    $mode = 'clear';
+}
+elsif ($opts{date}) {
+    $mode = 'incremental-date';
+}
+else {
+    $mode = 'full';
+}
+
+my $solr_url = $ENV{SOLR_URL};
+
+print "Using Solr url $solr_url\n";
+
+my $solr = Interchange::Search::Solr->new(solr_url => $solr_url);
+
+if ($mode eq 'full') {
+    full_import();
+}
+elsif ($mode eq 'clear') {
+    my $response = $solr->maintainer_update($mode);
+    print "Index  ". $mode  ." response: " . (to_dumper $response->content) . ".\n" if $opts{verbose};
+}
+elsif ($mode eq 'incremental-date') {
+    my $date = $opts{date} or die "Shouldn't happen";
+    incremental_import_since($date);
+}
+else {
+    die "Not reached";
+}
+
+# print join ("\n", keys \%collection_warn), "\n";
+
+sub incremental_import_since {
+    my $date = shift;
+    my $epoch = str2time($date, $system_timezone);
+    die "Unparsable date string $date" unless $epoch;
+    my $dt = DateTime->from_epoch(epoch => $epoch, time_zone => $system_timezone);
+    die "Unparsable date $date" unless $dt;
+    my $since_sql = $schema->storage->datetime_parser->format_datetime($dt);
+    print "Updating products since $since_sql\n";
+    my $products = $schema->resultset('Product')->canonical_only
+      ->search({ modified => { '>=' => $since_sql } });
+    print "Got " . $products->count . " to update\n";
+    update_products($products);
+}
+
+sub full_import {
+    $solr->maintainer_update('clear'); # a full import should clear data, I guess
+    my $products = $schema->resultset('Product')->canonical_only;
+    update_products($products);
+}
+sub update_products {
+    my $products = shift;
+    my @updates;
+    while (my $product = $products->next) {
+        my $data = solr_hash($product);
+        print Dumper($data) if $opts{verbose};
+        push @updates, $data;
+        if (@updates > 500) {
+            run_solr_request(\@updates);
+            @updates = ();
+        }
+    }
+    if (@updates) {
+        run_solr_request(\@updates);
+    }
+}
+
+sub run_solr_request {
+    my $data = shift;
+    my $res = $solr->maintainer_update(add => $data);
+    if ($res->solr_status) {
+        die "Failed to update Solr index for " . Dumper($data)
+          . $res->{content}->{error}->{msg} . "\n";
+    }
+}
+
+
+sub solr_hash {
+    my $p = shift;
+    my %record;
+    %record = (sku => $p->sku,
+               name => $p->name,
+               uri => $p->uri,
+               short_description => $p->short_description,
+               description => $p->description,
+               price => $p->price,
+               active => $p->active,
+
+               # https://github.com/interchange/interchange6-schema/issues/191
+               # manufacturer => $p->manufacturer,
+
+
+               special_offer => 0,
+              );
+
+    # Date Format for the XML, incoming and outgoing: A date field
+    # shall be of the form 1995-12-31T23:59:59Z The trailing "Z"
+    # designates UTC time and is mandatory (See below for an
+    # explanation of UTC). Optional fractional seconds are allowed, as
+    # long as they do not end in a trailing 0 (but any precision
+    # beyond milliseconds will be ignored). All other parts are
+    # mandatory.
+    $record{last_modified} = $p->last_modified . 'Z';
+
+    unless ($record{manufacturer}) {
+        delete $record{manufacturer};
+    }
+
+
+    if (my @categories = $p->navigations->search({ 'navigation.type' => 'category'})) {
+        my %names;
+        foreach my $cat (@categories) {
+            $names{$cat->name} = 1;
+            if ($cat->name =~ m/^Angebote/) {
+                $record{special_offer} = 1;
+            }
+            foreach my $alias ($cat->aliases->all) {
+                $names{$alias->name} = 1;
+            }
+        }
+        $record{category_name} = [keys %names];
+    }
+    # store the navigation ids here
+    $record{category} = [ map { $_->navigation->name } $p->navigation_products ];
+    my $variants = $p->variants->active;
+    print "Found " . $variants->count . " variants\n" if $opts{verbose};
+    my %attributes_found;
+    my %colors;
+
+    while (my $variant = $variants->next) {
+        next if ! $variant->active;
+
+        foreach my $att (qw/size color/) {
+            # determine attribute value
+            my $value = $variant->find_attribute_value({name => 'color'});
+
+            if ($value) {
+                if (!$attributes_found{$att}{$value}) {
+                    $attributes_found{$att}{$value} = 1;
+                    $record{$att} ||= [];
+                    push @{$record{$att}}, $value;
+                }
+            }
+        }
+    }
+    return \%record;
+}

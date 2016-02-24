@@ -21,10 +21,11 @@ use POSIX 'ceil';
 use Try::Tiny;
 
 use DanceShop::Routes::Checkout;
+use DanceShop::Routes::Search;
 
 =head1 ROUTES
 
-See also: L<DanceShop::Routes::Checkout>
+See also: L<DanceShop::Routes::Checkout> L<DanceShop::Routes::Search>
 
 =head2 get /
 
