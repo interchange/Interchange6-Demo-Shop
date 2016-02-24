@@ -182,10 +182,22 @@ sub category_recurse {
                     price             => int( rand(10000) ) / 100 + 1,
                 }
             );
+
+            # Add NavigationProduct record for the current nav level
+            # and all ancestors as well as for brand
+
             $ic6_product->create_related( 'navigation_products',
                 { navigation_id => $child_nav->id } );
+
+            foreach my $ancestor ( $child_nav->ancestors ) {
+                $ancestor->create_related( 'navigation_products',
+                    { sku => $sku } );
+            }
+
             $ic6_product->create_related( 'navigation_products',
                 { navigation_id => $brand_nav->id } );
+
+            # insert all of the images
 
             if ( my $uri = $product->thumb_pic ) {
                 $ic6_product->add_to_media(
