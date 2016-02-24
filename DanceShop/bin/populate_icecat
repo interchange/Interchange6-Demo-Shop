@@ -204,17 +204,11 @@ my $navs     = $nav_rset->search(
     {
         type  => "nav",
         scope => "menu-main",
-    },
-    {
-        '+columns' => {
-            count =>
-              $nav_rset->correlate('navigation_products')->count_rs->as_query
-        },
     }
-);
+)->with_active_product_count;
 
 while ( my $nav = $navs->next ) {
-    if ( $nav->is_leaf && !$nav->get_column('count') ) {
+    if ( $nav->is_leaf && !$nav->active_product_count ) {
         print "removing empty leaf nav: ", $nav->uri, "\n";
         $nav->delete;
     }
