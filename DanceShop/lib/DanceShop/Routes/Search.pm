@@ -33,6 +33,7 @@ get '/search' => sub {
         $res->{selling_price} = $product->selling_price;
         $res->{variant_count} = $product->variant_count;
         $res->{discount} = $product->discount_percent;
+        $res->{quantity_in_stock} = $product->quantity_in_stock;
         $res->{average_rating} = 0;
 
         push @products, $res;
