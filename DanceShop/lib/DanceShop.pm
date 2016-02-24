@@ -146,6 +146,10 @@ hook 'before_layout_render' => sub {
     while ( my ( $key, $value ) = each %$nav ) {
         $tokens->{$key} = $value;
     }
+
+    $tokens->{icecat} = 1
+      if shop_schema->resultset('Setting')
+      ->single( { scope => 'global', name => 'icecat', value => 'true' } );
 };
 
 =head2 before_navigation_search

@@ -48,4 +48,6 @@
 <container name="extra-js-file" value="extra-js-file"/>
 <value name="extra-js-file" target="src" op="append"/>
 
+<container name="icecat" value="icecat"/>
+
 </specification>

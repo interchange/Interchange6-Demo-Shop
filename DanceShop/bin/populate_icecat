@@ -84,6 +84,13 @@ my @navs = (
         priority => 140,
         template => 'gift-certificates',
     },
+    {
+        uri      => 'icecat-disclaimer',
+        type     => 'icecat-disclaimer',
+        scope    => '',
+        name     => 'Icecat Disclaimer',
+        template => 'icecat-disclaimer',
+    },
 );
 
 foreach my $nav (@navs) {
