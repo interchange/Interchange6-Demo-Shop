@@ -193,6 +193,7 @@ sub category_recurse {
                         uri            => $uri,
                         media_types_id => $media_type_image->id,
                         label          => "thumb",
+                        priority       => 3000,
                     }
                 );
             }
@@ -203,6 +204,7 @@ sub category_recurse {
                         uri            => $uri,
                         media_types_id => $media_type_image->id,
                         label          => "low",
+                        priority       => 2000,
                     }
                 );
             }
@@ -213,6 +215,7 @@ sub category_recurse {
                         uri            => $uri,
                         media_types_id => $media_type_image->id,
                         label          => "medium",
+                        priority       => 1000,
                     }
                 );
             }
@@ -223,6 +226,7 @@ sub category_recurse {
                         uri            => $uri,
                         media_types_id => $media_type_image->id,
                         label          => "high",
+                        priority       => 0,
                     }
                 );
             }
@@ -234,7 +238,7 @@ sub category_recurse {
                 if ( my $uri = $gallery->thumb_link ) {
                     $ic6_product->add_to_media(
                         {
-                            priority       => $i,
+                            priority       => 3000 + $i,
                             uri            => $uri,
                             media_types_id => $media_type_image->id,
                             label          => "thumb",
@@ -245,7 +249,7 @@ sub category_recurse {
                 if ( my $uri = $gallery->low_link ) {
                     $ic6_product->add_to_media(
                         {
-                            priority       => $i,
+                            priority       => 2000 + $i,
                             uri            => $uri,
                             media_types_id => $media_type_image->id,
                             label          => "low",
@@ -256,7 +260,7 @@ sub category_recurse {
                 if ( my $uri = $gallery->medium_link ) {
                     $ic6_product->add_to_media(
                         {
-                            priority       => $i,
+                            priority       => 1000 + $i,
                             uri            => $uri,
                             media_types_id => $media_type_image->id,
                             label          => "medium",
