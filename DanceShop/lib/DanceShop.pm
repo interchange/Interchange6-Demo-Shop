@@ -450,7 +450,7 @@ hook 'before_navigation_search' => sub {
         $tokens->{products} = \@grid;
     }
     else {
-        $tokens->{products} = $products;
+        $tokens->{products} = [ $products->all ];
     }
 
     # pagination
