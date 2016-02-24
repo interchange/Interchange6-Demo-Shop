@@ -16,6 +16,12 @@ $schema->deploy( { add_drop_table => 1 } );
 my $icecat   = shop_schema('icecat');
 my $topcatid = '1314';
 
+# we need a flag in the database to tell us whether to display Icecat
+# copyright and disclaimer info in the shop
+
+$schema->resultset('Setting')
+  ->create( { scope => 'global', name => 'icecat', value => 'true' } );
+
 my @navs = (
     {
         uri      => 'contact-us',
