@@ -679,7 +679,7 @@ sub add_recent_products {
     }
 }
 
-=head add_similar_products( $tokens, $quantity, $sku );
+=head2 add_similar_products( $tokens, $quantity, $sku );
 
 Add similar_products token containing the most recently-viewed products.
 Returned products will be active and canonical.
