@@ -80,6 +80,14 @@ get '/' => sub {
     template 'index', $tokens;
 };
 
+=head2 get /add-review
+
+=cut
+
+get '/add-review' => sub {
+    template 'add-review';
+};
+
 =head2 ajax /check_variant
 
 =cut
