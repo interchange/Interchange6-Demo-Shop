@@ -54,7 +54,6 @@ get '/' => sub {
                         }
                     )->rand(6)->get_column('sku')->as_query
                 },
-                'media.active'    => 1,
                 'media.label'     => [ '', 'low', 'thumb' ],
                 'media_type.type' => 'image',
             },
@@ -77,6 +76,7 @@ get '/' => sub {
         push @{ $tokens->{brands} }, +{ col => \@col };
     }
 
+    $tokens->{'extra-js-file'} = 'index.js';
     template 'index', $tokens;
 };
 

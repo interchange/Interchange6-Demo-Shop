@@ -18,7 +18,7 @@
     <param name="price" class="original-price" filter="currency"/>
     <param name="selling_price" class="product-price" filter="currency"/>
     <param name="sku"/>
-    <param name="instock" field="quantity_in_stock" op="toggle" args="tree"/>
+    <param name="instock" field="quantity_in_stock" target="data"/>
   </list>
   <list name="products" iterator="products">
     <param name="img-responsive" field="media_products.first.media.uri"/>
@@ -29,6 +29,6 @@
     <param name="price" class="original-price" filter="currency"/>
     <param name="selling_price" class="product-price" filter="currency"/>
     <param name="sku"/>
-    <param name="instock" field="quantity_in_stock" op="toggle" args="tree"/>
+    <param name="instock" field="quantity_in_stock" target="data"/>
   </list>
 </specification>
