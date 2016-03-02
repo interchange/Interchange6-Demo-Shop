@@ -666,8 +666,9 @@ sub add_recent_products {
         },
         {
             alias => 'product',
+            prefetch => 'media',
         }
-    );
+    )->with_lowest_selling_price->with_quantity_in_stock;
 
     if ( $products->has_rows ) {
 

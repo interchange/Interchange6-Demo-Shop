@@ -95,15 +95,15 @@ my @navs = (
 
 foreach my $nav (@navs) {
     my $template = delete $nav->{template};
-    my $result   = shop_navigation->create($nav);
+    my $result = shop_navigation->find_or_create($nav);
     $result->add_attribute( 'template', $template ) if $template;
 }
 
 my $media_type_image =
-  shop_schema->resultset('MediaType')->create( { type => 'image' } );
+  shop_schema->resultset('MediaType')->find_or_create( { type => 'image' } );
 
 my $media_type_video =
-  shop_schema->resultset('MediaType')->create( { type => 'video' }, );
+  shop_schema->resultset('MediaType')->find_or_create( { type => 'video' } );
 
 sub category_recurse {
     my ( $cat, $nav ) = @_;
@@ -139,7 +139,7 @@ sub category_recurse {
             $uri = $nav->uri . "/$uri";
         }
 
-        my $child_nav = shop_navigation->create(
+        my $child_nav = shop_navigation->find_or_create(
             {
                 uri         => $uri,
                 type        => "nav",
@@ -176,7 +176,7 @@ sub category_recurse {
                         uri   => $uri,
                         type  => 'brand',
                         scope => 'brands',
-                        name  => $supplier->name
+                        name  => $supplier->name,
                     }
                 );
             }
@@ -186,7 +186,7 @@ sub category_recurse {
             my $sku = lc( $supplier->name . '-' . $product->prod_id );
             $sku =~ s/\s+/-/g;
 
-            my $ic6_product = shop_product->create(
+            my $ic6_product = shop_product->find_or_create(
                 {
                     sku               => $sku,
                     name              => $product->name,
@@ -199,19 +199,20 @@ sub category_recurse {
             # Add NavigationProduct record for the current nav level
             # and all ancestors as well as for brand
 
-            $ic6_product->create_related( 'navigation_products',
+            $ic6_product->find_or_create_related( 'navigation_products',
                 { navigation_id => $child_nav->id } );
 
             foreach my $ancestor ( $child_nav->ancestors ) {
-                $ancestor->create_related( 'navigation_products',
+                $ancestor->find_or_create_related( 'navigation_products',
                     { sku => $sku } );
             }
 
-            $ic6_product->create_related( 'navigation_products',
+            $ic6_product->find_or_create_related( 'navigation_products',
                 { navigation_id => $brand_nav->id } );
 
             # insert all of the images
 
+            if (0){
             if ( my $uri = $product->thumb_pic ) {
                 $ic6_product->add_to_media(
                     {
@@ -303,6 +304,7 @@ sub category_recurse {
                         }
                     );
                 }
+            }
             }
         }
 
