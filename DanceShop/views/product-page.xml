@@ -56,6 +56,7 @@
                 filter="selling_price"/>
             <param name="inventory" class="label" op="toggle" args="tree"/>
             <param name="sku" target="value"/>
+            <param name="img-responsive" field="media.first.uri"/>
         </list>
     </container>
     <container name="product-similar2" value="similar2">
@@ -67,6 +68,7 @@
                 filter="selling_price"/>
             <param name="inventory" class="label" op="toggle" args="tree"/>
             <param name="sku" target="value"/>
+            <param name="img-responsive" field="media.first.uri"/>
         </list>
     </container>
 

@@ -581,9 +581,9 @@ hook 'before_product_display' => sub {
     # Similar products
     # we have 2 panels of 2 items so get 4 then split into 2 iterators
     add_similar_products( $tokens, 4, $product->sku );
-    $tokens->{similar1} = [ splice @{ $tokens->{similar_products} }, 0, 2 ];
-    $tokens->{similar2} = [ splice @{ $tokens->{similar_products} }, 0, 2 ];
-    delete $tokens->{similar_products};
+    my @similar = @{ delete $tokens->{similar_products} };
+    $tokens->{similar1} = [ splice @similar, 0, 2 ] if @similar;
+    $tokens->{similar2} = [ splice @similar, 0, 2 ] if @similar;
 
     $tokens->{selling_price} = $product->selling_price;
 
@@ -666,7 +666,7 @@ sub add_recent_products {
         },
         {
             alias => 'product',
-            prefetch => 'media',
+            prefetch => { media_products => 'media' },
         }
     )->with_lowest_selling_price->with_quantity_in_stock;
 
@@ -722,8 +722,9 @@ sub add_similar_products {
                 alias => 'product',
                 join  => 'navigation_products',
                 rows  => $quantity,
+                prefetch => { media_products => 'media' },
             }
-        )->listing->hri->all
+        )->listing->all
     ];
 }
 
