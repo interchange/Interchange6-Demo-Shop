@@ -1,0 +1,22 @@
+#! /usr/bin/env perl
+
+use strict;
+use warnings;
+
+use lib 'lib';
+
+use DanceShop::Schema;
+use DBIx::Class::DeploymentHandler::CLI;
+
+my $schema = DanceShop::Schema->connect('danceshop');
+
+my $dh_cli = DBIx::Class::DeploymentHandler::CLI->new(
+    schema => $schema,
+    databases => 'MySQL',
+    args => \@ARGV,
+);
+
+if (my $ret = $dh_cli->run) {
+    print "$ret\n";
+}
+
