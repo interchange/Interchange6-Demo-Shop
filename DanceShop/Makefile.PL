@@ -36,6 +36,9 @@ WriteMakefile(
         'URL::Encode'                     => 0,
         'Interchange::Search::Solr'      => '0.12',
 
+        # DBIx::Class
+        'DBIx::Class::DeploymentHandler::CLI'  => 0,
+
         # validation
         'Data::Transpose' => '0.0011',
         'Email::Valid'    => 0,
