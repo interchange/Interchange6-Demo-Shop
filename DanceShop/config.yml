@@ -55,7 +55,7 @@ plugins:
       dsn: dbi:mysql:database=danceshop
       user: dancepower
       password: nevairbe
-      schema_class: Interchange6::Schema
+      schema_class: DanceShop::Schema
       options:
         RaiseError: 1
         PrintError: 1
