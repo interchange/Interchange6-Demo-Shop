@@ -13,7 +13,7 @@ DanceShop::Routes - routes for DanceShop
 use warnings;
 use strict;
 
-use Dancer2 ':syntax';
+use Dancer2;
 use Dancer2::Plugin::Ajax;
 use Dancer2::Plugin::Auth::Extensible;
 use Dancer2::Plugin::Interchange6;

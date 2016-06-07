@@ -5,7 +5,7 @@ use warnings;
 
 use Data::Transpose::Validator;
 
-use Dancer2 ':syntax';
+use Dancer2;
 use Dancer2::Plugin::Interchange6;
 use Dancer2::Plugin::Form;
 
