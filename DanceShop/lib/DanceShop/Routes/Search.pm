@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use DanceShop::Search;
-use Dancer2;
+use Dancer2 appname => 'DanceShop';
 use Dancer2::Plugin::Interchange6;
 
 use Interchange::Search::Solr;
