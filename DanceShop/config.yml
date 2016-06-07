@@ -26,21 +26,22 @@ logger_format: "%t [%P] %L @%D> %m in %f l. %l"
 template: "template_flute"
 
 engines:
-  template_flute:
-    filters:
-      currency:
-        options:
-          int_curr_symbol: "$"
-      date_only:
-        class: "Template::Flute::Filter::Date"
-        options:
-          format: '%x'
-      rating_class:
-        class: "DanceShop::Filters::RatingClass"
-      selling_price:
-        class: "DanceShop::Filters::SellingPrice"
-        options:
-          int_curr_symbol: "$"
+  template:
+    template_flute:
+      filters:
+        currency:
+          options:
+            int_curr_symbol: "$"
+        date_only:
+          class: "Template::Flute::Filter::Date"
+          options:
+            format: '%x'
+        rating_class:
+          class: "DanceShop::Filters::RatingClass"
+        selling_price:
+          class: "DanceShop::Filters::SellingPrice"
+          options:
+            int_curr_symbol: "$"
 
 plugins:
   Cache::CHI:
