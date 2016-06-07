@@ -8,8 +8,8 @@ use parent 'DBIx::Class::ResultSet';
 
 __PACKAGE__->load_components('Helper::ResultSet::Random');
 
-use Dancer ':script';
-use Dancer::Plugin::Interchange6;
+use Dancer2 ':script';
+use Dancer2::Plugin::Interchange6;
 
 #Random data generators
 use Data::Faker;

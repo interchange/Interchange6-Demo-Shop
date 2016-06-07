@@ -7,8 +7,8 @@ use Interchange6::Schema;
 use Interchange6::Schema::Populate::CountryLocale;
 use Interchange6::Schema::Populate::StateLocale;
 
-use Dancer ':script';
-use Dancer::Plugin::Interchange6;
+use Dancer2 ':script';
+use Dancer2::Plugin::Interchange6;
 
 use Term::ProgressBar;
 

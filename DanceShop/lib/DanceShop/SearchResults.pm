@@ -1,6 +1,6 @@
 package DanceShop::SearchResults;
 
-use Dancer 'session';
+use Dancer2 'session';
 use List::Util qw(first);
 use MooX::Types::MooseLike::Base qw(ArrayRef HashRef Int Object is_Str Str);
 use POSIX qw/ceil/;
@@ -12,7 +12,7 @@ use namespace::clean;
 
 =head2 routes_config
 
-Hash reference from L<Dancer::Plugin::Interchange6::Routes> plugin
+Hash reference from L<Dancer2::Plugin::Interchange6::Routes> plugin
 configuration (hash reference, required).
 
 =cut

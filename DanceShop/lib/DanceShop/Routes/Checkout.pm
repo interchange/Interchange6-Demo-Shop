@@ -5,9 +5,9 @@ use warnings;
 
 use Data::Transpose::Validator;
 
-use Dancer ':syntax';
-use Dancer::Plugin::Interchange6;
-use Dancer::Plugin::Form;
+use Dancer2 ':syntax';
+use Dancer2::Plugin::Interchange6;
+use Dancer2::Plugin::Form;
 
 # our logic - we got x checkout steps
 # last step is saved in session
