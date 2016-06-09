@@ -48,8 +48,11 @@ use Scalar::Util 'blessed';
 use Try::Tiny;
 use URL::Encode qw/url_decode_utf8/;
 
+set engines => {
+    config->{engines} ? %{ config->{engines} } : (),
+    session => { DBIC => { schema => schema } },
+};
 set session => 'DBIC';
-set session_options => { schema => schema };
 
 =head1 HOOKS
 
