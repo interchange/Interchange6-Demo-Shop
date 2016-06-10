@@ -30,15 +30,13 @@ with initial test data:
 
 our $VERSION = '0.001';
 
-use Dancer ':syntax';
-use Dancer::Plugin;
-use Dancer::Plugin::Ajax;
-use Dancer::Plugin::Auth::Extensible;
-use Dancer::Plugin::Cache::CHI;
-use Dancer::Plugin::DBIC;
-use Dancer::Plugin::Interchange6;
-use Dancer::Plugin::Interchange6::Routes;
-use Dancer::Plugin::PageHistory;
+use Dancer2;
+use Dancer2::Plugin::Auth::Extensible;
+use Dancer2::Plugin::Cache::CHI;
+use Dancer2::Plugin::DBIC;
+use Dancer2::Plugin::Interchange6;
+use Dancer2::Plugin::Interchange6::Routes;
+use Dancer2::Plugin::PageHistory;
 use DanceShop::Routes;
 use DanceShop::Paging;
 use DanceShop::SearchResults;
@@ -49,8 +47,11 @@ use Scalar::Util 'blessed';
 use Try::Tiny;
 use URL::Encode qw/url_decode_utf8/;
 
+set engines => {
+    config->{engines} ? %{ config->{engines} } : (),
+    session => { DBIC => { schema => schema } },
+};
 set session => 'DBIC';
-set session_options => { schema => schema };
 
 =head1 HOOKS
 
@@ -154,7 +155,7 @@ hook 'before_layout_render' => sub {
 
 =head2 before_navigation_search
 
-This hooks replaces the standard L<Dancer::Plugin::Interchange6::Routes>
+This hooks replaces the standard L<Dancer2::Plugin::Interchange6::Routes>
 navigation route to enable us to alter product listing items per page on 
 the fly and sort order.
 
@@ -552,7 +553,7 @@ hook 'before_navigation_search' => sub {
     # call the template and throw it so that the hook does not return
     # and request processing finishes
 
-    Dancer::Continuation::Route::Templated->new(
+    Dancer2::Continuation::Route::Templated->new(
         return_value => template( $tokens->{template}, $tokens ) )->throw;
 };
 

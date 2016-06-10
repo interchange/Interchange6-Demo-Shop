@@ -13,10 +13,9 @@ DanceShop::Routes - routes for DanceShop
 use warnings;
 use strict;
 
-use Dancer ':syntax';
-use Dancer::Plugin::Ajax;
-use Dancer::Plugin::Auth::Extensible;
-use Dancer::Plugin::Interchange6;
+use Dancer2 appname => 'DanceShop';
+use Dancer2::Plugin::Auth::Extensible;
+use Dancer2::Plugin::Interchange6;
 use POSIX 'ceil';
 use Try::Tiny;
 
@@ -92,7 +91,11 @@ get '/add-review' => sub {
 
 =cut
 
-ajax '/check_variant' => sub {
+post '/check_variant' => sub {
+
+    if (! request->is_ajax) {
+        return undef;
+    }
 
     # params should be sku and variant attributes only with optional quantity
 
