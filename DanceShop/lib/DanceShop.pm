@@ -31,7 +31,6 @@ with initial test data:
 our $VERSION = '0.001';
 
 use Dancer2;
-use Dancer2::Plugin::Ajax;
 use Dancer2::Plugin::Auth::Extensible;
 use Dancer2::Plugin::Cache::CHI;
 use Dancer2::Plugin::DBIC;
