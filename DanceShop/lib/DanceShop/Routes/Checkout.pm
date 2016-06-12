@@ -49,6 +49,10 @@ any '/checkout' => sub {
                              required => 1,
                          },
                      ],
+                     valid_action => sub {
+                         my $form = shift;
+                         update_account($form);
+                     }
                  },
                  {
                      name => 'shipping',
@@ -65,6 +69,10 @@ any '/checkout' => sub {
                  {
                      name => 'receipt',
                      template => 'checkout-receipt',
+                     action => sub {
+                         my $form = shift;
+                         run_order($form);
+                     }
                  }
              );
 
@@ -87,6 +95,8 @@ any '/checkout' => sub {
                 if ($clean) {
                     # ready for next step
                     $current_step = next_step(\@steps, $current_step);
+                    debug "Next step: ", $current_step;
+                    debug "Form values: ", $form->values;
                 }
                 else {
                     debug "Form errors on step ", $current_step->{name},
@@ -98,6 +108,7 @@ any '/checkout' => sub {
             }
             else {
                 $current_step = next_step(\@steps, $current_step);
+                debug "Next step without validate: ", $current_step;
             }
         }
         else {
@@ -137,5 +148,9 @@ sub next_step {
 
     return $next_step;
 }
+
+sub update_account {
+    debug "Updating account";
+};
 
 1;

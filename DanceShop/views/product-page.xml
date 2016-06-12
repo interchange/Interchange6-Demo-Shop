@@ -12,7 +12,9 @@
     <value name="rating" field="product.average_rating" pattern="rating"/>
     <value name="review-count" field="reviews_count"/>
     <container name="product-rating-wrap" value="reviews_count"/>
-    <container name="first-review" value="!reviews_count"/>
+    <container name="first-review" value="!reviews_count">
+      <value name="review-link" target="href" op="append" field="product.sku"/>
+    </container>
     <container name="variant-error" value="session.shop_cart_error"/>
     <list name="attributes" class="product-attributes-item"
         iterator="product.attribute_iterator">

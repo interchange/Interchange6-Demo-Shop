@@ -1,3 +1,5 @@
 <specification>
+  <form name="checkout" link="name">
+  </form>
   <value name="sidebar-right" include="fragments/checkout-multipage-sidebar-right.html"/>
 </specification>

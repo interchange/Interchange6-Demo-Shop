@@ -75,7 +75,7 @@
           <div id="signupbox" style="display:none; margin-top:10px">
             <h3>User registration</h3>
             <div class="panel-body">
-              <form class="form-horizontal" id="signupform" role="form">
+              <form action="/register" method="POST" class="form-horizontal" id="signupform" role="form" >
                 <div class="alert alert-danger" id="signupalert" style="display:none">
                   <p>Error:</p>
                   <span></span>
@@ -87,15 +87,15 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-md-3 control-label" for="firstname">First Name</label>
+                  <label class="col-md-3 control-label" for="first_name">First Name</label>
                   <div class="col-md-9">
-                    <input class="form-control" name="firstname" placeholder="First Name" type="text" />
+                    <input class="form-control" name="first_name" placeholder="First Name" type="text" />
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-md-3 control-label" for="lastname">Last Name</label>
+                  <label class="col-md-3 control-label" for="last_name">Last Name</label>
                   <div class="col-md-9">
-                    <input class="form-control" name="lastname" placeholder="Last Name" type="text" />
+                    <input class="form-control" name="last_name" placeholder="Last Name" type="text" />
                   </div>
                 </div>
                 <div class="form-group">
@@ -113,9 +113,9 @@
                 <div class="form-group">
                   <!--  Button  -->
                   <div class="col-md-offset-3 col-md-9">
-                    <button class="btn btn-success" id="btn-signup" type="button"><span class="glyphicon glyphicon-ok"></span>  Sign Up</button>
+                    <button class="btn btn-success" id="btn-signup" type="submit"><span class="glyphicon glyphicon-ok"></span>  Sign Up</button>
                     <span style="margin:0 8px;">or</span>
-                    <button class="btn btn-primary" id="btn-fbsignup" type="button"><i class="fa fa-facebook"></i>  Sign Up with Facebook</button>
+                    <button class="btn btn-primary" id="btn-fbsignup" type="submit"><i class="fa fa-facebook"></i>  Sign Up with Facebook</button>
                   </div>
                 </div>
                 <hr />
