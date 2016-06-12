@@ -550,11 +550,10 @@ hook 'before_navigation_search' => sub {
 
     $tokens->{"extra-js-file"} = 'product-listing.js';
 
-    # call the template and throw it so that the hook does not return
+    # use send_as so that the hook does not return
     # and request processing finishes
 
-    Dancer2::Continuation::Route::Templated->new(
-        return_value => template( $tokens->{template}, $tokens ) )->throw;
+    send_as html => template( $tokens->{template}, $tokens );
 };
 
 hook 'before_product_display' => sub {
