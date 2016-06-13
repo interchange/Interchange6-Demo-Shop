@@ -10,8 +10,8 @@ with 'Interchange6::Test::Role::Fixtures';
 has 'ic6s_schema' => ( is => 'ro', );
 
 package main;
-use Dancer ':script';
-use Dancer::Plugin::Interchange6;
+use Dancer2;
+use Dancer2::Plugin::Interchange6;
 use Fixtures;
 
 set logger        => 'console';
