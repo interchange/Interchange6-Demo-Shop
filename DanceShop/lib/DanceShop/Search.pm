@@ -1,11 +1,11 @@
 package DanceShop::Search;
 
-use Moo;
+use Data::Page;
 use Dancer2::Core::Types qw/ArrayRef/;
 
+use Moo;
 extends 'Interchange::Search::Solr';
-
-use Data::Page;
+use namespace::clean;
 
 has page_size => (
     is      => 'rw',

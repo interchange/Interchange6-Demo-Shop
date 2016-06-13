@@ -1,9 +1,10 @@
 package DanceShop::Paging;
 
-use Moo;
 use Dancer2::Core::Types qw(InstanceOf HashRef);
-
 use URI;
+
+use Moo;
+use namespace::clean;
 
 has pager => (
     is => 'rw',
