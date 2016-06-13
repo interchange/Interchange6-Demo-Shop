@@ -23,8 +23,10 @@ use warnings;
 use base 'Template::Flute::Filter';
 
 sub filter {
-    my ($self, $value) = @_;
-    return "rating-" . sprintf( "%02d", sprintf( "%.0f", $value * 2 ) * 5 );
+    my ( $self, $value ) = @_;
+    return $value
+      ? "rating-" . sprintf( "%02d", sprintf( "%.0f", $value * 2 ) * 5 )
+      : "rating-0";
 }
 
 1;
