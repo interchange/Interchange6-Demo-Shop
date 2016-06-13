@@ -7,13 +7,31 @@ use lib "$FindBin::Bin/../lib";
 
 use Plack::Builder;
 
-use Dancer2::Debugger;
-my $debugger = Dancer2::Debugger->new;
-
 use DanceShop;
-my $app = DanceShop->to_app;
+use DBICx::Sugar qw/schema/;
+use Dancer2::Debugger;
+use Plack::Middleware::DBIC::QueryLog;
+
+my $mw = sub {
+    my $app = shift;
+    sub {
+        my $env = shift;
+        my $querylog =
+          Plack::Middleware::DBIC::QueryLog->get_querylog_from_env($env);
+        my $cloned_schema = schema->clone;
+        $cloned_schema->storage->debug(1);
+        $cloned_schema->storage->debugobj($querylog);
+        $app->($env);
+    };
+};
+
+my $app = $mw->( DanceShop->to_app );
+
+my $debugger = Dancer2::Debugger->new(
+);
 
 builder {
+    enable 'DBIC::QueryLog';
     $debugger->mount;
     mount '/' => builder {
         $debugger->enable;

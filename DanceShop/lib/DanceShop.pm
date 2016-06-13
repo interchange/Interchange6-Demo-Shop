@@ -34,6 +34,7 @@ use Dancer2;
 use Dancer2::Plugin::Auth::Extensible;
 use Dancer2::Plugin::Cache::CHI;
 use Dancer2::Plugin::DBIC;
+use Dancer2::Plugin::Debugger;
 use Dancer2::Plugin::Interchange6;
 use Dancer2::Plugin::Interchange6::Routes;
 use Dancer2::Plugin::PageHistory;

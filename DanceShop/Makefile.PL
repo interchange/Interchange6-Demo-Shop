@@ -44,9 +44,8 @@ WriteMakefile(
         'Email::Valid'    => 0,
 
         # development
-        'Plack::Middleware::Debug::Dancer::TemplateVariables' => 0,
-        'Plack::Middleware::Debug::Dancer::Version' => 0,
-        'Plack::Middleware::Debug::DBIC::QueryLog' => 0,
+        'Dancer2::Debugger' => '0.004',
+        'Plack::Debugger::Panel::DBIC::QueryLog' => 0,
 
         # default deployment
         'Starman' => 0,
