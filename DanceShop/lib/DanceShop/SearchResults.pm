@@ -2,7 +2,7 @@ package DanceShop::SearchResults;
 
 use Dancer2 appname => 'DanceShop';
 use List::Util qw(first);
-use MooX::Types::MooseLike::Base qw(ArrayRef HashRef Int Object is_Str Str);
+use Dancer2::Core::Types qw(ArrayRef HashRef Int Object is_Str Str);
 use POSIX qw/ceil/;
 
 use Moo;

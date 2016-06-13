@@ -24,6 +24,7 @@ WriteMakefile(
         'Test::More'                      => 0,
         'YAML'                            => 0,
         'Dancer2'                          => '0.200000',
+        'Dancer2::Core::Types'            => 0,
         'Dancer2::Plugin::Cache::CHI'      => '1.4.0',
         'Dancer2::Plugin::Interchange6'    => '0.101',
         'Dancer2::Plugin::PageHistory'     => '0.201',

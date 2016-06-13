@@ -1,13 +1,13 @@
 package DanceShop::Paging;
 
 use Moo;
-use MooX::Types::MooseLike::Base qw(InstanceOf HashRef);
+use Dancer2::Core::Types qw(InstanceOf HashRef);
 
 use URI;
 
 has pager => (
     is => 'rw',
-    isa => InstanceOf('Data::Page'),
+    isa => InstanceOf['Data::Page'],
     required => 1,
 );
 

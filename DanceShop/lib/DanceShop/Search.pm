@@ -1,7 +1,7 @@
 package DanceShop::Search;
 
 use Moo;
-use MooX::Types::MooseLike::Base qw/ArrayRef/;
+use Dancer2::Core::Types qw/ArrayRef/;
 
 extends 'Interchange::Search::Solr';
 
