@@ -98,7 +98,7 @@ sub _build_view {
         $view = $routes_config->{navigation}->{default_view} || 'grid';
     }
 
-    session(search_view => $view) if $session_view ne $view;
+    session(search_view => $view) if $view && $session_view ne $view;
 
     return $view;
 }
