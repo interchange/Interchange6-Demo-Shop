@@ -1,8 +1,7 @@
 package DanceShop::SearchResults;
 
-use Dancer2 appname => 'DanceShop';
 use List::Util qw(first);
-use Dancer2::Core::Types qw(ArrayRef HashRef Int Object is_Str Str);
+use Dancer2::Core::Types qw(ArrayRef HashRef InstanceOf Int Object is_Str Str);
 use POSIX qw/ceil/;
 
 use Moo;
@@ -20,6 +19,18 @@ configuration (hash reference, required).
 has routes_config => (
     is       => 'ro',
     isa      => HashRef,
+    required => 1,
+);
+
+=head2 session
+
+Dancer2 session. Required.
+
+=cut
+
+has session => (
+    is       => 'ro',
+    isa      => InstanceOf['Dancer2::Core::Session'],
     required => 1,
 );
 
@@ -89,7 +100,7 @@ sub _build_view {
     my $self          = shift;
     my $routes_config = $self->routes_config;
     my @views         = @{ $self->views };
-    my $session_view  = session('search_view');
+    my $session_view  = $self->session->read('search_view');
     my $view          = $self->query->{view} || $session_view;
 
     if (   !defined $view
@@ -98,7 +109,7 @@ sub _build_view {
         $view = $routes_config->{navigation}->{default_view} || 'grid';
     }
 
-    session(search_view => $view) if $view && $session_view ne $view;
+    $self->session->write(search_view => $view) if $view && $session_view ne $view;
 
     return $view;
 }
@@ -138,7 +149,7 @@ has rows => (
 sub _build_rows {
     my $self = shift;
 
-    my $session_rows = session('search_rows');
+    my $session_rows = $self->session->read('search_rows');
     my $rows = $self->query->{rows} || $session_rows;
 
     # we don't check whether rows is undefined since we don't want a user
@@ -152,7 +163,7 @@ sub _build_rows {
         $rows = ceil( $rows / 3 ) * 3;
     }
 
-    session(search_rows => $rows) unless $session_rows eq $rows;
+    $self->session->write(search_rows => $rows) unless $session_rows eq $rows;
 
     return $rows;
 }
@@ -170,7 +181,7 @@ has order_by => (
 
 sub _build_order_by {
     my $self  = shift;
-    my $session_order = session('search_order');
+    my $session_order = $self->session->read('search_order');
     my $order = $self->query->{order} || $session_order;
     if (
            !defined $order
@@ -181,7 +192,7 @@ sub _build_order_by {
         $order = 'priority';
     }
 
-    session(search_order => $order) unless $session_order eq $order;
+    $self->session->write(search_order => $order) unless $session_order eq $order;
 
     return $order;
 }
@@ -202,7 +213,7 @@ has order_direction => (
 
 sub _build_order_direction {
     my $self = shift;
-    my $session_direction = session('search_direction');
+    my $session_direction = $self->session->read('search_direction');
     my $direction = $self->query->{dir} || $session_direction;
 
     if ( !defined $direction || $direction !~ /^(asc|desc)/ ) {
@@ -214,7 +225,7 @@ sub _build_order_direction {
         }
     }
 
-    session( search_direction => $direction )
+    $self->session->write( search_direction => $direction )
       unless $session_direction eq $direction;
 
     return $direction;

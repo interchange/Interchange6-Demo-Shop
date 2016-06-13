@@ -193,6 +193,7 @@ hook 'before_navigation_search' => sub {
         routes_config => $routes_config,
         tokens        => $tokens,
         query         => \%query,
+        session       => session,
     );
 
     # now we know the view we can correct the template token
