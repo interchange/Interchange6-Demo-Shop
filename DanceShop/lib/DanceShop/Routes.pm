@@ -166,7 +166,8 @@ post '/check_variant' => sub {
         }
     }
 
-    my $html = template "/fragments/product-price-and-stock", $tokens;
+    my $html = template "/fragments/product-price-and-stock", $tokens,
+      { layout => undef };
 
     # TODO: find out why this html gets wrapped into a complete page and
     # fix cleanly instead of doing the following (or else work out how
