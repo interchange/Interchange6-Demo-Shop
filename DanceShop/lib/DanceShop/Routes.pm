@@ -19,6 +19,7 @@ use Dancer2::Plugin::Interchange6;
 use POSIX 'ceil';
 use Try::Tiny;
 
+use DanceShop::Routes::Account;
 use DanceShop::Routes::Checkout;
 use DanceShop::Routes::Search;
 
@@ -79,12 +80,55 @@ get '/' => sub {
     template 'index', $tokens;
 };
 
-=head2 get /add-review
+=head2 get /add-review/:sku
 
 =cut
 
-get '/add-review' => sub {
-    template 'add-review';
+get '/add-review/:sku' => sub {
+    my $tokens;
+    my $sku = route_parameters->get('sku');
+    my $form = form('review');
+
+    # $sku = param('sku');
+    
+    debug "Review for $sku.";
+    
+    my $product = shop_product($sku);
+
+    if ($product && $product->active) {
+        # preparing tokens
+        $tokens->{product} = $product;
+        $tokens->{breadcrumb} = $product->path;
+        debug "Product: ", $tokens->{product}->name;
+    }
+    template 'add-review', $tokens;
+};
+
+=head2 post /add-review/:sku
+
+=cut
+
+post '/add-review/:sku' => sub {
+    my $tokens;
+    my $sku = route_parameters->get('sku');
+    my $form = form('review');
+    
+    # $sku = param('sku');
+    
+    debug "New Review for $sku with values: ", $form->values;
+    
+    my $product = shop_product($sku);
+
+    if ($product && $product->active) {
+        # create message
+        my $x = $product->add_to_reviews({
+            rating => '',
+        });
+
+        debug "M out: ", $x;
+        # send email to moderator
+    }
+    template 'add-review', $tokens;
 };
 
 =head2 ajax /check_variant
