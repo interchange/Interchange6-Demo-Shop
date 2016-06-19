@@ -1,2 +1,5 @@
 <specification>
+<container name="login_error" id="login-alert" value="login_error">
+<value name="login_error" id="login-alert"/>
+</container>
 </specification>
