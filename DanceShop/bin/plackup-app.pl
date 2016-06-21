@@ -12,7 +12,7 @@ PID=$CAMPDIR/var/run/plackup-app.pid
 PORT=50$CAMPNUMBER
 WORKERS=2
 APP_DIR="$CAMPDIR/DanceShop"
-APP=$APP_DIR/bin/dev.pl
+APP=$APP_DIR/bin/dev.psgi
 
 plackup="$CAMPDIR/local/bin/plackup"
 plackup_args="-E development -o 127.0.0.1 -p $PORT -s Starman --pid=$PID --workers $WORKERS -D"
