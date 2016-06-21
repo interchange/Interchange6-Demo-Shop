@@ -28,6 +28,7 @@ my $mw = sub {
 my $app = $mw->( DanceShop->to_app );
 
 my $debugger = Dancer2::Debugger->new(
+    data_dir => 'plack_debugger'
 );
 
 builder {
