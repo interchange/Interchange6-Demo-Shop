@@ -45,7 +45,7 @@ WriteMakefile(
         'Email::Valid'    => 0,
 
         # development
-        'Dancer2::Debugger' => '0.004',
+        'Dancer2::Debugger' => '0.005',
         'Plack::Debugger::Panel::DBIC::QueryLog' => 0,
 
         # default deployment
