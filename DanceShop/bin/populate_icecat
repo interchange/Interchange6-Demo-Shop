@@ -3,8 +3,8 @@
 use strict;
 use warnings;
 
-use Dancer ':script';
-use Dancer::Plugin::Interchange6;
+use Dancer2;
+use Dancer2::Plugin::Interchange6;
 
 set logger        => 'console';
 set logger_format => '%m';
