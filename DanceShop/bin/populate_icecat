@@ -192,6 +192,7 @@ sub category_recurse {
                     name              => $product->name,
                     short_description => $description->short_desc,
                     description       => $description->long_desc,
+                    gtin              => $product->gtin,
                     price             => int( rand(10000) ) / 100 + 1,
                 }
             );
