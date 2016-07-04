@@ -9,14 +9,14 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use Getopt::Long;
-use Interchange6::Schema;
+use DanceShop::Schema;
 use Interchange::Search::Solr;
 use DateTime;
 use Date::Parse qw/str2time/;
 use Data::Dumper;
 my $system_timezone = 'Europe/Berlin';
 
-my $schema = Interchange6::Schema->connect('danceshop');
+my $schema = DanceShop::Schema->connect('danceshop');
 
 # commandline options
 my (%opts, $mode);
@@ -49,7 +49,7 @@ else {
 
 my $solr_url = $ENV{SOLR_URL};
 
-print "Using Solr url $solr_url\n";
+print "Using Solr url $solr_url\n" if $opts{verbose};
 
 my $solr = Interchange::Search::Solr->new(solr_url => $solr_url);
 
@@ -152,9 +152,6 @@ sub solr_hash {
         my %names;
         foreach my $cat (@categories) {
             $names{$cat->name} = 1;
-            if ($cat->name =~ m/^Angebote/) {
-                $record{special_offer} = 1;
-            }
             foreach my $alias ($cat->aliases->all) {
                 $names{$alias->name} = 1;
             }
