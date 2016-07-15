@@ -44,5 +44,30 @@ get '/search' => sub {
     template 'product-listing-list', $tokens;
 };
 
+# Ajax return autocomplete
+get '/ajax-search' => sub {
+    my $q = query_parameters->get('q') || [];
+
+    my $solr = Interchange::Search::Solr->new(
+        solr_url => config->{solr_url},
+        global_conditions => {
+            active => \"true",
+        },
+        facets => [],
+    );
+
+    my @response = $solr->search($q);
+    my @results;
+
+    for my $res (@{$solr->results}) {
+        push @results, { value => $res->{short_description}, data => $res->{uri} };
+    }
+
+    my $suggestions = { suggestions => \@results };
+    content_type('application/json');
+    return to_json $suggestions;
+
+};
+
 1;
 

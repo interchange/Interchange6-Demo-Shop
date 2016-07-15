@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <link href="/css/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css" />
     <link href="/main.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/css/autocomplete.css" media="screen" rel="stylesheet" type="text/css" />
+    <script src="/js/jquery-2.1.1.min.js"></script>
+    <script src="/js/jquery.autocomplete.min.js"></script>
+    <script src="/js/search-autocomplete.js"></script>
   </head>
   <body>
     <div class="container">
@@ -64,7 +68,7 @@
             <div class="h-search">
               <form class="form-inline" action="/search">
                 <div class="input-group">
-                  <input class="form-control" name="q" placeholder="Search" style="height: 44px;" type="text" />
+                  <input class="form-control" name="q" placeholder="Search" style="height: 44px;" type="text" id="autocomplete" />
                   <div class="input-group-btn">
                     <button class="btn btn-default" style="height: 44px;" type="submit">
                       <i class="glyphicon glyphicon-search"></i>
