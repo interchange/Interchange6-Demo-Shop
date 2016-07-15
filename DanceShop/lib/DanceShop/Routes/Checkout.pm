@@ -90,7 +90,7 @@ any '/checkout' => sub {
                 my $validator = Data::Transpose::Validator->new;
 
                 $validator->prepare($current_step->{validate});
-                my $clean = $validator->transpose({params});
+                my $clean = $validator->transpose({route_parameters->flatten});
 
                 if ($clean) {
                     # ready for next step

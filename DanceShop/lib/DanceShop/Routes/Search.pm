@@ -10,7 +10,7 @@ use Dancer2::Plugin::Interchange6;
 use Interchange::Search::Solr;
 
 get '/search' => sub {
-    my $q = param('q');
+    my $q = query_parameters->get('q');
     my $tokens = {};
 
     my $solr = Interchange::Search::Solr->new(

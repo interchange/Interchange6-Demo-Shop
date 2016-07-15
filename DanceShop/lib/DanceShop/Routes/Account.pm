@@ -13,7 +13,7 @@ get '/login' => sub {
 
     # DPIC6 uses session return_url in post /login
     if ( param('return_url') ) {
-        session return_url =>  param('return_url');
+        session return_url =>  route_parameters->get('return_url');
     }
 
     if ( param( 'login_failed' )) {

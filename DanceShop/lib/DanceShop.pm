@@ -173,7 +173,8 @@ hook 'before_navigation_search' => sub {
       $tokens->{navigation}->navigation_products->search_related('product')
       ->active;
 
-    my %query = params('query');
+    
+    my %query = query_parameters->get('query');
 
     my $routes_config = config->{plugins}->{'Interchange6::Routes'} || {};
 

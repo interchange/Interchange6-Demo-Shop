@@ -143,7 +143,7 @@ post '/check_variant' => sub {
 
     # params should be sku and variant attributes only with optional quantity
 
-    my %params = params;
+    my %params = body_parameters->flatten;
 
     my $sku = delete $params{sku};
 
