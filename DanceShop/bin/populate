@@ -5,6 +5,7 @@ use warnings;
 
 package Fixtures;
 use Moo;
+use lib 'lib';
 with 'Interchange6::Test::Role::Fixtures';
 
 has 'ic6s_schema' => ( is => 'ro', );
@@ -98,10 +99,75 @@ $schema->txn_do(
         my $imagetype =
           $schema->resultset('MediaType')->create( { type => 'image' } );
 
+        my @brands = ('Mike Hammers', 'Racke Claws', 'Peter Kit', 'Claus Brush',
+            'Ken Safty Clothes', 'Leo Measurement', 'Lica Ladder', 'SOS Planer',
+            'Was Saw', 'Multitools');
+
+        foreach my $brand ( @brands ){
+            my $uri = lc($brand);
+            $uri =~ s/ /-/g;
+
+            push @navs, {
+                uri   => 'brands/'. $uri,
+                type  => 'nav',
+                scope => 'brands',
+                name  => $brand,
+                priority => 140,
+            }
+        }
+
+        foreach my $nav ( @navs ) {
+            my $template = delete $nav->{template};
+            my $result = shop_navigation->create($nav);
+            $result->add_attribute('template', $template) if $template;
+        }
+
         my $products = shop_product;
         while ( my $product = $products->next ) {
-
             my $sku = $product->canonical_sku || $product->sku;
+
+            my $prod = $product->name;
+
+            my $nav_prod;
+            my ($brand_nav, $brand_name);
+
+            if ($prod =~ /Hammer|Nail|Sledge|Mallet/){
+                $brand_name = $brands[0];
+            } elsif ($prod =~ /Claws/){
+                $brand_name = $brands[1];
+            } elsif ($prod =~ /Kit|Toolbox|Belt/){
+                $brand_name = $brands[2];
+            } elsif ($prod =~ /Roller|Brush|Paint/){
+                $brand_name = $brands[3];
+            }elsif ($prod =~ /Mask|Wear/) {
+                $brand_name = $brands[4];
+            }elsif( $prod =~ /Square|Ruler|Measure/){
+                $brand_name = $brands[5];
+            }elsif( $prod =~ /Ladder/){
+                $brand_name = $brands[6];
+            }elsif( $prod =~ /Planer/){
+                $brand_name = $brands[7];
+            }elsif( $prod =~ /Saw/){
+                $brand_name = $brands[8];
+            }
+            else {
+                $brand_name = $brands[9];
+            }
+
+            $brand_nav = shop_navigation->search(
+                {
+                    type  => 'nav',
+                    scope => 'brands',
+                    name  => $brand_name,
+                },
+                {
+                    rows => 1,
+                }
+            )->next;
+
+
+            $product->find_or_create_related( 'navigation_products',
+                { navigation_id => $brand_nav->navigation_id } );
 
             my $img = "$sku.gif";
 
@@ -117,12 +183,8 @@ $schema->txn_do(
                     }
                 );
             }
-        }
 
-        foreach my $nav ( @navs ) {
-            my $template = delete $nav->{template};
-            my $result = shop_navigation->create($nav);
-            $result->add_attribute('template', $template) if $template;
         }
+        
     }
 );
