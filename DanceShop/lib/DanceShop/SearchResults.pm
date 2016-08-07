@@ -109,7 +109,7 @@ sub _build_view {
         $view = $routes_config->{navigation}->{default_view} || 'grid';
     }
 
-    $self->session->write(search_view => $view) if $view && $session_view ne $view;
+    $self->session->write(search_view => $view);
 
     return $view;
 }
@@ -163,7 +163,7 @@ sub _build_rows {
         $rows = ceil( $rows / 3 ) * 3;
     }
 
-    $self->session->write(search_rows => $rows) unless $session_rows eq $rows;
+    $self->session->write(search_rows => $rows);
 
     return $rows;
 }
@@ -192,7 +192,7 @@ sub _build_order_by {
         $order = 'priority';
     }
 
-    $self->session->write(search_order => $order) unless $session_order eq $order;
+    $self->session->write(search_order => $order);
 
     return $order;
 }
@@ -225,8 +225,7 @@ sub _build_order_direction {
         }
     }
 
-    $self->session->write( search_direction => $direction )
-      unless $session_direction eq $direction;
+    $self->session->write( search_direction => $direction );
 
     return $direction;
 }
