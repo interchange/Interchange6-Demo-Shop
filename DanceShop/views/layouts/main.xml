@@ -2,6 +2,9 @@
 <value name="content" class="content" op="hook"/>
 <value name="nav-menu-main" op="hook"/>
 
+<!-- page title -->
+<value name="page-name" id="page-name" op="prepend" joiner=" | "/>
+
 <!-- login / sign-in -->
 <container name="dropdown-signin" id="dropdown-signin" value="!session.logged_in_user"/>
 <container name="dropdown-logout" id="dropdown-logout" value="session.logged_in_user"/>
