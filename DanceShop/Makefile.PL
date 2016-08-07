@@ -28,7 +28,7 @@ WriteMakefile(
         'Dancer2::Plugin::Cache::CHI'      => '1.4.0',
         'Dancer2::Plugin::Interchange6'    => '0.101',
         'Dancer2::Plugin::PageHistory'     => '0.201',
-        'Template::Flute'                 => '0.0184',
+        'Template::Flute'                 => '0.020',
         'Dancer2::Plugin::TemplateFlute' => '0.201',
         'namespace::clean'                => 0,
         'Number::Format'                  => 0,          # currency filter
