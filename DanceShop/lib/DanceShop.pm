@@ -174,7 +174,7 @@ hook 'before_navigation_search' => sub {
       ->active;
 
     
-    my %query = query_parameters->get('query');
+    my %query = %{ query_parameters->as_hashref };
 
     my $routes_config = config->{plugins}->{'Interchange6::Routes'} || {};
 
