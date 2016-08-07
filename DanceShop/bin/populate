@@ -18,8 +18,7 @@ use Fixtures;
 set logger        => 'console';
 set logger_format => '%m';
 
-my $public = setting('public');
-debug $public;
+my $public = config->{'public_dir'};
 
 my $schema = shop_schema;
 $schema->deploy( { add_drop_table => 1 } );
@@ -183,8 +182,9 @@ $schema->txn_do(
                     }
                 );
             }
-
+            else {
+                warning "Image $sku.gif not found or not readable at $path.\n";
+            }
         }
-        
     }
 );
