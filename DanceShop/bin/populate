@@ -127,46 +127,57 @@ $schema->txn_do(
 
             my $prod = $product->name;
 
-            my $nav_prod;
-            my ($brand_nav, $brand_name);
+            if ( !$product->canonical_sku ) {
 
-            if ($prod =~ /Hammer|Nail|Sledge|Mallet/){
-                $brand_name = $brands[0];
-            } elsif ($prod =~ /Claws/){
-                $brand_name = $brands[1];
-            } elsif ($prod =~ /Kit|Toolbox|Belt/){
-                $brand_name = $brands[2];
-            } elsif ($prod =~ /Roller|Brush|Paint/){
-                $brand_name = $brands[3];
-            }elsif ($prod =~ /Mask|Wear/) {
-                $brand_name = $brands[4];
-            }elsif( $prod =~ /Square|Ruler|Measure/){
-                $brand_name = $brands[5];
-            }elsif( $prod =~ /Ladder/){
-                $brand_name = $brands[6];
-            }elsif( $prod =~ /Planer/){
-                $brand_name = $brands[7];
-            }elsif( $prod =~ /Saw/){
-                $brand_name = $brands[8];
-            }
-            else {
-                $brand_name = $brands[9];
-            }
+                # add canonical products to brand navigation
 
-            $brand_nav = shop_navigation->search(
-                {
-                    type  => 'nav',
-                    scope => 'brands',
-                    name  => $brand_name,
-                },
-                {
-                    rows => 1,
+                my ( $brand_nav, $brand_name );
+
+                if ( $prod =~ /Hammer|Nail|Sledge|Mallet/ ) {
+                    $brand_name = $brands[0];
                 }
-            )->next;
+                elsif ( $prod =~ /Claws/ ) {
+                    $brand_name = $brands[1];
+                }
+                elsif ( $prod =~ /Kit|Toolbox|Belt/ ) {
+                    $brand_name = $brands[2];
+                }
+                elsif ( $prod =~ /Roller|Brush|Paint/ ) {
+                    $brand_name = $brands[3];
+                }
+                elsif ( $prod =~ /Mask|Wear/ ) {
+                    $brand_name = $brands[4];
+                }
+                elsif ( $prod =~ /Square|Ruler|Measure/ ) {
+                    $brand_name = $brands[5];
+                }
+                elsif ( $prod =~ /Ladder/ ) {
+                    $brand_name = $brands[6];
+                }
+                elsif ( $prod =~ /Planer/ ) {
+                    $brand_name = $brands[7];
+                }
+                elsif ( $prod =~ /Saw/ ) {
+                    $brand_name = $brands[8];
+                }
+                else {
+                    $brand_name = $brands[9];
+                }
 
+                $brand_nav = shop_navigation->search(
+                    {
+                        type  => 'nav',
+                        scope => 'brands',
+                        name  => $brand_name,
+                    },
+                    {
+                        rows => 1,
+                    }
+                )->next;
 
-            $product->find_or_create_related( 'navigation_products',
-                { navigation_id => $brand_nav->navigation_id } );
+                $product->find_or_create_related( 'navigation_products',
+                    { navigation_id => $brand_nav->navigation_id } );
+            }
 
             my $img = "$sku.gif";
 
