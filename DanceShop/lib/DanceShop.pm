@@ -142,7 +142,8 @@ hook 'before_layout_render' => sub {
                         'me.type'  => 'brand-category',
                         'me.scope' => $nav->{uri},
                     },
-                )->related_resultset('parents')->hri->all
+                  )->related_resultset('parents')->order_by('!priority,name')
+                  ->hri->all
             ];
         }
 
