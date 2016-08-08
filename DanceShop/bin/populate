@@ -99,8 +99,8 @@ $schema->txn_do(
           $schema->resultset('MediaType')->create( { type => 'image' } );
 
         my @brands = ('Mike Hammers', 'Racke Claws', 'Peter Kit', 'Claus Brush',
-            'Ken Safty Clothes', 'Leo Measurement', 'Lica Ladder', 'SOS Planer',
-            'Was Saw', 'Multitools');
+           'Ken Safety Clothes', 'Leo Measurement', 'Lica Ladder', 'SOS Planer',
+           'Was Saw', 'Multitools');
 
         foreach my $brand ( @brands ){
             my $uri = lc($brand);
