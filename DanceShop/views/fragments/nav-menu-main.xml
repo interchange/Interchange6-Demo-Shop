@@ -20,5 +20,9 @@
       <param name="name-sub" class="link-sub" field = "name"/>
       <param name="link-sub" field="uri" target="href" op="append"/>
     </list>
+    <list name="brand" iterator="brands">
+      <param name="name"/>
+      <param name="link" class="name" field="uri" target="href" op="append"/>
+    </list>
   </list>
 </specification>

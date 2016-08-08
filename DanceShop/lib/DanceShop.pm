@@ -107,9 +107,9 @@ hook 'before_layout_render' => sub {
 
         my @menu_main = grep { $_->{scope} eq 'menu-main' } @navs;
 
-        # find 2 products with the largest percentage discount for megadrop
-
         foreach my $nav (@menu_main) {
+
+            # find 2 products with the largest percentage discount for megadrop
 
             $nav->{products} = DanceShop::offers(
                 2,
@@ -132,6 +132,18 @@ hook 'before_layout_render' => sub {
                     ]
                 }
             );
+
+            # add brands for this category
+
+            $nav->{brands} = [
+                rset('Navigation')->search(
+                    {
+                        'me.uri'   => undef,
+                        'me.type'  => 'brand-category',
+                        'me.scope' => $nav->{uri},
+                    },
+                )->related_resultset('parents')->hri->all
+            ];
         }
 
         # construct nav-main-menu template
