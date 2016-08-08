@@ -5,6 +5,9 @@
 <!-- page title -->
 <value name="page-name" id="page-name" op="prepend" joiner=" | "/>
 
+<!-- page meta description -->
+<value name="meta-description" id="meta-description" target="content" />
+
 <!-- login / sign-in -->
 <container name="dropdown-signin" id="dropdown-signin" value="!session.logged_in_user"/>
 <container name="dropdown-logout" id="dropdown-logout" value="session.logged_in_user"/>

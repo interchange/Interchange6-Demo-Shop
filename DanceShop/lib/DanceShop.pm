@@ -638,6 +638,7 @@ hook 'before_product_display' => sub {
     $tokens->{"extra-js-file"} = 'product-page.js';
     $tokens->{breadcrumb}      = $product->path;
     $tokens->{"page-name"}     = $product->name;
+    $tokens->{"meta-description"} = $product->short_description;
 };
 
 =head1 SUBROUTINES
