@@ -177,6 +177,42 @@ $schema->txn_do(
 
                 $product->find_or_create_related( 'navigation_products',
                     { navigation_id => $brand_nav->navigation_id } );
+
+                # now try to link brand to a top-level category
+
+                my $menu_main_nav =
+                  $product->related_resultset('navigation_products')
+                  ->search_related(
+                    'navigation',
+                    {
+                        'navigation.type'      => 'nav',
+                        'navigation.scope'     => 'menu-main',
+                        'navigation.parent_id' => undef,
+                    },
+                    {
+                        rows => 1,
+                    }
+                  )->first;
+
+                if ($menu_main_nav) {
+
+                    my $cond = {
+                        uri       => undef,
+                        type      => 'brand-category',
+                        scope     => $menu_main_nav->uri,
+                        parent_id => $brand_nav->id,
+                    };
+
+                    my $brand_category_nav = shop_navigation->search(
+                        $cond,
+                        {
+                            rows => 1,
+                        }
+                    )->single;
+
+                    shop_navigation->create($cond) unless $brand_category_nav;
+                }
+
             }
 
             my $img = "$sku.gif";
