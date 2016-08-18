@@ -639,6 +639,22 @@ hook 'before_product_display' => sub {
     $tokens->{breadcrumb}      = $product->path;
     $tokens->{"page-name"}     = $product->name;
     $tokens->{"meta-description"} = $product->short_description;
+
+};
+
+hook before_cart_display => sub {
+    my $tokens = shift;
+
+    my $cart = $tokens->{cart};
+    my $cart_with_product_attr;
+
+    foreach my $cart_product( @{$cart} ){
+        my $attr_ref = $cart_product->dbic_product->attribute_iterator( arrayref => 1 );
+        $cart_product->{attribute_iterator} = $attr_ref || [];
+        push @{$cart_with_product_attr}, $cart_product;
+    }
+ 
+    $tokens->{cart} = $cart_with_product_attr;
 };
 
 =head1 SUBROUTINES
