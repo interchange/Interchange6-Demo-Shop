@@ -1,6 +1,7 @@
 <specification>
     <pattern name="discount" type="string">20</pattern>
     <list name="cart" class="cartitem" iterator="cart">
+        <param name="product-image" field="image" target="src"/>
         <param name="cart-name" field="name"/>
         <param name="price-and-discount" op="toggle" args="tree"
             field="discount_percent"/>
