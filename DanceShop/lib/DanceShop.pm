@@ -162,6 +162,27 @@ hook 'before_layout_render' => sub {
         $tokens->{$key} = $value;
     }
 
+    my $res = shop_user->search({ 'me.username' => 'company2' },
+        { prefetch => 'addresses' })->first;
+
+    if($res){
+        my $add = $res->addresses->first;
+        my $postal_city = $add->postal_code . ' ' . $add->city;
+        $postal_city .= ', ' . $add->states_id if ($add->states_id);
+
+        my $company_info = {
+            name => $res->first_name . ' ' . $res->last_name,
+            add1 => $add->address,
+            add2 => $add->address_2,
+            postal_code_city => $postal_city,
+            country => $add->country_iso_code,
+            email => $res->email,
+            phone => $add->phone,
+        };
+
+        $tokens->{company_info} = $company_info;
+    }
+
     $tokens->{icecat} = 1
       if shop_schema->resultset('Setting')
       ->single( { scope => 'global', name => 'icecat', value => 'true' } );

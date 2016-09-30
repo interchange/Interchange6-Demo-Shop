@@ -56,4 +56,12 @@
 
 <container name="icecat" value="icecat"/>
 
+<value name="company_name" field="company_info.name" class="company_name"/>
+<value name="company_address1" field="company_info.add1" class="company_address1"/>
+<value name="company_address2" field="company_info.add2" class="company_address2"/>
+<value name="company_postal_code_city" field="company_info.postal_code_city" class="company_postal_code_city"/>
+<value name="company_country" field="company_info.country" class="company_country"/>
+<value name="company_phone" field="company_info.phone" class="company_phone" op="append"/>
+<value name="company_email" field="company_info.email" class="company_email" op="append"/>
+
 </specification>
