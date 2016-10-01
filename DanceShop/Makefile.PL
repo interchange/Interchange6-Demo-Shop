@@ -37,6 +37,9 @@ WriteMakefile(
         'URL::Encode'                     => 0,
         'Interchange::Search::Solr'      => '0.12',
 
+        # company settings
+        'Interchange6::Schema'            => '0.132',
+
         # DBIx::Class
         'DBIx::Class::DeploymentHandler::CLI'  => 0,
 
