@@ -674,7 +674,7 @@ hook before_cart_display => sub {
         $cart_product->{attribute_iterator} = $attr_ref || [];
 
         my $images = $cart_product->dbic_product->media_by_type('image');
-        $cart_product->{image} = $images->first->uri;
+        $cart_product->set_extra(image => $images->first->uri);
 
         push @{$cart_with_product_attr}, $cart_product;
     }

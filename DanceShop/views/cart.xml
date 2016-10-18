@@ -1,7 +1,7 @@
 <specification>
     <pattern name="discount" type="string">20</pattern>
     <list name="cart" class="cartitem" iterator="cart">
-        <param name="product-image" field="image" target="src"/>
+        <param name="product-image" field="extra.image" target="src"/>
         <param name="cart-name" field="name"/>
         <param name="price-and-discount" op="toggle" args="tree"
             field="discount_percent"/>
@@ -15,9 +15,8 @@
         <param name="link" class="product" field="uri" target="href"/>
         <container name="variant-error" value="session.shop_cart_error"/>
 
-
         <list name="attributes" class="product-attributes-item"
-            iterator="attribute_iterator">
+            iterator="dbic_product.attribute_iterator">
             <param name="name" class="product-attributes-name" target="name"/>
             <param name="title" class="product-attributes-title"/>
             <list name="attribute_values" class="product-attributes-values-item"
