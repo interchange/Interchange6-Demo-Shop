@@ -162,7 +162,7 @@ hook 'before_layout_render' => sub {
         $tokens->{$key} = $value;
     }
 
-    my $res = shop_user->search({ 'me.username' => 'company2' },
+    my $res = shop_user->search({ 'me.username' => 'company1' },
         { prefetch => 'addresses' })->first;
 
     if($res){
